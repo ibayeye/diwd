@@ -1,10 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import authRouter from './routes/authRouter.js'
+import authRouter from './routes/auth/authRouter.js'
+import deviceRouter from './routes/device/deviceRouter.js'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import config from './config/config.js';
+import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
 
 dotenv.config()
@@ -21,6 +23,7 @@ app.use(cookieParser());
 
 // routing
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/', deviceRouter);
 
 //middleware error
 app.use(notFound);
@@ -34,7 +37,7 @@ const syncModels = async () => {
         await config.authenticate();
         console.log("Database Connected...");
 
-        // console.log("Firestorage initialized " + JSON.stringify(storage));
+        console.log("Firebase initialized " + JSON.stringify(database));
 
         // Sinkronisasi model secara berurutan
         await Pengguna.sync();

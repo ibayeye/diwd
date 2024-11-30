@@ -1,6 +1,6 @@
 import express from "express";
-import { deletePenggunas, getAllPenggunas, getPenggunas, login, logout, register, updatePenggunas } from "../controller/auth/authController.js";
-import { productOwnerMiddleware, protectedMiddleware } from "../middleware/authMiddleware.js";
+import { deletePenggunas, getAllPenggunas, getPenggunas, login, logout, register, updatePenggunas } from "../../controller/auth/authController.js";
+import { productOwnerMiddleware, protectedMiddleware } from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
 
