@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import authRouter from './routes/auth/authRouter.js'
 import deviceRouter from './routes/device/deviceRouter.js'
