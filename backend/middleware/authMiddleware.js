@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "../middleware/asyncHandler.js";
 import Pengguna from "../models/pengguna.js";
 
+// middleware yang mengharuskan login terlebih dahulu
 export const protectedMiddleware = asyncHandler(async (req, res, next) => {
     const token = req.cookies.jwt;
 
@@ -27,6 +28,7 @@ export const protectedMiddleware = asyncHandler(async (req, res, next) => {
     }
 });
 
+// middleware yang mengecek apakah pengguna adalah product_owner
 export const productOwnerMiddleware = (req, res, next) => {
     if (req.pengguna && req.pengguna.role === 'product_owner') {
         next();
