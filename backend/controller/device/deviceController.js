@@ -2,7 +2,7 @@ import { ref, get } from "firebase/database";
 import database from "../../config/firebase.js";
 import asyncHandler from "../../middleware/asyncHandler.js";
 
-export const getDataFromFirebase = asyncHandler(async (req, res) => {
+export const getAllDataDevice = asyncHandler(async (req, res) => {
     const dbRef = ref(database, "/"); // Mengambil semua data dari root
     const snapshot = await get(dbRef);
 
