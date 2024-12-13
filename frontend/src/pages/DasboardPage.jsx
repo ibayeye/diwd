@@ -18,7 +18,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 p-2">
       {showSidebar && (
         <div>
           <Sidebar />

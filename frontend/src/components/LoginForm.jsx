@@ -50,14 +50,14 @@ const LoginForm = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className="mt-5 bg-blue-400 ml-10 mr-5 rounded-sm text-white"
+            className="mt-5 bg-blue-400 ml-10 mr-5 rounded-sm text-white hover:bg-blue-500"
             type="submit"
           >
             Sign in
           </button>
           <div className="text-end text-xs text-gray-500 mt-3 mr-5">
             don't have an account?{" "}
-            <Link to="/register" className="text-xs text-blue-400">
+            <Link to="/register" className="text-xs text-blue-400 hover:text-blue-500">
               Register
             </Link>
           </div>
