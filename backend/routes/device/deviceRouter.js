@@ -1,9 +1,10 @@
 import express from "express";
-import { getDataFromFirebase } from "../../controller/device/deviceController.js";
+import { getAllDataDevice, getDataDevice } from "../../controller/device/deviceController.js";
 import { protectedMiddleware } from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get('/getDevice', protectedMiddleware, getDataFromFirebase);
+router.get('/getDevice', protectedMiddleware, getAllDataDevice);
+router.get('/getDevice/:deviceId', protectedMiddleware, getDataDevice);
 
 export default router;

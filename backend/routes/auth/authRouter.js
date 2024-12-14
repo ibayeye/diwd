@@ -7,8 +7,8 @@ const router = express.Router();
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', protectedMiddleware, logout);
+router.get('/pengguna', protectedMiddleware, productOwnerMiddleware, getAllPenggunas);
 router.get('/pengguna/:id', protectedMiddleware, getPenggunas);
-router.get('/list_pengguna', protectedMiddleware, productOwnerMiddleware, getAllPenggunas);
 router.delete('/delete_pengguna/:id', protectedMiddleware, productOwnerMiddleware, deletePenggunas);
 router.put('/update_pengguna/:id', protectedMiddleware, updatePenggunas);
 

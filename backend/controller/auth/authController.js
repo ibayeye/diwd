@@ -8,7 +8,57 @@ import {
 } from "../../middleware/generateToken.js";
 
 export const register = asyncHandler(async (req, res) => {
-  const { username, email, password, nama, nip, no_hp, role } = req.body;
+    const { username, email, password, nama, nip, no_hp, role } = req.body;
+
+    const existingUser = await Pengguna.findOne({ where: { email: email } })
+
+    if (existingUser) {
+        return res.status(400).json({
+            message: "Pengguna already exists"
+        })
+    }
+
+    if (!username || !password || !email || !nama || !nip || !no_hp || !role) {
+        return res.status(400).json({
+            status: "error",
+            msg: "All fields are required",
+        });
+    }
+
+    const allowedRoles = ['system_engineer', 'customer', 'petugas'];
+    if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+            status: "error",
+            msg: 'Invalid role',
+        });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+    await Pengguna.create({
+        apiKey: generateApiKey(20),
+        username,
+        password: hashPassword,
+        email,
+        nama,
+        nip,
+        no_hp,
+        role
+    })
+    res.status(200).json({
+        status: "success",
+        msg: "Account successfully registered",
+    });
+})
+
+export const login = asyncHandler(async (req, res) => {
+    const { email, password, keepLogin } = req.body;
+
+    if (!email || !password) {
+        return res
+            .status(400)
+            .json({ status: "error", msg: "Email and password are required" });
+    }
 
   const existingUser = await Pengguna.findOne({ where: { email: email } });
 
@@ -151,22 +201,30 @@ export const getAllPenggunas = asyncHandler(async (req, res) => {
     });
   }
 
-  res.status(200).json({
-    status: "success",
-    msg: "User data retrieved successfully",
-    data: listpengguna,
-  });
+    if (!listpengguna) {
+        return res.status(404).json({
+            status: "error",
+            msg: "Pengguna not found",
+        });
+    }
+
+    res.status(200).json({
+        status: "success",
+        msg: "Pengguna data retrieved successfully",
+        data: listpengguna,
+    });
 });
 
 export const deletePenggunas = asyncHandler(async (req, res) => {
   const id = req.params.id;
 
-  if (!id) {
-    return res.status(400).json({
-      status: "error",
-      msg: "User ID is required",
-    });
-  }
+
+    if (!id) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Pengguna ID is required",
+        });
+    }
 
   const pengguna = await Pengguna.findOne({ where: { id } });
 
