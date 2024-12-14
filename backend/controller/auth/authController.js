@@ -12,7 +12,7 @@ export const register = asyncHandler(async (req, res) => {
 
     if (existingUser) {
         return res.status(400).json({
-            message: "User already exists"
+            message: "Pengguna already exists"
         })
     }
 
@@ -20,6 +20,14 @@ export const register = asyncHandler(async (req, res) => {
         return res.status(400).json({
             status: "error",
             msg: "All fields are required",
+        });
+    }
+
+    const allowedRoles = ['system_engineer', 'customer', 'petugas'];
+    if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+            status: "error",
+            msg: 'Invalid role',
         });
     }
 
@@ -37,7 +45,7 @@ export const register = asyncHandler(async (req, res) => {
     })
     res.status(200).json({
         status: "success",
-        msg: "Akun berhasil didaftarkan",
+        msg: "Account successfully registered",
     });
 })
 
@@ -157,13 +165,13 @@ export const getAllPenggunas = asyncHandler(async (req, res) => {
     if (!listpengguna) {
         return res.status(404).json({
             status: "error",
-            msg: "User not found",
+            msg: "Pengguna not found",
         });
     }
 
     res.status(200).json({
         status: "success",
-        msg: "User data retrieved successfully",
+        msg: "Pengguna data retrieved successfully",
         data: listpengguna,
     });
 });
@@ -174,7 +182,7 @@ export const deletePenggunas = asyncHandler(async (req, res) => {
     if (!id) {
         return res.status(400).json({
             status: "error",
-            msg: "User ID is required",
+            msg: "Pengguna ID is required",
         });
     }
 

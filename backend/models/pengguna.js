@@ -55,7 +55,7 @@ const Pengguna = db.define(
   role: {
     allowNull: false,
     type: DataTypes.STRING,
-    enum: ['product_owner', 'petugas', 'user']
+    enum: ['system_engineer', 'petugas', 'customer']
   }
 }, {
   freezeTableName: true,
