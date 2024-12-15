@@ -29,11 +29,12 @@ export const protectedMiddleware = asyncHandler(async (req, res, next) => {
 });
 
 // middleware yang mengecek apakah pengguna adalah system_engineer
-export const productOwnerMiddleware = (req, res, next) => {
-    if (req.pengguna && req.pengguna.role === 'system_engineer') {
+export const internalMiddleware = (req, res, next) => {
+    const allowedRoles = ['system_engineer', 'petugas'];
+    if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
         next();
     } else {
-        res.status(401)
+        res.status(403)
         throw new Error('Not authorized')
     }
 }

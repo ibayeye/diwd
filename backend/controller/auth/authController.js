@@ -45,7 +45,7 @@ export const register = asyncHandler(async (req, res) => {
         no_hp,
         role
     })
-    res.status(200).json({
+    res.status(201).json({
         status: "success",
         msg: "Account successfully registered",
     });
@@ -149,9 +149,13 @@ export const getPenggunas = asyncHandler(async (req, res) => {
 });
 
 export const getAllPenggunas = asyncHandler(async (req, res) => {
-    const listpengguna = await Pengguna.findAll({
-        attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
-    });
+
+    const [listpengguna, totalpengguna] = await Promise.all([
+        Pengguna.findAll({
+            attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
+        }),
+        Pengguna.count(),
+    ]);
 
     if (!listpengguna) {
         return res.status(404).json({
@@ -170,6 +174,7 @@ export const getAllPenggunas = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: "success",
         msg: "Pengguna data retrieved successfully",
+        totaldata: totalpengguna,
         data: listpengguna,
     });
 });
