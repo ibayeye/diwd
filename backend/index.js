@@ -12,6 +12,7 @@ import Pengguna from './models/pengguna.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerDocs from './config/swagger.js';
 
 dotenv.config()
 const __filename = fileURLToPath(import.meta.url);
@@ -29,6 +30,7 @@ app.use(cors());
 
 
 // routing
+swaggerDocs(app, process.env.PORT || 5001);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/', deviceRouter);
@@ -68,6 +70,8 @@ const startServer = async () => {
         app.listen(port, () => {
             console.log(`Server berjalan pada http://localhost:${port}`)
         })
+
+        swaggerDocs(app, port);
     } catch (error) {
         console.error("Failed to start the server:", error);
         process.exit(1); // Exit jika gagal menjalankan server

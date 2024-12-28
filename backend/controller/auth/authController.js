@@ -13,7 +13,7 @@ import {
 } from "../../middleware/generateToken.js";
 
 export const register = asyncHandler(async (req, res) => {
-    const { username, email, password, nama, nip, no_hp, role } = req.body;
+    const { username, email, password, confirmPassword, nama, nip, no_hp, role } = req.body;
 
     const existingUser = await Pengguna.findOne({ where: { email: email } })
 
@@ -23,11 +23,18 @@ export const register = asyncHandler(async (req, res) => {
         })
     }
 
-    if (!username || !password || !email || !nama || !nip || !no_hp || !role) {
+    if (!username || !password || !confirmPassword || !email || !nama || !nip || !no_hp || !role) {
         return res.status(400).json({
             status: "error",
             msg: "All fields are required",
         });
+    }
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Password and Confirm Password do not match"
+        })
     }
 
     const allowedRoles = ['system_engineer', 'customer', 'petugas'];
@@ -89,7 +96,7 @@ export const login = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         status: "ok",
-        msg: "Successful login.",
+        msg: "Successful login",
         data: {
             token: token,
             username: pengguna.username, // Ganti dengan properti nama pengguna Anda dari database
