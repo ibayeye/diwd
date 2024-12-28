@@ -6,6 +6,13 @@ const router = express.Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Device
+ *   description: Device Management APIs
+ */
+
+/**
+ * @swagger
  * /api/v1/device:
  *   get:
  *     summary: Get all devices
