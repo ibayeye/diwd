@@ -14,7 +14,7 @@ const options = {
         },
         servers: [
             {
-                url: process.env.API_DOCS,
+                url: 'https://dev-diwd.onrender.com',
                 description: 'Development server',
             },
         ],
