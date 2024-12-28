@@ -48,6 +48,14 @@ const router = express.Router();
  *                 type: string
  *               confirmPassword:
  *                 type: string
+ *               nama:
+ *                 type: string
+ *               nip:
+ *                 type: string
+ *               no_hp:
+ *                 type: string
+ *               role:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Account successfully registered

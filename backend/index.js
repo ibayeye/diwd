@@ -30,7 +30,7 @@ app.use(cors());
 
 
 // routing
-swaggerDocs(app, process.env.PORT || 5001);
+swaggerDocs(app, process.env.API_DOCS);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/', deviceRouter);

@@ -14,7 +14,7 @@ const options = {
         },
         servers: [
             {
-                url: 'https://dev-diwd.onrender.com',
+                url: process.env.API_DOCS,
                 description: 'Development server',
             },
         ],
@@ -26,7 +26,7 @@ const swaggerSpec = swaggerJsDoc(options);
 
 const swaggerDocs = (app) => {
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    console.log(`📃 API Documentation available at https://dev-diwd.onrender.com/api-docs`);
+    console.log(`📃 API Documentation available at ${process.env.API_DOCS}/api-docs`);
 };
 
 export default swaggerDocs;
