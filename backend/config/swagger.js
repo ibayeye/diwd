@@ -1,8 +1,5 @@
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const options = {
     definition: {
@@ -26,7 +23,7 @@ const swaggerSpec = swaggerJsDoc(options);
 
 const swaggerDocs = (app) => {
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    console.log(`📃 API Documentation available at ${process.env.API_DOCS}/api-docs`);
+    console.log(`📃 API Documentation available at https://dev-diwd.onrender.com/api-docs`);
 };
 
 export default swaggerDocs;
