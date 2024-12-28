@@ -191,113 +191,113 @@ router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, d
  * @swagger
  * /api/v1/auth/update_pengguna/{id}:
  *   put:
- *   summary: "Update a user by ID"
- *   tags:
- *     - Auth
- *   security:
- *     - bearerAuth: []
- *   parameters:
- *     - name: id
- *       in: path
- *       required: true
- *       description: "The ID of the user to update"
- *       schema:
- *         type: string
- *     - name: x-api-key
- *       in: header
- *       required: true
- *       description: "The user's API Key"
- *       schema:
- *         type: string
- *   requestBody:
- *     required: true
- *     content:
- *       application/json:
+ *     summary: Update a user by ID
+ *     tags: 
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the user to update
  *         schema:
- *           type: object
- *           properties:
- *             username:
- *               type: string
- *               description: "The user's username"
- *             email:
- *               type: string
- *               format: email
- *               description: "The user's email address"
- *             name:
- *               type: string
- *               description: "The user's full name"
- *             nip:
- *               type: string
- *               description: "Employee Identification Number"
- *             phone_number:
- *               type: string
- *               description: "The user's phone number"
- *             role:
- *               type: string
- *               description: "The user's role in the system"
- *           example:
- *             username: "johndoe"
- *             email: "johndoe@example.com"
- *             name: "John Doe"
- *             nip: "1234567890"
- *             phone_number: "081234567890"
- *             role: "admin"
- *   responses:
- *     200:
- *       description: "User successfully updated"
+ *           type: string
+ *       - in: header
+ *         name: x-api-key
+ *         required: true
+ *         description: The user's API Key
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               status:
+ *               username:
  *                 type: string
- *                 example: "success"
- *               msg:
+ *                 description: The user's username
+ *               email:
  *                 type: string
- *                 example: "User updated successfully"
- *               data:
- *                 type: object
- *                 description: "Updated user data"
- *     400:
- *       description: "Bad Request - Invalid input"
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
+ *                 format: email
+ *                 description: The user's email address
+ *               name:
  *                 type: string
- *                 example: "error"
- *               msg:
+ *                 description: The user's full name
+ *               nip:
  *                 type: string
- *                 example: "Invalid request data"
- *     401:
- *       description: "Unauthorized - Invalid or missing API Key"
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
+ *                 description: Employee Identification Number
+ *               phone_number:
  *                 type: string
- *                 example: "error"
- *               msg:
+ *                 description: The user's phone number
+ *               role:
  *                 type: string
- *                 example: "API Key is required or invalid"
- *     404:
- *       description: "User not found"
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 example: "error"
- *               msg:
- *                 type: string
- *                 example: "User not found"
+ *                 description: The user's role in the system
+ *             example:
+ *               username: johndoe
+ *               email: johndoe@example.com
+ *               name: John Doe
+ *               nip: 1234567890
+ *               phone_number: 081234567890
+ *               role: admin
+ *     responses:
+ *       200:
+ *         description: User successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 msg:
+ *                   type: string
+ *                   example: User updated successfully
+ *                 data:
+ *                   type: object
+ *                   description: Updated user data
+ *       400:
+ *         description: Bad Request - Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 msg:
+ *                   type: string
+ *                   example: Invalid request data
+ *       401:
+ *         description: Unauthorized - Invalid or missing API Key
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 msg:
+ *                   type: string
+ *                   example: API Key is required or invalid
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 msg:
+ *                   type: string
+ *                   example: User not found
  */
 router.put('/update_pengguna/:id', protectedMiddleware, updatePenggunas);
 
