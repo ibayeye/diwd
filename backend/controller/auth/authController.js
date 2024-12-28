@@ -222,163 +222,163 @@ export const deletePenggunas = asyncHandler(async (req, res) => {
 });
 
 export const updatePenggunas = asyncHandler(async (req, res) => {
-//     const id = req.params.id;
-//     const apiKey = req.headers["x-api-key"];
+    //     const id = req.params.id;
+    //     const apiKey = req.headers["x-api-key"];
 
-//     if (!id) {
-//         return res.status(400).json({
-//             status: "error",
-//             msg: "Pengguna ID is required",
-//         });
-//     }
+    //     if (!id) {
+    //         return res.status(400).json({
+    //             status: "error",
+    //             msg: "Pengguna ID is required",
+    //         });
+    //     }
 
-//     if (!apiKey) {
-//         return res.status(401).json({
-//             status: "error",
-//             msg: "API Key is required",
-//         });
-//     }
+    //     if (!apiKey) {
+    //         return res.status(401).json({
+    //             status: "error",
+    //             msg: "API Key is required",
+    //         });
+    //     }
 
-//     const pengguna = await Pengguna.findOne({ where: { id } });
+    //     const pengguna = await Pengguna.findOne({ where: { id } });
 
-//     if (!pengguna) {
-//         return res.status(404).json({
-//             status: "error",
-//             msg: "Pengguna not found",
-//         });
-//     }
+    //     if (!pengguna) {
+    //         return res.status(404).json({
+    //             status: "error",
+    //             msg: "Pengguna not found",
+    //         });
+    //     }
 
-//     if (pengguna.apiKey !== apiKey) {
-//         return res.status(403).json({
-//             status: "error",
-//             msg: "You are not authorized to update this user.",
-//         });
-//     }
+    //     if (pengguna.apiKey !== apiKey) {
+    //         return res.status(403).json({
+    //             status: "error",
+    //             msg: "You are not authorized to update this user.",
+    //         });
+    //     }
 
-//     const updatedFields = {};
-//     Object.keys(req.body).forEach((key) => {
-//         if (req.body[key] !== pengguna[key]) {
-//             pengguna[key] = req.body[key];
-//             updatedFields[key] = req.body[key];
-//         }
-//     });
+    //     const updatedFields = {};
+    //     Object.keys(req.body).forEach((key) => {
+    //         if (req.body[key] !== pengguna[key]) {
+    //             pengguna[key] = req.body[key];
+    //             updatedFields[key] = req.body[key];
+    //         }
+    //     });
 
-//     await pengguna.save();
+    //     await pengguna.save();
 
-//     res.status(200).json({
-//         status: "success",
-//         msg: "Pengguna updated successfully",
-//         updatedFields: updatedFields,
-//     });
-// });
+    //     res.status(200).json({
+    //         status: "success",
+    //         msg: "Pengguna updated successfully",
+    //         updatedFields: updatedFields,
+    //     });
+    // });
 
-const id = req.params.id;
-const apiKey = req.headers["x-api-key"];
+    const id = req.params.id;
+    const apiKey = req.headers["x-api-key"];
 
-// Validasi ID dan API Key
-if (!id) {
-    return res.status(400).json({
-        status: "error",
-        msg: "Pengguna ID is required",
-    });
-}
-
-if (!apiKey) {
-    return res.status(401).json({
-        status: "error",
-        msg: "API Key is required",
-    });
-}
-
-// Cari pengguna berdasarkan ID
-const pengguna = await Pengguna.findOne({ where: { id } });
-
-if (!pengguna) {
-    return res.status(404).json({
-        status: "error",
-        msg: "Pengguna not found",
-    });
-}
-
-if (pengguna.apiKey !== apiKey) {
-    return res.status(403).json({
-        status: "error",
-        msg: "You are not authorized to update this user.",
-    });
-}
-
-// Konfigurasi Multer untuk upload file
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const fileFilter = (req, file, cb) => {
-    const fileTypes = /jpeg|jpg|png|gif/;
-    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = fileTypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-        cb(null, true);
-    } else {
-        cb(new Error("Hanya file gambar yang diperbolehkan!"));
-    }
-};
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, "../../uploads/images/temp"));
-    },
-    filename: (req, file, cb) => {
-        const hash = crypto.createHash("sha256");
-        const randomSalt = crypto.randomBytes(16).toString("hex");
-        hash.update(file.originalname + randomSalt);
-
-        const encryptedFileName = hash.digest("hex");
-        const ext = path.extname(file.originalname);
-        cb(null, `${encryptedFileName}${ext}`);
-    },
-});
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: fileFilter,
-}).single("image");
-
-// Proses Upload Foto
-upload(req, res, async function (err) {
-    if (err) {
+    // Validasi ID dan API Key
+    if (!id) {
         return res.status(400).json({
             status: "error",
-            msg: err.message,
+            msg: "Pengguna ID is required",
         });
     }
 
-    const updatedFields = {};
-    const { body } = req;
-
-    // Perbarui data pengguna dari request body
-    Object.keys(body).forEach((key) => {
-        if (body[key] !== pengguna[key]) {
-            pengguna[key] = body[key];
-            updatedFields[key] = body[key];
-        }
-    });
-
-    // Jika ada file gambar, tambahkan ke database
-    if (req.file) {
-        const ImagePath = `/uploads/images/${req.file.filename}`; // Path yang lebih mudah untuk diakses frontend
-        pengguna.image = ImagePath;
-        updatedFields["image"] = ImagePath;
+    if (!apiKey) {
+        return res.status(401).json({
+            status: "error",
+            msg: "API Key is required",
+        });
     }
 
-    // Simpan perubahan pengguna
-    await pengguna.save();
+    // Cari pengguna berdasarkan ID
+    const pengguna = await Pengguna.findOne({ where: { id } });
 
-    // Response
-    res.status(200).json({
-        status: "success",
-        msg: "Pengguna updated successfully",
-        updatedFields: updatedFields,
+    if (!pengguna) {
+        return res.status(404).json({
+            status: "error",
+            msg: "Pengguna not found",
+        });
+    }
+
+    if (pengguna.apiKey !== apiKey) {
+        return res.status(403).json({
+            status: "error",
+            msg: "You are not authorized to update this user.",
+        });
+    }
+
+    // Konfigurasi Multer untuk upload file
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const fileFilter = (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|gif/;
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = fileTypes.test(file.mimetype);
+
+        if (extname && mimetype) {
+            cb(null, true);
+        } else {
+            cb(new Error("Hanya file gambar yang diperbolehkan!"));
+        }
+    };
+
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, path.join(__dirname, "../../uploads/images/temp"));
+        },
+        filename: (req, file, cb) => {
+            const hash = crypto.createHash("sha256");
+            const randomSalt = crypto.randomBytes(16).toString("hex");
+            hash.update(file.originalname + randomSalt);
+
+            const encryptedFileName = hash.digest("hex");
+            const ext = path.extname(file.originalname);
+            cb(null, `${encryptedFileName}${ext}`);
+        },
     });
-});
+
+    const upload = multer({
+        storage: storage,
+        limits: { fileSize: 5 * 1024 * 1024 },
+        fileFilter: fileFilter,
+    }).single("image");
+
+    // Proses Upload Foto
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(400).json({
+                status: "error",
+                msg: err.message,
+            });
+        }
+
+        const updatedFields = {};
+        const { body } = req;
+
+        // Perbarui data pengguna dari request body
+        Object.keys(body).forEach((key) => {
+            if (body[key] !== pengguna[key]) {
+                pengguna[key] = body[key];
+                updatedFields[key] = body[key];
+            }
+        });
+
+        // Jika ada file gambar, tambahkan ke database
+        if (req.file) {
+            const ImagePath = `/uploads/images/${req.file.filename}`; // Path yang lebih mudah untuk diakses frontend
+            pengguna.image = ImagePath;
+            updatedFields["image"] = ImagePath;
+        }
+
+        // Simpan perubahan pengguna
+        await pengguna.save();
+
+        // Response
+        res.status(200).json({
+            status: "success",
+            msg: "Pengguna updated successfully",
+            updatedFields: updatedFields,
+        });
+    });
 });

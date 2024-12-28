@@ -36,7 +36,7 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         x-www-form-urlencoded and application/json:
  *           schema:
  *             type: object
  *             properties:
@@ -61,6 +61,7 @@ const router = express.Router();
  *         description: Account successfully registered
  *       400:
  *         description: Bad Request
+ * 
  */
 router.post('/register', register);
 
@@ -81,11 +82,13 @@ router.post('/register', register);
  *                 type: string
  *               password:
  *                 type: string
+ *               keepLogin:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Login successful
- *       401:
- *         description: Unauthorized
+ *       400:
+ *         description: Bad request
  */
 router.post('/login', login);
 
@@ -97,11 +100,22 @@ router.post('/login', login);
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         x-www-form-urlencoded and application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Logout successful
- *       401:
- *         description: Unauthorized
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: User not found
  */
 router.post('/logout', protectedMiddleware, logout);
 
@@ -138,6 +152,8 @@ router.get('/pengguna', protectedMiddleware, internalMiddleware, getAllPenggunas
  *     responses:
  *       200:
  *         description: User data
+ *       400:
+ *         description: Bad request
  *       401:
  *         description: Unauthorized
  *       404:
@@ -162,6 +178,8 @@ router.get('/pengguna/:id', protectedMiddleware, getPenggunas);
  *     responses:
  *       200:
  *         description: User deleted
+ *       400:
+ *         description: Bad request
  *       401:
  *         description: Unauthorized
  *       404:
@@ -172,45 +190,114 @@ router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, d
 /**
  * @swagger
  * /api/v1/auth/update_pengguna/{id}:
- *   put:
- *     summary: Update a user by ID
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
+ * put:
+ *   summary: "Update a user by ID"
+ *   tags:
+ *     - Auth
+ *   security:
+ *     - bearerAuth: []
+ *   parameters:
+ *     - name: id
+ *       in: path
  *       required: true
+ *       description: "The ID of the user to update"
+ *       schema:
+ *         type: string
+ *     - name: x-api-key
+ *       in: header
+ *       required: true
+ *       description: "The user's API Key"
+ *       schema:
+ *         type: string
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             username:
+ *               type: string
+ *               description: "The user's username"
+ *             email:
+ *               type: string
+ *               format: email
+ *               description: "The user's email address"
+ *             name:
+ *               type: string
+ *               description: "The user's full name"
+ *             nip:
+ *               type: string
+ *               description: "Employee Identification Number"
+ *             phone_number:
+ *               type: string
+ *               description: "The user's phone number"
+ *             role:
+ *               type: string
+ *               description: "The user's role in the system"
+ *           example:
+ *             username: "johndoe"
+ *             email: "johndoe@example.com"
+ *             name: "John Doe"
+ *             nip: "1234567890"
+ *             phone_number: "081234567890"
+ *             role: "admin"
+ *   responses:
+ *     200:
+ *       description: "User successfully updated"
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               username:
+ *               status:
  *                 type: string
- *               email:
+ *                 example: "success"
+ *               msg:
  *                 type: string
- *               nama:
+ *                 example: "User updated successfully"
+ *               data:
+ *                 type: object
+ *                 description: "Updated user data"
+ *     400:
+ *       description: "Bad Request - Invalid input"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
  *                 type: string
- *               nip:
+ *                 example: "error"
+ *               msg:
  *                 type: string
- *               no_hp:
+ *                 example: "Invalid request data"
+ *     401:
+ *       description: "Unauthorized - Invalid or missing API Key"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
  *                 type: string
- *               role:
+ *                 example: "error"
+ *               msg:
  *                 type: string
- *     responses:
- *       200:
- *         description: User updated
- *       400:
- *         description: Bad Request
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: User not found
+ *                 example: "API Key is required or invalid"
+ *     404:
+ *       description: "User not found"
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 example: "error"
+ *               msg:
+ *                 type: string
+ *                 example: "User not found"
  */
 router.put('/update_pengguna/:id', protectedMiddleware, updatePenggunas);
 
