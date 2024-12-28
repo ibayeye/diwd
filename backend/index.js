@@ -9,8 +9,13 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
+import router from './routes/index.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config()
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -24,8 +29,10 @@ app.use(cors());
 
 
 // routing
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/', deviceRouter);
+app.use(router);
 
 //middleware error
 app.use(notFound);

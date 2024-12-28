@@ -20,6 +20,10 @@ const Pengguna = db.define(
     allowNull: false,
     unique: true,
   },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   username: {
     allowNull: false,
     type: DataTypes.STRING,
