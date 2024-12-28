@@ -190,7 +190,7 @@ router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, d
 /**
  * @swagger
  * /api/v1/auth/update_pengguna/{id}:
- * put:
+ *   put:
  *   summary: "Update a user by ID"
  *   tags:
  *     - Auth
