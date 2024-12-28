@@ -14,7 +14,7 @@ const options = {
         },
         servers: [
             {
-                url: `https://dev-diwd.onrender.com}`,
+                url: 'https://dev-diwd.onrender.com',
                 description: 'Development server',
             },
         ],
