@@ -2,13 +2,18 @@ import Pengguna from "../../models/pengguna.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import asyncHandler from "../../middleware/asyncHandler.js";
+import multer from "multer";
+import crypto from "crypto";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 import {
     generateApiKey,
     generateToken,
 } from "../../middleware/generateToken.js";
 
 export const register = asyncHandler(async (req, res) => {
-    const { username, email, password, nama, nip, no_hp, role } = req.body;
+    const { username, email, password, confirmPassword, nama, nip, no_hp, role } = req.body;
 
     const existingUser = await Pengguna.findOne({ where: { email: email } })
 
@@ -18,11 +23,18 @@ export const register = asyncHandler(async (req, res) => {
         })
     }
 
-    if (!username || !password || !email || !nama || !nip || !no_hp || !role) {
+    if (!username || !password || !confirmPassword || !email || !nama || !nip || !no_hp || !role) {
         return res.status(400).json({
             status: "error",
             msg: "All fields are required",
         });
+    }
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Password and Confirm Password do not match"
+        })
     }
 
     const allowedRoles = ['system_engineer', 'customer', 'petugas'];
@@ -84,13 +96,15 @@ export const login = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         status: "ok",
-        msg: "Successful login.",
+        msg: "Successful login",
         data: {
             token: token,
             username: pengguna.username, // Ganti dengan properti nama pengguna Anda dari database
             email: pengguna.email,
             role: pengguna.role,
             nama: pengguna.nama,
+            nip: pengguna.nip,
+            no_hp: pengguna.no_hp
         },
     });
 });
@@ -208,9 +222,60 @@ export const deletePenggunas = asyncHandler(async (req, res) => {
 });
 
 export const updatePenggunas = asyncHandler(async (req, res) => {
+    //     const id = req.params.id;
+    //     const apiKey = req.headers["x-api-key"];
+
+    //     if (!id) {
+    //         return res.status(400).json({
+    //             status: "error",
+    //             msg: "Pengguna ID is required",
+    //         });
+    //     }
+
+    //     if (!apiKey) {
+    //         return res.status(401).json({
+    //             status: "error",
+    //             msg: "API Key is required",
+    //         });
+    //     }
+
+    //     const pengguna = await Pengguna.findOne({ where: { id } });
+
+    //     if (!pengguna) {
+    //         return res.status(404).json({
+    //             status: "error",
+    //             msg: "Pengguna not found",
+    //         });
+    //     }
+
+    //     if (pengguna.apiKey !== apiKey) {
+    //         return res.status(403).json({
+    //             status: "error",
+    //             msg: "You are not authorized to update this user.",
+    //         });
+    //     }
+
+    //     const updatedFields = {};
+    //     Object.keys(req.body).forEach((key) => {
+    //         if (req.body[key] !== pengguna[key]) {
+    //             pengguna[key] = req.body[key];
+    //             updatedFields[key] = req.body[key];
+    //         }
+    //     });
+
+    //     await pengguna.save();
+
+    //     res.status(200).json({
+    //         status: "success",
+    //         msg: "Pengguna updated successfully",
+    //         updatedFields: updatedFields,
+    //     });
+    // });
+
     const id = req.params.id;
     const apiKey = req.headers["x-api-key"];
 
+    // Validasi ID dan API Key
     if (!id) {
         return res.status(400).json({
             status: "error",
@@ -225,6 +290,7 @@ export const updatePenggunas = asyncHandler(async (req, res) => {
         });
     }
 
+    // Cari pengguna berdasarkan ID
     const pengguna = await Pengguna.findOne({ where: { id } });
 
     if (!pengguna) {
@@ -241,19 +307,78 @@ export const updatePenggunas = asyncHandler(async (req, res) => {
         });
     }
 
-    const updatedFields = {};
-    Object.keys(req.body).forEach((key) => {
-        if (req.body[key] !== pengguna[key]) {
-            pengguna[key] = req.body[key];
-            updatedFields[key] = req.body[key];
+    // Konfigurasi Multer untuk upload file
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    const fileFilter = (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|gif/;
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = fileTypes.test(file.mimetype);
+
+        if (extname && mimetype) {
+            cb(null, true);
+        } else {
+            cb(new Error("Hanya file gambar yang diperbolehkan!"));
         }
+    };
+
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, path.join(__dirname, "../../uploads/images/temp"));
+        },
+        filename: (req, file, cb) => {
+            const hash = crypto.createHash("sha256");
+            const randomSalt = crypto.randomBytes(16).toString("hex");
+            hash.update(file.originalname + randomSalt);
+
+            const encryptedFileName = hash.digest("hex");
+            const ext = path.extname(file.originalname);
+            cb(null, `${encryptedFileName}${ext}`);
+        },
     });
 
-    await pengguna.save();
+    const upload = multer({
+        storage: storage,
+        limits: { fileSize: 5 * 1024 * 1024 },
+        fileFilter: fileFilter,
+    }).single("image");
 
-    res.status(200).json({
-        status: "success",
-        msg: "Pengguna updated successfully",
-        updatedFields: updatedFields,
+    // Proses Upload Foto
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(400).json({
+                status: "error",
+                msg: err.message,
+            });
+        }
+
+        const updatedFields = {};
+        const { body } = req;
+
+        // Perbarui data pengguna dari request body
+        Object.keys(body).forEach((key) => {
+            if (body[key] !== pengguna[key]) {
+                pengguna[key] = body[key];
+                updatedFields[key] = body[key];
+            }
+        });
+
+        // Jika ada file gambar, tambahkan ke database
+        if (req.file) {
+            const ImagePath = `/uploads/images/${req.file.filename}`; // Path yang lebih mudah untuk diakses frontend
+            pengguna.image = ImagePath;
+            updatedFields["image"] = ImagePath;
+        }
+
+        // Simpan perubahan pengguna
+        await pengguna.save();
+
+        // Response
+        res.status(200).json({
+            status: "success",
+            msg: "Pengguna updated successfully",
+            updatedFields: updatedFields,
+        });
     });
 });
