@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { login } from "../api";
 import { Link, useNavigate } from "react-router-dom";
-import IconLen from "../assets/images/icons/len.png";
+import IconLen from "../assets/images/icons/len.svg";
+import Bg from "../assets/images/bg1.svg";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -9,13 +10,19 @@ const LoginForm = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const bgawal = {
+    backgroundImage: `url(${Bg})`,
+    backgroundSize: "cover",
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null); // Reset error sebelum submit
 
     try {
       const response = await login(email, password);
-      localStorage.setItem("data", JSON.stringify(response.data)); // Simpan user ke localStorage
+      localStorage.setItem("pengguna", JSON.stringify({username: response.data})); // Simpan user ke localStorage
+      console.log(localStorage.getItem("data"));
       navigate("/dashboard"); // Navigasi ke halaman dashboard
     } catch (err) {
       console.error("Login Error:", err.response?.data || err.message);
@@ -24,7 +31,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-slate-100">
+    <div className="flex justify-center items-center min-h-screen bg-slate-100" style={bgawal}>
       <form
         className="border rounded-2xl grid grid-cols-2 px-2 bg-white"
         onSubmit={handleSubmit}
@@ -33,7 +40,7 @@ const LoginForm = () => {
           <img src={IconLen} alt="icon" />
         </div>
         <div className="content flex flex-col mt-10 mb-10">
-          <h2 className="text-center text-2xl">Login</h2>
+          <h2 className="text-center text-2xl">Welcome</h2>
           {error && <p className="text-red-500 text-center">{error}</p>}
           <input
             className="ml-10 mr-5 mt-10 px-2 border rounded-md"
@@ -50,7 +57,7 @@ const LoginForm = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className="mt-5 bg-blue-400 ml-10 mr-5 rounded-sm text-white hover:bg-blue-500"
+            className="mt-20 bg-blue-400 ml-10 mr-5 rounded-sm text-white hover:bg-blue-500"
             type="submit"
           >
             Sign in

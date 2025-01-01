@@ -143,7 +143,7 @@ const RegisterForm = () => {
             <option value="" disabled hidden>
               select role
             </option>
-            <option value="product_owner">produk owner</option>
+            <option value="system_engineer">produk owner</option>
             <option value="petugas">petugas</option>
             <option value="user">customer</option>
           </select>
