@@ -2,22 +2,23 @@ import React from "react";
 import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 import { ReactComponent as Maps } from "../assets/images/maps.svg";
 import { useNavigate } from "react-router-dom";
+import Bg from "../assets/images/bg1.svg";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const navigateRegister = () =>{
-    navigate('/register')
-  }
-  const navigateLogin = () =>{
-    navigate('/login')
-  }
+  const navigateRegister = () => {
+    navigate("/register");
+  };
+
+  const bgawal = {
+    backgroundImage: `url(${Bg})`,
+    backgroundSize: "cover",
+  };
+  const navigateLogin = () => {
+    navigate("/login");
+  };
   return (
-    <div
-      className="min-h-screen flex flex-col bg-cover bg-center p-4 bg-gray-200"
-      style={{
-        backgroundImage: `url('/images/bg.svg')`,
-      }}
-    >
+    <div style={bgawal} className="bg-gray-200 p-4">
       <nav className="flex justify-between items-center border p-4 bg-white rounded-xl">
         <div className="ml-8">
           <Logo />
@@ -27,10 +28,16 @@ const LandingPage = () => {
           <button className="text-xl text-gray-700">Tentang</button>
         </div>
         <div className="flex space-x-4 mr-8">
-          <button className="bg-orange-500 text-white rounded-xl px-4 py-2 hover:bg-orange-600" onClick={navigateRegister}>
+          <button
+            className="bg-orange-500 text-white rounded-xl px-4 py-2 hover:bg-orange-600"
+            onClick={navigateRegister}
+          >
             Register
           </button>
-          <button className="bg-blue-500 text-white rounded-xl px-4 py-2 hover:bg-blue-600" onClick={navigateLogin}>
+          <button
+            className="bg-blue-500 text-white rounded-xl px-4 py-2 hover:bg-blue-600"
+            onClick={navigateLogin}
+          >
             Login
           </button>
         </div>
