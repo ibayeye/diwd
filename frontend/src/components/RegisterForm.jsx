@@ -7,6 +7,7 @@ const RegisterForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
   const [nama, setNama] = useState("");
   const [nip, setNip] = useState("");
   const [no_hp, setNohp] = useState("");
@@ -26,6 +27,10 @@ const RegisterForm = () => {
     }
     if (!password.trim()) {
       alert("Password tidak boleh kosong");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Confirm password tidak sama dengan password");
       return;
     }
     if (!nama.trim()) {
@@ -48,8 +53,9 @@ const RegisterForm = () => {
     // Payload jika semua validasi lulus
     const payload = {
       username,
-      email,
       password,
+      confirmPassword,
+      email,
       nama,
       nip: parseInt(nip, 10), // Konversi string menjadi integer
       no_hp: parseInt(no_hp, 10), // Konversi string menjadi integer
@@ -61,8 +67,9 @@ const RegisterForm = () => {
     try {
       const response = await register(
         payload.username,
-        payload.email,
         payload.password,
+        payload.confirmPassword,
+        payload.email,
         payload.nama,
         payload.nip,
         payload.no_hp,
@@ -113,6 +120,13 @@ const RegisterForm = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+          <input
+            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setconfirmPassword(e.target.value)}
           />
           <input
             className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
