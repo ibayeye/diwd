@@ -12,6 +12,7 @@ const RegisterForm = () => {
   const [nip, setNip] = useState("");
   const [no_hp, setNohp] = useState("");
   const [role, setRole] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
   const [success, setSuccess] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -63,7 +64,13 @@ const RegisterForm = () => {
     };
 
     console.log("Payload sebelum dikirim:", payload);
-
+console.log(payload.username,
+  payload.email,
+  payload.password,
+  payload.nama,
+  payload.nip,
+  payload.no_hp,
+  payload.role);
     try {
       const response = await register(
         payload.username,
@@ -73,7 +80,8 @@ const RegisterForm = () => {
         payload.nama,
         payload.nip,
         payload.no_hp,
-        payload.role
+        payload.role,
+        
       );
 
       setSuccess("Registration Successful!");
