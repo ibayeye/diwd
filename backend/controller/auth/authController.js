@@ -92,7 +92,12 @@ export const login = asyncHandler(async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
     };
-    res.cookie("jwt", token, cookieOptions);
+    // res.cookie("jwt", token, cookieOptions);
+    res.cookie("jwt", token, {
+        httpOnly: true,
+        secure: false, // Set true jika menggunakan HTTPS
+        sameSite: "Lax", // Gunakan None jika backend dan frontend beda domain
+    });
 
     res.status(200).json({
         status: "ok",

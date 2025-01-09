@@ -27,11 +27,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
-    cors({
-      origin: "http://localhost:3000", // Asal spesifik frontend Anda
-      credentials: true, // Izinkan kredensial (cookie)
-    })
-  );
+  cors({
+    origin: "http://localhost:3000", // Asal spesifik frontend Anda
+    credentials: true, // Izinkan kredensial (cookie)
+  })
+);
 
 
 // routing
