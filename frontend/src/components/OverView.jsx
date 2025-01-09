@@ -24,7 +24,7 @@ const OverView = () => {
       }
   
       // Kirim request ke backend
-      const response = await axios.get("https://dev-diwd.onrender.com/api/v1/getDevice", {
+      const response = await axios.get("localhost:5000/api/v1/getDevice", {
         headers: {
           'Cookie': `jwt=${token}`, // Gunakan format Bearer jika backend mendukung.
         },

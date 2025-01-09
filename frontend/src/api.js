@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://dev-diwd.onrender.com/api/v1/auth";
+const API_URL = "http://localhost:5000/api/v1/auth";
 
 export const login = async (email, password) => {
   try {
@@ -16,16 +16,18 @@ export const register = async (
   username,
   email,
   password,
+  confirmPassword,
   nama,
   nip,
   no_hp,
-  role
+  role,
 ) => {
   try {
     const response = await axios.post(`${API_URL}/register`, {
       username,
       email,
       password,
+      confirmPassword,
       nama,
       nip,
       no_hp,
