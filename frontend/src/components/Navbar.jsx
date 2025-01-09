@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import { ReactComponent as Profile } from "../assets/Icons/profile.svg";
-import { ReactComponent as Notif } from "../assets/Icons/notif.svg";
+import { ReactComponent as Notif } from "../assets/images/icons/inotif.svg";
 import { ReactComponent as Hamburger } from "../assets/Icons/hamburger.svg";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = ({ toggleSideBar }) => {
+const Navbar = ({ toggleSidebar }) => {
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
 
   let pengguna = null;
   try {
-    const penggunaJSON = localStorage.getItem("pengguna");
+    const penggunaJSON = localStorage.getItem("data");
     pengguna = penggunaJSON ? JSON.parse(penggunaJSON) : null;
   } catch (error) {
     console.error("Error parsing pengguna:", error);
   }
 
-  if (!pengguna) {
+  if (!pengguna || !pengguna.token) {
     navigate("/login"); // Redirect to login if not logged in
     return null; // Prevent rendering the navbar
   }
@@ -27,18 +27,18 @@ const Navbar = ({ toggleSideBar }) => {
   };
 
   return (
-    <nav className="grid grid-cols-2 bg-white p-4 rounded-xl border-2 ml-1 mr-1">
-      <div className="">
-        <button onClick={toggleSideBar}>
+    <nav className="grid grid-cols-2 bg-white p-4 h-16 border-b">
+      <div className="flex items-center">
+        <button onClick={toggleSidebar}>
           <Hamburger />
         </button>
       </div>
       <div className="flex justify-end">
-        <div className="">
+        <div className="flex items-center">
           <Notif />
         </div>
         <div
-          className="cursor-pointer ml-4"
+          className="cursor-pointer ml-4 flex items-center"
           onClick={() => setShowProfile(!showProfile)}
         >
           <Profile />
