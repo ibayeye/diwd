@@ -26,9 +26,9 @@ const OverView = () => {
       // Kirim request ke backend
       const response = await axios.get("https://dev-diwd.onrender.com/api/v1/getDevice", {
         headers: {
-          Authorization: `${token}`, // Gunakan format Bearer jika backend mendukung.
+          'Cookie': `jwt=${token}`, // Gunakan format Bearer jika backend mendukung.
         },
-        withCredentials: true, // Pastikan ini diaktifkan untuk mengirim cookie.
+        //withCredentials: true, // Pastikan ini diaktifkan untuk mengirim cookie.
       });
   
       // Pastikan response data valid
