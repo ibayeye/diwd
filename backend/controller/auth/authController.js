@@ -86,18 +86,15 @@ export const login = asyncHandler(async (req, res) => {
 
     pengguna.activeSession = token;
     await pengguna.save();
-
-    const cookieOptions = {
-        expire: new Date(Date.now() + (keepLogin ? 30 : 6) * 24 * 60 * 60 * 1000),
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-    };
+    
     // res.cookie("jwt", token, cookieOptions);
-    res.cookie("jwt", token, {
-        httpOnly: true,
-        secure: false, // Set true jika menggunakan HTTPS
-        sameSite: "Lax", // Gunakan None jika backend dan frontend beda domain
-    });
+    res.cookie("token", token, {
+        httpOnly: true, // Membuat cookie tidak bisa diakses dari JavaScript
+        secure: true, // Cookie hanya dikirim melalui HTTPS
+        sameSite: "strict", // Melindungi dari CSRF
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie berlaku selama 7 hari
+      });
+      
 
     res.status(200).json({
         status: "ok",

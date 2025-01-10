@@ -15,7 +15,7 @@ const router = express.Router();
  * @swagger
  * /api/v1/device:
  *   get:
- *     summary: Get all devices
+ *     summary: Get all devices (internal use)
  *     tags:
  *       - Device
  *     responses:
@@ -109,7 +109,7 @@ router.get('/getDevice/:deviceId', protectedMiddleware, getDataDevice);
  * @swagger
  * /api/v1/device/failure:
  *   get:
- *     summary: Get all devices with failure status
+ *     summary: Get all devices with failure status (internal use)
  *     tags:
  *       - Device
  *     responses:
