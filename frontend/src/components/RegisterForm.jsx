@@ -12,7 +12,6 @@ const RegisterForm = () => {
   const [nip, setNip] = useState("");
   const [no_hp, setNohp] = useState("");
   const [role, setRole] = useState("");
-  const [confirmPassword, setconfirmPassword] = useState("");
   const [success, setSuccess] = useState(null);
 
   const handleSubmit = async (e) => {

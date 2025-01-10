@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { login } from "../api";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import IconLen from "../assets/images/icons/len.svg";
 import Bg from "../assets/images/bg1.svg";
 import { useLoader } from "../components/Loader";
-import { useContext } from "react";
 
 const LoginForm = () => {
-  const {showLoader, hideLoader}= useLoader();
+  const { showLoader, hideLoader } = useLoader();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -24,11 +24,16 @@ const LoginForm = () => {
     setError(null); // Reset error sebelum submit
     try {
       const response = await login(email, password);
-      const token = response.data?.username?.token;
-      localStorage.setItem("data", JSON.stringify(response.data));
-      localStorage.setItem("token", response.data?.token);
+      const token = response.data?.token; // Pastikan token ada di response
+      const userData = response.data;
+
+      // Simpan data ke cookies
+      Cookies.set("token", token, { expires: 7, secure: true }); // Token disimpan di cookies selama 7 hari
+      Cookies.set("userData", JSON.stringify(userData), { expires: 7, secure: true });
+
       console.log(response);
-      console.log("token disimpan:", response.data?.token);
+      console.log("Token disimpan ke cookies:", token);
+
       navigate("/layout/dashboard"); // Navigasi ke halaman dashboard
     } catch (err) {
       console.error("Login Error:", err.response?.data || err.message);
@@ -68,9 +73,10 @@ const LoginForm = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className='mt-20 bg-blue-400 ml-10 mr-5 p-1 rounded-sm text-white hover:bg-blue-500'            
-            type="submit">
-              Sign In
+            className="mt-20 bg-blue-400 ml-10 mr-5 p-1 rounded-sm text-white hover:bg-blue-500"
+            type="submit"
+          >
+            Sign In
           </button>
           <div className="text-end text-xs text-gray-500 mt-3 mr-5">
             don't have an account?{" "}

@@ -4,15 +4,15 @@ import Pengguna from "../models/pengguna.js";
 
 // middleware yang mengharuskan login terlebih dahulu
 export const protectedMiddleware = asyncHandler(async (req, res, next) => {
-    const token = req.cookies.jwt;
+    // Check both cookie and Authorization header
+    const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).json({ msg: "Not authorized, no token found" });
+        return res.status(401).json({ msg: "Not authorized, no token found in cookies" });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
         const pengguna = await Pengguna.findOne({
             where: { id: decoded.id, activeSession: token },
         });
