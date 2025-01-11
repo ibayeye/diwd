@@ -9,7 +9,7 @@ import ProfilePage from "./pages/ProfilePage";
 import OverViewPage from "./pages/OverViewPage";
 import Layout from "./pages/Layout";
 import MapView from "./pages/MapView";
-import { useContext } from "react";
+
 const App = () => {
   return (
     <LoaderProvider>

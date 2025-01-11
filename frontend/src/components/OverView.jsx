@@ -11,183 +11,245 @@ const OverView = () => {
   const [totalDevice, setTotalDevice] = useState(0);
   const [totalDeviceFailure, setTotalDeviceFailure] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState({
+    devices: true,
+    failures: true,
+    users: true,
+  });
   const [error, setError] = useState(null);
 
-  const fetchTotalDevice = async () => {
-    setLoading(true);
-    setError(null); // Reset error sebelum fetch
+  const fetchData = async (url, setter, loadingkey) => {
+    setLoading((prev) => ({ ...prev, [loadingkey]: true }));
+    setError(null);
+
     try {
-      // Ambil token dari cookies menggunakan js-cookie
       const token = Cookies.get("token");
       if (!token) {
-        throw new Error(
-          "Token tidak ditemukan. Pastikan pengguna telah login."
-        );
+        throw new Error("token tidak ditemukan");
       }
 
-      // Kirim request ke backend
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/getDevice",
-        {
-          withCredentials: true,
-        }
-      );
-
-      // Pastikan respons data valid
+      const response = await axios.get(url, { withCredentials: true });
+      console.log(response);
       if (response.data) {
-        setTotalDevice(response.data.totaldevice || 0);
+        setter(
+          response.data.totaldevice ||
+            response.data.totaldata ||
+            response.data.totaldeviceFailure ||
+            0
+        );
       } else {
-        throw new Error("Data perangkat kosong atau tidak valid.");
+        throw new Error("Data yang diterima tidak valid");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Terjadi kesalahan saat mengambil data perangkat."
-      );
-      setTotalDevice(0);
+      setError(err.response?.data?.message || err.message);
+      setter(0);
     } finally {
-      setLoading(false);
-    }
-  };
-  const fetchTotalDeviceFailure = async () => {
-    setLoading(true);
-    setError(null); // Reset error sebelum fetch
-    try {
-      // Ambil token dari cookies menggunakan js-cookie
-      const token = Cookies.get("token");
-      if (!token) {
-        throw new Error(
-          "Token tidak ditemukan. Pastikan pengguna telah login."
-        );
-      }
-
-      // Kirim request ke backend
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/getDeviceFailure",
-        {
-          withCredentials: true,
-        }
-      );
-
-      // Pastikan respons data valid
-      if (response.data) {
-        setTotalDeviceFailure(response.data.totaldeviceFailure || 0);
-      } else {
-        throw new Error("Data perangkat kosong atau tidak valid.");
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Terjadi kesalahan saat mengambil data perangkat."
-      );
-      setTotalDeviceFailure(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTotalUsers = async () => {
-    setLoading(true);
-    setError(null); // Reset error sebelum fetch
-    try {
-      // Ambil token dari cookies menggunakan js-cookie
-      const token = Cookies.get("token");
-      if (!token) {
-        throw new Error(
-          "Token tidak ditemukan. Pastikan pengguna telah login."
-        );
-      }
-
-      // Kirim request ke backend
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/auth/pengguna",
-        {
-          withCredentials: true,
-        }
-      );
-
-      // Pastikan respons data valid
-      if (response.data) {
-        setTotalUsers(response.data.totaldata || 0);
-      } else {
-        throw new Error("Data perangkat kosong atau tidak valid.");
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Terjadi kesalahan saat mengambil data perangkat."
-      );
-      setTotalUsers(0);
-    } finally {
-      setLoading(false);
+      setLoading((prev) => ({ ...prev, [loadingkey]: false }));
     }
   };
 
   useEffect(() => {
-    fetchTotalDevice();
-    fetchTotalDeviceFailure();
-    fetchTotalUsers();
+    const fetchAllData = async () => {
+      await Promise.all([
+        fetchData(
+          "http://localhost:5000/api/v1/getDevice",
+          setTotalDevice,
+          "devices"
+        ),
+        fetchData(
+          "http://localhost:5000/api/v1/getDeviceFailure",
+          setTotalDeviceFailure,
+          "failures"
+        ),
+        fetchData(
+          "http://localhost:5000/api/v1/auth/pengguna",
+          setTotalUsers,
+          "users"
+        ),
+      ]);
+    };
+    fetchAllData();
   }, []);
+
+  // const fetchTotalDevice = async () => {
+  //   setLoading(true);
+  //   setError(null); // Reset error sebelum fetch
+  //   try {
+  //     // Ambil token dari cookies menggunakan js-cookie
+  //     const token = Cookies.get("token");
+  //     if (!token) {
+  //       throw new Error(
+  //         "Token tidak ditemukan. Pastikan pengguna telah login."
+  //       );
+  //     }
+
+  //     // Kirim request ke backend
+  //     const response = await axios.get(
+  //       "http://localhost:5000/api/v1/getDevice",
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
+
+  //     // Pastikan respons data valid
+  //     if (response.data) {
+  //       setTotalDevice(response.data.totaldevice || 0);
+  //     } else {
+  //       throw new Error("Data perangkat kosong atau tidak valid.");
+  //     }
+  //   } catch (err) {
+  //     setError(
+  //       err.response?.data?.message ||
+  //         err.message ||
+  //         "Terjadi kesalahan saat mengambil data perangkat."
+  //     );
+  //     setTotalDevice(0);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // const fetchTotalDeviceFailure = async () => {
+  //   setLoading(true);
+  //   setError(null); // Reset error sebelum fetch
+  //   try {
+  //     // Ambil token dari cookies menggunakan js-cookie
+  //     const token = Cookies.get("token");
+  //     if (!token) {
+  //       throw new Error(
+  //         "Token tidak ditemukan. Pastikan pengguna telah login."
+  //       );
+  //     }
+
+  //     // Kirim request ke backend
+  //     const response = await axios.get(
+  //       "http://localhost:5000/api/v1/getDeviceFailure",
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
+
+  //     // Pastikan respons data valid
+  //     if (response.data) {
+  //       setTotalDeviceFailure(response.data.totaldeviceFailure || 0);
+  //     } else {
+  //       throw new Error("Data perangkat kosong atau tidak valid.");
+  //     }
+  //   } catch (err) {
+  //     setError(
+  //       err.response?.data?.message ||
+  //         err.message ||
+  //         "Terjadi kesalahan saat mengambil data perangkat."
+  //     );
+  //     setTotalDeviceFailure(0);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const fetchTotalUsers = async () => {
+  //   setLoading(true);
+  //   setError(null); // Reset error sebelum fetch
+  //   try {
+  //     // Ambil token dari cookies menggunakan js-cookie
+  //     const token = Cookies.get("token");
+  //     if (!token) {
+  //       throw new Error(
+  //         "Token tidak ditemukan. Pastikan pengguna telah login."
+  //       );
+  //     }
+
+  //     // Kirim request ke backend
+  //     const response = await axios.get(
+  //       "http://localhost:5000/api/v1/auth/pengguna",
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
+
+  //     // Pastikan respons data valid
+  //     if (response.data) {
+  //       setTotalUsers(response.data.totaldata || 0);
+  //     } else {
+  //       throw new Error("Data perangkat kosong atau tidak valid.");
+  //     }
+  //   } catch (err) {
+  //     setError(
+  //       err.response?.data?.message ||
+  //         err.message ||
+  //         "Terjadi kesalahan saat mengambil data perangkat."
+  //     );
+  //     setTotalUsers(0);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchTotalDevice();
+  //   fetchTotalDeviceFailure();
+  //   fetchTotalUsers();
+  // }, []);
 
   return (
     <div className="bg-gray-200">
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
-          <div className="border-b-2 bg-white border-blue-500 h-28 rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <Loc className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {loading ? "Loading..." : totalDevice}
-              </span>
-              <p>Total Devices</p>
-            </div>
-          </div>
-          <div className="border-b-2 border-yellow-300 h-28 bg-white rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <IDetected className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {loading ? "Loading..." : totalDeviceFailure}
-              </span>
-              <p>Device Detected Failure</p>
-            </div>
-          </div>
-          <div className="border-b-2 border-green-500 h-28 bg-white rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <IUser className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {loading ? "Loading..." : totalUsers}
-              </span>
-              <p>User in system</p>
-            </div>
-          </div>
-          <div className="border-b-2 border-red-500 h-28 bg-white rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <IEarthquake className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {/* {loading ? "Loading..." : totalDeviceFailure} */}
-              </span>
-              <p>Earthquake detection devices</p>
-            </div>
-          </div>
+          <DataCard
+            title="Total Device"
+            value={loading.totalDevice ? "Loading..." : totalDevice}
+            Icon={Loc}
+            borderColor="blue-500"
+          />
+          <DataCard
+            title="Device detected failure"
+            value={
+              loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure
+            }
+            Icon={IDetected}
+            borderColor="red-500"
+          />
+          <DataCard
+            title={
+              loading.users
+                ? "Loading Users..."
+                : `There are ${totalUsers || 0} users in this system`
+            }
+            value={loading.totalUsers ? "Loading..." : totalUsers}
+            Icon={IUser}
+            borderColor="red-500"
+          />
+          <DataCard
+            title="Earthquake detection devices"
+            value="coming soon"
+            Icon={IEarthquake}
+            borderColor="green-500"
+          />
         </div>
-        <div className="border rounded-md overflow-hidden mt-4">
+        {error && (
+          <div className="text-red-500 mt-4">
+            <p>Error: {error}</p>
+          </div>
+        )}
+        <div className="border rounded-md mt-4 z-0">
           <Maps />
         </div>
       </div>
     </div>
   );
 };
+
+const DataCard = ({ title, value, Icon, borderColor }) => (
+  <div
+    className={`border-b-2 border-${borderColor} h-28 bg-white rounded-lg p-2 flex flex-row`}
+  >
+    <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
+      <Icon className="w-8 h-8" />
+    </div>
+    <div className="flex flex-col my-auto">
+      <span className="text-2xl font-bold">{value}</span>
+      <p>{title}</p>
+    </div>
+  </div>
+);
 
 export default OverView;
