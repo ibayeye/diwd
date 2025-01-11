@@ -16,7 +16,7 @@ const Map = () => {
         popupAnchor: [0, -32],
       });
     return(
-        <div>
+        <div className="">
             <MapContainer
               center={[-2.5, 118]}
               zoom={5}

@@ -20,9 +20,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="border rounded-md overflow-hidden">
+          {/* <div className="border rounded-md">
             <Maps/>
-          </div>
+          </div> */}
         </main>
       </div>
     </div>

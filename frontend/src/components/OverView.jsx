@@ -9,6 +9,7 @@ import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
 
 const OverView = () => {
+
   
   const [data, setData] = useState({
     totalDevice: 0,
@@ -73,6 +74,7 @@ const OverView = () => {
     fetchAllData();
   }, []);
 
+
   const cardData = [
     {
       icon: Loc,
@@ -117,6 +119,7 @@ const OverView = () => {
         </div>
 
         <div className="border rounded-md overflow-hidden mt-4">
+
           <Maps />
         </div>
       </div>
