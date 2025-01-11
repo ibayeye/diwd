@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import IconLen from "../assets/images/icons/len.svg";
 import Bg from "../assets/images/bg1.svg";
 import { useLoader } from "../components/Loader";
+import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const { showLoader, hideLoader } = useLoader();
@@ -22,22 +23,33 @@ const LoginForm = () => {
     showLoader();
     e.preventDefault();
     setError(null); // Reset error sebelum submit
+
+    if (!email || !password) {
+      toast.error("Email dan password tidak boleh kosong", {
+        position: "top-right",
+      });
+      hideLoader();
+      return;
+    }
     try {
       const response = await login(email, password);
-      const token = response.data?.token; // Pastikan token ada di response
+      const token = response.data?.token;
       const userData = response.data;
 
       // Simpan data ke cookies
-      Cookies.set("token", token, { expires: 7, secure: true }); // Token disimpan di cookies selama 7 hari
-      Cookies.set("userData", JSON.stringify(userData), { expires: 7, secure: true });
+      Cookies.set("token", token, { expires: 7, secure: true });
+      Cookies.set("userData", JSON.stringify(userData), {
+        expires: 7,
+        secure: true,
+      });
+      toast.success(response.msg || "Login berhasil!");
 
-      console.log(response);
-      console.log("Token disimpan ke cookies:", token);
-
-      navigate("/layout/dashboard"); // Navigasi ke halaman dashboard
+      setTimeout(() => {
+        navigate("/layout/dashboard");
+      }, 1000);
     } catch (err) {
-      console.error("Login Error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Invalid login credentials");
+      // Sekarang error message akan sesuai dengan response backend
+      toast.error(err.msg || "Login failed");
     } finally {
       hideLoader();
     }

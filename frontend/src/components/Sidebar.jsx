@@ -30,21 +30,21 @@ const Sidebar = () => {
   );
 
   const MenuItem = ({ title, icon, dropdownKey, children }) => (
-    <li className="mb-4 group">
+    <li className="flex flex-col group">
       <div
         onClick={() => toggleDropdown(dropdownKey)}
-        className="flex items-center justify-between p-2 rounded-lg hover:bg-blue-400 cursor-pointer"
+        className="flex flex-row gap-2 p-2 items-center justify-between rounded-lg hover:bg-blue-400 cursor-pointer"
       >
-        <div className="flex items-center">
-          {icon && <img src={icon} alt={`${title} Icon`} className="mr-2" />}
+        <div className="flex flex-row gap-2 items-center">
+          {icon && <img src={icon} alt={`${title} Icon`} className="" />}
           <span className="text-sm">{title}</span>
         </div>
-        {title !== 'User' && title !=='About' && (
-        <ArrowIcon isOpen={openDropdown[dropdownKey]} />
+        {title !== "User" && title !== "About" && (
+          <ArrowIcon isOpen={openDropdown[dropdownKey]} />
         )}
       </div>
       {openDropdown[dropdownKey] && (
-        <div className="ml-6 mt-2 space-y-2">{children}</div>
+        <div className="ml-9 space-y-2">{children}</div>
       )}
     </li>
   );
@@ -59,7 +59,7 @@ const Sidebar = () => {
           <MenuItem title="Dashboard" icon={iDash} dropdownKey="Dashboard">
             <Link
               to="/layout/dashboard/overview"
-              className={`block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 pl-2 ml-2 ${
+              className={`block text-sm  hover:text-blue-400 py-2 rounded-md ${
                 isActive("/layout/dashboard/overview") ? "" : ""
               }`}
             >
@@ -70,31 +70,31 @@ const Sidebar = () => {
           <MenuItem title="Device" icon={iLoc} dropdownKey="Device">
             <Link
               to="/layout/dashboard/mapview"
-              className={`block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 pl-2 ml-2 ${
+              className={`block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 ml-2 ${
                 isActive("/layout/dashboard/mapview") ? "text-blue-500" : ""
               }`}
             >
               Map View
             </Link>
-            <div className="text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 cursor-pointer">
+            <div className="block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1  ml-2 cursor-pointer">
               Device Details
             </div>
-            <div className="text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 cursor-pointer">List</div>
+            <div className="block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 ml-2 cursor-pointer">
+              List
+            </div>
           </MenuItem>
 
           <MenuItem title="Report" icon={iRepot} dropdownKey="Report">
-            <div className="text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 cursor-pointer">
+            <div className="block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 ml-2 cursor-pointer">
               Devices Report
             </div>
-            <div className="text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 cursor-pointer">
+            <div className="block text-sm hover:text-white hover:bg-blue-400 rounded-md p-1 ml-2 cursor-pointer">
               Earthquake Report
             </div>
           </MenuItem>
 
-          <MenuItem title="User" icon={iuser}>
-          </MenuItem>
-          <MenuItem title="About" icon={iAbout}>
-          </MenuItem>
+          <MenuItem title="User" icon={iuser}></MenuItem>
+          <MenuItem title="About" icon={iAbout}></MenuItem>
         </ul>
       </aside>
     </div>

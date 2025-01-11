@@ -2,23 +2,25 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Maps from "../components/Maps";
+import InfoCard from "./InfoCard";
 import { ReactComponent as Loc } from "../assets/Icons/locD.svg";
 import { ReactComponent as IUser } from "../assets/Icons/iUser.svg";
 import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
 
 const OverView = () => {
-  const [totalDevice, setTotalDevice] = useState(0);
-  const [totalDeviceFailure, setTotalDeviceFailure] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0);
+  
+  const [data, setData] = useState({
+    totalDevice: 0,
+    totalDeviceFailure: 0,
+    totalUsers: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchTotalDevice = async () => {
-    setLoading(true);
-    setError(null); // Reset error sebelum fetch
+  
+  const fetchData = async (url, setter) => {
     try {
-      // Ambil token dari cookies menggunakan js-cookie
       const token = Cookies.get("token");
       if (!token) {
         throw new Error(
@@ -26,162 +28,94 @@ const OverView = () => {
         );
       }
 
-      // Kirim request ke backend
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/getDevice",
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
 
-      // Pastikan respons data valid
       if (response.data) {
-        setTotalDevice(response.data.totaldevice || 0);
-      } else {
-        throw new Error("Data perangkat kosong atau tidak valid.");
+        return response.data;
       }
+      throw new Error("Data kosong atau tidak valid.");
     } catch (err) {
       setError(
         err.response?.data?.message ||
           err.message ||
-          "Terjadi kesalahan saat mengambil data perangkat."
+          "Terjadi kesalahan saat mengambil data."
       );
-      setTotalDevice(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchTotalDeviceFailure = async () => {
-    setLoading(true);
-    setError(null); // Reset error sebelum fetch
-    try {
-      // Ambil token dari cookies menggunakan js-cookie
-      const token = Cookies.get("token");
-      if (!token) {
-        throw new Error(
-          "Token tidak ditemukan. Pastikan pengguna telah login."
-        );
-      }
-
-      // Kirim request ke backend
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/getDeviceFailure",
-        {
-          withCredentials: true,
-        }
-      );
-
-      // Pastikan respons data valid
-      if (response.data) {
-        setTotalDeviceFailure(response.data.totaldeviceFailure || 0);
-      } else {
-        throw new Error("Data perangkat kosong atau tidak valid.");
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Terjadi kesalahan saat mengambil data perangkat."
-      );
-      setTotalDeviceFailure(0);
-    } finally {
-      setLoading(false);
+      return 0;
     }
   };
 
-  const fetchTotalUsers = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
-    setError(null); // Reset error sebelum fetch
+    setError(null);
+
     try {
-      // Ambil token dari cookies menggunakan js-cookie
-      const token = Cookies.get("token");
-      if (!token) {
-        throw new Error(
-          "Token tidak ditemukan. Pastikan pengguna telah login."
-        );
-      }
+      const [deviceData, failureData, userData] = await Promise.all([
+        fetchData("http://localhost:5000/api/v1/getDevice"),
+        fetchData("http://localhost:5000/api/v1/getDeviceFailure"),
+        fetchData("http://localhost:5000/api/v1/auth/pengguna"),
+      ]);
 
-      // Kirim request ke backend
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/auth/pengguna",
-        {
-          withCredentials: true,
-        }
-      );
-
-      // Pastikan respons data valid
-      if (response.data) {
-        setTotalUsers(response.data.totaldata || 0);
-      } else {
-        throw new Error("Data perangkat kosong atau tidak valid.");
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Terjadi kesalahan saat mengambil data perangkat."
-      );
-      setTotalUsers(0);
+      setData({
+        totalDevice: deviceData.totaldevice || 0,
+        totalDeviceFailure: failureData.totaldeviceFailure || 0,
+        totalUsers: userData.totaldata || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTotalDevice();
-    fetchTotalDeviceFailure();
-    fetchTotalUsers();
+    fetchAllData();
   }, []);
+
+  const cardData = [
+    {
+      icon: Loc,
+      count: data.totalDevice,
+      label: "Total Devices",
+      borderColor: "border-blue-500",
+    },
+    {
+      icon: IDetected,
+      count: data.totalDeviceFailure,
+      label: "Device Detected Failure",
+      borderColor: "border-yellow-300",
+    },
+    {
+      icon: IUser,
+      count: data.totalUsers,
+      label: "User in system",
+      borderColor: "border-green-500",
+    },
+    {
+      icon: IEarthquake,
+      count: 0,
+      label: "Earthquake detection devices",
+      borderColor: "border-red-500",
+    },
+  ];
 
   return (
     <div className="bg-gray-200">
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
-          <div className="border-b-2 bg-white border-blue-500 h-28 rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <Loc className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {loading ? "Loading..." : totalDevice}
-              </span>
-              <p>Total Devices</p>
-            </div>
-          </div>
-          <div className="border-b-2 border-yellow-300 h-28 bg-white rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <IDetected className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {loading ? "Loading..." : totalDeviceFailure}
-              </span>
-              <p>Device Detected Failure</p>
-            </div>
-          </div>
-          <div className="border-b-2 border-green-500 h-28 bg-white rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <IUser className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {loading ? "Loading..." : totalUsers}
-              </span>
-              <p>User in system</p>
-            </div>
-          </div>
-          <div className="border-b-2 border-red-500 h-28 bg-white rounded-lg p-2 flex flex-row">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-              <IEarthquake className="w-8 h-8"/>
-            </div>
-            <div className="flex flex-col my-auto">
-              <span className="text-2xl font-bold">
-                {/* {loading ? "Loading..." : totalDeviceFailure} */}
-              </span>
-              <p>Earthquake detection devices</p>
-            </div>
-          </div>
+          {cardData.map((card, index) => (
+            <InfoCard
+              key={index}
+              icon={card.icon}
+              count={card.count}
+              label={card.label}
+              loading={loading}
+              borderColor={card.borderColor}
+            />
+          ))}
         </div>
+
         <div className="border rounded-md overflow-hidden mt-4">
           <Maps />
         </div>
