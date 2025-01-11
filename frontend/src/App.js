@@ -9,7 +9,10 @@ import ProfilePage from "./pages/ProfilePage";
 import OverViewPage from "./pages/OverViewPage";
 import Layout from "./pages/Layout";
 import MapView from "./pages/MapView";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+import { useContext } from "react";
 const App = () => {
   return (
     <LoaderProvider>
@@ -25,6 +28,7 @@ const App = () => {
             <Route path="dashboard/mapview" element={<MapView />} />
           </Route>
         </Routes>
+        <ToastContainer />
       </Router>
     </LoaderProvider>
   );

@@ -2,254 +2,129 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Maps from "../components/Maps";
+import InfoCard from "./InfoCard";
 import { ReactComponent as Loc } from "../assets/Icons/locD.svg";
 import { ReactComponent as IUser } from "../assets/Icons/iUser.svg";
 import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
 
 const OverView = () => {
-  const [totalDevice, setTotalDevice] = useState(0);
-  const [totalDeviceFailure, setTotalDeviceFailure] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState({
-    devices: true,
-    failures: true,
-    users: true,
+
+  
+  const [data, setData] = useState({
+    totalDevice: 0,
+    totalDeviceFailure: 0,
+    totalUsers: 0,
   });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (url, setter, loadingkey) => {
-    setLoading((prev) => ({ ...prev, [loadingkey]: true }));
-    setError(null);
-
+  
+  const fetchData = async (url, setter) => {
     try {
       const token = Cookies.get("token");
       if (!token) {
-        throw new Error("token tidak ditemukan");
+        throw new Error(
+          "Token tidak ditemukan. Pastikan pengguna telah login."
+        );
       }
 
-      const response = await axios.get(url, { withCredentials: true });
-      console.log(response);
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+
       if (response.data) {
-        setter(
-          response.data.totaldevice ||
-            response.data.totaldata ||
-            response.data.totaldeviceFailure ||
-            0
-        );
-      } else {
-        throw new Error("Data yang diterima tidak valid");
+        return response.data;
       }
+      throw new Error("Data kosong atau tidak valid.");
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
-      setter(0);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Terjadi kesalahan saat mengambil data."
+      );
+      return 0;
+    }
+  };
+
+  const fetchAllData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [deviceData, failureData, userData] = await Promise.all([
+        fetchData("http://localhost:5000/api/v1/getDevice"),
+        fetchData("http://localhost:5000/api/v1/getDeviceFailure"),
+        fetchData("http://localhost:5000/api/v1/auth/pengguna"),
+      ]);
+
+      setData({
+        totalDevice: deviceData.totaldevice || 0,
+        totalDeviceFailure: failureData.totaldeviceFailure || 0,
+        totalUsers: userData.totaldata || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
     } finally {
-      setLoading((prev) => ({ ...prev, [loadingkey]: false }));
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      await Promise.all([
-        fetchData(
-          "http://localhost:5000/api/v1/getDevice",
-          setTotalDevice,
-          "devices"
-        ),
-        fetchData(
-          "http://localhost:5000/api/v1/getDeviceFailure",
-          setTotalDeviceFailure,
-          "failures"
-        ),
-        fetchData(
-          "http://localhost:5000/api/v1/auth/pengguna",
-          setTotalUsers,
-          "users"
-        ),
-      ]);
-    };
     fetchAllData();
   }, []);
 
-  // const fetchTotalDevice = async () => {
-  //   setLoading(true);
-  //   setError(null); // Reset error sebelum fetch
-  //   try {
-  //     // Ambil token dari cookies menggunakan js-cookie
-  //     const token = Cookies.get("token");
-  //     if (!token) {
-  //       throw new Error(
-  //         "Token tidak ditemukan. Pastikan pengguna telah login."
-  //       );
-  //     }
 
-  //     // Kirim request ke backend
-  //     const response = await axios.get(
-  //       "http://localhost:5000/api/v1/getDevice",
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-
-  //     // Pastikan respons data valid
-  //     if (response.data) {
-  //       setTotalDevice(response.data.totaldevice || 0);
-  //     } else {
-  //       throw new Error("Data perangkat kosong atau tidak valid.");
-  //     }
-  //   } catch (err) {
-  //     setError(
-  //       err.response?.data?.message ||
-  //         err.message ||
-  //         "Terjadi kesalahan saat mengambil data perangkat."
-  //     );
-  //     setTotalDevice(0);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  // const fetchTotalDeviceFailure = async () => {
-  //   setLoading(true);
-  //   setError(null); // Reset error sebelum fetch
-  //   try {
-  //     // Ambil token dari cookies menggunakan js-cookie
-  //     const token = Cookies.get("token");
-  //     if (!token) {
-  //       throw new Error(
-  //         "Token tidak ditemukan. Pastikan pengguna telah login."
-  //       );
-  //     }
-
-  //     // Kirim request ke backend
-  //     const response = await axios.get(
-  //       "http://localhost:5000/api/v1/getDeviceFailure",
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-
-  //     // Pastikan respons data valid
-  //     if (response.data) {
-  //       setTotalDeviceFailure(response.data.totaldeviceFailure || 0);
-  //     } else {
-  //       throw new Error("Data perangkat kosong atau tidak valid.");
-  //     }
-  //   } catch (err) {
-  //     setError(
-  //       err.response?.data?.message ||
-  //         err.message ||
-  //         "Terjadi kesalahan saat mengambil data perangkat."
-  //     );
-  //     setTotalDeviceFailure(0);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const fetchTotalUsers = async () => {
-  //   setLoading(true);
-  //   setError(null); // Reset error sebelum fetch
-  //   try {
-  //     // Ambil token dari cookies menggunakan js-cookie
-  //     const token = Cookies.get("token");
-  //     if (!token) {
-  //       throw new Error(
-  //         "Token tidak ditemukan. Pastikan pengguna telah login."
-  //       );
-  //     }
-
-  //     // Kirim request ke backend
-  //     const response = await axios.get(
-  //       "http://localhost:5000/api/v1/auth/pengguna",
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-
-  //     // Pastikan respons data valid
-  //     if (response.data) {
-  //       setTotalUsers(response.data.totaldata || 0);
-  //     } else {
-  //       throw new Error("Data perangkat kosong atau tidak valid.");
-  //     }
-  //   } catch (err) {
-  //     setError(
-  //       err.response?.data?.message ||
-  //         err.message ||
-  //         "Terjadi kesalahan saat mengambil data perangkat."
-  //     );
-  //     setTotalUsers(0);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchTotalDevice();
-  //   fetchTotalDeviceFailure();
-  //   fetchTotalUsers();
-  // }, []);
+  const cardData = [
+    {
+      icon: Loc,
+      count: data.totalDevice,
+      label: "Total Devices",
+      borderColor: "border-blue-500",
+    },
+    {
+      icon: IDetected,
+      count: data.totalDeviceFailure,
+      label: "Device Detected Failure",
+      borderColor: "border-yellow-300",
+    },
+    {
+      icon: IUser,
+      count: data.totalUsers,
+      label: "User in system",
+      borderColor: "border-green-500",
+    },
+    {
+      icon: IEarthquake,
+      count: 0,
+      label: "Earthquake detection devices",
+      borderColor: "border-red-500",
+    },
+  ];
 
   return (
     <div className="bg-gray-200">
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4">
-          <DataCard
-            title="Total Device"
-            value={loading.totalDevice ? "Loading..." : totalDevice}
-            Icon={Loc}
-            borderColor="blue-500"
-          />
-          <DataCard
-            title="Device detected failure"
-            value={
-              loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure
-            }
-            Icon={IDetected}
-            borderColor="red-500"
-          />
-          <DataCard
-            title={
-              loading.users
-                ? "Loading Users..."
-                : `There are ${totalUsers || 0} users in this system`
-            }
-            value={loading.totalUsers ? "Loading..." : totalUsers}
-            Icon={IUser}
-            borderColor="red-500"
-          />
-          <DataCard
-            title="Earthquake detection devices"
-            value="coming soon"
-            Icon={IEarthquake}
-            borderColor="green-500"
-          />
+          {cardData.map((card, index) => (
+            <InfoCard
+              key={index}
+              icon={card.icon}
+              count={card.count}
+              label={card.label}
+              loading={loading}
+              borderColor={card.borderColor}
+            />
+          ))}
         </div>
-        {error && (
-          <div className="text-red-500 mt-4">
-            <p>Error: {error}</p>
-          </div>
-        )}
-        <div className="border rounded-md mt-4 z-0">
+
+        <div className="border rounded-md overflow-hidden mt-4">
+
           <Maps />
         </div>
       </div>
     </div>
   );
 };
-
-const DataCard = ({ title, value, Icon, borderColor }) => (
-  <div
-    className={`border-b-2 border-${borderColor} h-28 bg-white rounded-lg p-2 flex flex-row`}
-  >
-    <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-      <Icon className="w-8 h-8" />
-    </div>
-    <div className="flex flex-col my-auto">
-      <span className="text-2xl font-bold">{value}</span>
-      <p>{title}</p>
-    </div>
-  </div>
-);
 
 export default OverView;
