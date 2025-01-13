@@ -9,6 +9,8 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
+import Device from './models/device.js'; 
+import { listenForFirebaseChanges } from './controller/device/deviceController.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -59,6 +61,11 @@ const syncModels = async () => {
         await Pengguna.sync();
         console.log("Pengguna synced.");
 
+        await Device.sync();
+        console.log("Device synced.");
+        
+        listenForFirebaseChanges();
+        console.log("Listener Firebase aktif.");
         
     } catch (error) {
         console.error("Unable to connect to the database:", error);

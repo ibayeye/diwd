@@ -156,4 +156,5 @@ router.get('/getDevice/:deviceId', protectedMiddleware, getDataDevice);
  */
 router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware, deviceFailure);
 
+
 export default router;
