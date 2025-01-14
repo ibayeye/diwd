@@ -20,6 +20,10 @@ const Pengguna = db.define(
     allowNull: false,
     unique: true,
   },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   username: {
     allowNull: false,
     type: DataTypes.STRING,
@@ -55,7 +59,7 @@ const Pengguna = db.define(
   role: {
     allowNull: false,
     type: DataTypes.STRING,
-    enum: ['product_owner', 'petugas', 'user']
+    enum: ['system_engineer', 'petugas', 'customer']
   }
 }, {
   freezeTableName: true,

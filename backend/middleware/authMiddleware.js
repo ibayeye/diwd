@@ -2,16 +2,17 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "../middleware/asyncHandler.js";
 import Pengguna from "../models/pengguna.js";
 
+// middleware yang mengharuskan login terlebih dahulu
 export const protectedMiddleware = asyncHandler(async (req, res, next) => {
-    const token = req.cookies.jwt;
+    // Check both cookie and Authorization header
+    const token = req.cookies.token; 
 
     if (!token) {
-        return res.status(401).json({ msg: "Not authorized, no token found" });
+        return res.status(401).json({ msg: "Not authorized, no token found in cookies" });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
         const pengguna = await Pengguna.findOne({
             where: { id: decoded.id, activeSession: token },
         });
@@ -27,11 +28,13 @@ export const protectedMiddleware = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const productOwnerMiddleware = (req, res, next) => {
-    if (req.pengguna && req.pengguna.role === 'product_owner') {
+// middleware yang mengecek apakah pengguna adalah system_engineer
+export const internalMiddleware = (req, res, next) => {
+    const allowedRoles = ['system_engineer', 'petugas'];
+    if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
         next();
     } else {
-        res.status(401)
-        throw new Error('Not authorized as an product_owner')
+        res.status(403)
+        throw new Error('Not authorized')
     }
 }
