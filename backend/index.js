@@ -9,12 +9,13 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
-import Device from './models/device.js'; 
+import Device from './models/device.js';
 import { listenForFirebaseChanges } from './controller/device/deviceController.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import swaggerDocs from './config/swagger.js';
+// import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
 const __filename = fileURLToPath(import.meta.url);
@@ -29,12 +30,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
-  cors({
-    origin: "http://localhost:3000", // Asal spesifik frontend Anda
-    credentials: true, // Izinkan kredensial (cookie)
-  })
+    cors({
+        origin: "http://localhost:3000", // Asal spesifik frontend Anda
+        credentials: true, // Izinkan kredensial (cookie)
+    })
 );
 
+
+app.get('/ping', (req, res) => {
+    res.send('Ping received! App is active.');
+});
 
 // routing
 swaggerDocs(app, process.env.API_DOCS);
@@ -47,9 +52,6 @@ app.use(router);
 app.use(notFound);
 app.use(errorHandler);
 
-app.get('/', (req,res) => {
-    res.send('SAMPURASUN')
-})
 const syncModels = async () => {
     try {
         await config.authenticate();
@@ -63,10 +65,12 @@ const syncModels = async () => {
 
         await Device.sync();
         console.log("Device synced.");
-        
+
         listenForFirebaseChanges();
         console.log("Listener Firebase aktif.");
-        
+
+        // sendNotification();
+
     } catch (error) {
         console.error("Unable to connect to the database:", error);
         process.exit(1); // Exit jika ada kegagalan
