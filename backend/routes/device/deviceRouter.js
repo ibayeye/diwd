@@ -1,6 +1,7 @@
 import express from "express";
 import { getAllDataDevice, getDataDevice, deviceFailure, trackedFailure } from "../../controller/device/deviceController.js";
 import { internalMiddleware, protectedMiddleware } from "../../middleware/authMiddleware.js";
+import { sendMail } from "../../controller/mailer/mailerController.js";
 
 const router = express.Router();
 
@@ -157,6 +158,8 @@ router.get('/getDevice/:deviceId', protectedMiddleware, getDataDevice);
 router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware, deviceFailure);
 
 router.get('/trackedFailure', trackedFailure);
+
+router.get('/sendMail', sendMail);
 
 
 export default router;

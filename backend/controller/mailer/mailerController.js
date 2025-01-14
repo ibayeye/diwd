@@ -10,7 +10,10 @@ const transporter = nodemailer.createTransport({
     }
 })
 
-function sendMail(from, to, sub, msg) {
+
+export const sendMail = (from, to, sub, msg) => {
+    console.log(from, to, sub, msg);
+    
     transporter.sendMail({
         from: from,
         to: to,
@@ -18,6 +21,16 @@ function sendMail(from, to, sub, msg) {
         html: msg
     })
 }
+// function sendMail(from, to, sub, msg) {
+//     console.log(from, to, sub, msg);
+    
+//     transporter.sendMail({
+//         from: from,
+//         to: to,
+//         subject: sub,
+//         html: msg
+//     })
+// }
 
 sendMail('skripsidiwd@gmail.com' ,'iqbal.gitlab@gmail.com','asd','testing')
 
