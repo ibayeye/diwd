@@ -3,47 +3,51 @@ import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
-const Device = db.define(
-  "device", {
+const DeviceError = db.define(
+  "deviceError", {
+  no: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   id: {
     type: DataTypes.STRING,
-    allowNull: false,
-    primaryKey: true,
+    allowNull: true,
   },
   ip: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   location: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   memory: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   onSiteTime: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   onSiteValue: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   regCD: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   regTime: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   regValue: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   status: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
 }, {
@@ -51,4 +55,4 @@ const Device = db.define(
 }
 );
 
-export default Device;
+export default DeviceError;

@@ -9,11 +9,14 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
-import Device from './models/device.js';
+import Device from './models/deviceError.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import swaggerDocs from './config/swagger.js';
+import DeviceEarthquake from './models/deviceEarthquake.js';
+import { detectedEarthquakeListener, trackedFailureListener } from './controller/device/deviceController.js';
+import DeviceError from './models/deviceError.js';
 // import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
@@ -62,11 +65,20 @@ const syncModels = async () => {
         await Pengguna.sync();
         console.log("Pengguna synced.");
 
-        await Device.sync();
+        await DeviceError.sync();
         console.log("Device synced.");
+
+        await DeviceEarthquake.sync();
+        console.log("Device Earthquake synced.");
 
         // listenForFirebaseChanges();
         // console.log("Listener Firebase aktif.");
+
+        trackedFailureListener();
+        console.log("Listener Failure aktif.");
+
+        detectedEarthquakeListener();
+        console.log("Listener Earthquake aktif.");
 
         // sendNotification();
 
