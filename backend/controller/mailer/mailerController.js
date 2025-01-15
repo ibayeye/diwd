@@ -19,8 +19,8 @@ export const sendMail = asyncHandler(async (req, res) => {
             from: 'skripsidiwd@gmail.com',
             to: 'iqbal.gitlab@gmail.com', 
             subject: 'Pemberitahuan Perangkat', 
-            html: 'testing'
-            // html: '<h1>Pemberitahuan Perangkat</h1><p>Perangkat dengan ID: <strong>${deviceId}</strong></p><p>onsitevalue: ${onsitevalue}</p><p>regvalue: ${regvalue}</p>'
+            // html: 'testing'
+            html: '<h1>Pemberitahuan Perangkat</h1><p>Perangkat dengan ID: <strong>${deviceId}</strong></p><p>onsitevalue: ${onsitevalue}</p><p>regvalue: ${regvalue}</p>'
         });
 
         res.status(200).json({

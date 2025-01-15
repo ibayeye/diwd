@@ -3,8 +3,8 @@ import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
-const DeviceError = db.define(
-  "deviceError", {
+const DeviceEarthquake = db.define(
+  "deviceEarthquake", {
   id: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -51,4 +51,4 @@ const DeviceError = db.define(
 }
 );
 
-export default DeviceError;
+export default DeviceEarthquake;
