@@ -304,7 +304,21 @@ export const trackedFailureListener = async () => {
                     if (existingDevice.status !== device.status) {
                         updatedDevices.push({
                             ...device,
-                            no: existingDevice.no // Tambahkan no dari data existing
+                            no: existingDevice.no
+                        });
+
+                        // Simpan data lama sebagai history
+                        await DeviceError.create({
+                            id: device.id,
+                            ip: device.ip,
+                            location: device.location,
+                            memory: device.memory,
+                            onSiteTime: device.onSiteTime,
+                            onSiteValue: device.onSiteValue,
+                            regCD: device.regCD,
+                            regTime: device.regTime,
+                            regValue: device.regValue,
+                            status: device.status
                         });
                     }
                 } else {
@@ -322,18 +336,19 @@ export const trackedFailureListener = async () => {
             // Update device yang berubah
             for (const device of updatedDevices) {
                 await DeviceError.update(
-                    { 
+                    {
                         status: device.status,
                         ip: device.ip,
                         location: device.location,
                         memory: device.memory,
                         onSiteTime: device.onSiteTime,
                         onSiteValue: device.onSiteValue,
+                        regCD: device.regCD,
                         regTime: device.regTime,
                         regValue: device.regValue
                     },
-                    { 
-                        where: { id: device.id } // Gunakan id sebagai kondisi
+                    {
+                        where: { id: device.id }
                     }
                 );
                 console.log(`Perangkat ${device.id} diperbarui`);
@@ -426,9 +441,11 @@ export const detectedEarthquakeListener = async () => {
                     if (value.onSiteValue && value.regValue) {
                         // Cek apakah data perangkat ada di database berdasarkan id
                         const existingDevice = await DeviceEarthquake.findOne({
-                            where: { id: deviceId }
+                            where: { id: deviceId },
+                            order: [['no', 'DESC']] // Ambil record terbaru
                         });
 
+                        // Cek apakah ada perubahan nilai
                         if (
                             !existingDevice || // Perangkat baru
                             existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
@@ -437,9 +454,9 @@ export const detectedEarthquakeListener = async () => {
                             // Tambahkan ke daftar perangkat yang berubah
                             changedDevices.push({ id: deviceId, ...value });
 
-                            // Perbarui atau masukkan data perangkat ke database
-                            await DeviceEarthquake.upsert({
-                                id: deviceId, // Gunakan deviceId sebagai identifier
+                            // Simpan data baru sebagai history
+                            await DeviceEarthquake.create({
+                                id: deviceId,
                                 ip: value.ip || null,
                                 location: value.location || null,
                                 memory: value.memory || null,
@@ -450,6 +467,8 @@ export const detectedEarthquakeListener = async () => {
                                 regValue: value.regValue || null,
                                 status: value.status || null,
                             });
+
+                            console.log(`History baru ditambahkan untuk device ${deviceId}`);
                         }
                     }
                 }
