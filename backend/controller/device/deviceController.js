@@ -1,7 +1,7 @@
 import { ref, get, onValue } from "firebase/database";
 import database from "../../config/firebase.js";
 import asyncHandler from "../../middleware/asyncHandler.js";
-import DeviceError from "../../models/device.js";
+import DeviceError from "../../models/deviceError.js";
 import nodemailer from "nodemailer";
 import Pengguna from "../../models/pengguna.js";
 import DeviceEarthquake from "../../models/deviceEarthquake.js";
@@ -315,7 +315,7 @@ export const trackedFailureListener = async () => {
 
         // Perbarui perangkat dengan status berbeda
         for (const device of updatedDevices) {
-            await DeviceError.update({ status: device.status }, { where: { id: device.id } });
+            await DeviceError.update({ status: device.status }, { where: { no: device.no } });
             console.log(`Perangkat diperbarui: ${JSON.stringify(device)}`);
         }
 

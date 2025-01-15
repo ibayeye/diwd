@@ -9,14 +9,14 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
-import Device from './models/device.js';
+import Device from './models/deviceError.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import swaggerDocs from './config/swagger.js';
 import DeviceEarthquake from './models/deviceEarthquake.js';
 import { detectedEarthquakeListener, trackedFailureListener } from './controller/device/deviceController.js';
-import DeviceError from './models/device.js';
+import DeviceError from './models/deviceError.js';
 // import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
