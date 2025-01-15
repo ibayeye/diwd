@@ -258,106 +258,148 @@ export const detectedEarthquake = asyncHandler(async (req, res) => {
 })
 
 export const trackedFailureListener = async () => {
-    const dbRef = ref(database, "/"); // Mengambil semua data dari root
-    const snapshot = await get(dbRef);
+    try {
+        const dbRef = ref(database, "/");
+        const snapshot = await get(dbRef);
 
-    const transporter = nodemailer.createTransport({
-        secure: true,
-        host: 'smtp.gmail.com',
-        port: 465,
-        auth: {
-            user: 'iqbal.gitlab@gmail.com',
-            pass: 'mofr isxk fbwu fucd',
-        },
-    });
-
-    if (snapshot.exists()) {
-        const allDevice = snapshot.val();
-        const deviceFailure = Object.entries(allDevice)
-            .filter(([key, value]) => {
-                return value.status && value.status !== "0,0";
-            })
-            .map(([key, value]) => ({ id: key, ...value }));
-
-        // Dapatkan ID dan status perangkat yang sudah ada di model DeviceError
-        const existingDevices = await DeviceError.findAll({
-            attributes: ["id", "status"], // Ambil ID dan status untuk perbandingan
+        const transporter = nodemailer.createTransport({
+            secure: true,
+            host: 'smtp.gmail.com',
+            port: 465,
+            auth: {
+                user: 'iqbal.gitlab@gmail.com',
+                pass: 'mofr isxk fbwu fucd',
+            },
         });
 
-        const existingDeviceMap = existingDevices.reduce((acc, device) => {
-            acc[device.id] = device.status;
-            return acc;
-        }, {});
+        if (snapshot.exists()) {
+            // Filter device dengan status error
+            const allDevice = snapshot.val();
+            const deviceFailure = Object.entries(allDevice)
+                .filter(([key, value]) => value.status && value.status !== "0,0")
+                .map(([key, value]) => ({ id: key, ...value }));
 
-        const newDevices = [];
-        const updatedDevices = [];
-
-        // Iterasi perangkat yang error
-        for (const device of deviceFailure) {
-            const existingStatus = existingDeviceMap[device.id];
-
-            if (existingStatus) {
-                // Jika perangkat sudah ada dan statusnya berbeda, tandai untuk diperbarui
-                if (existingStatus !== device.status) {
-                    updatedDevices.push(device);
-                }
-            } else {
-                // Jika perangkat belum ada, tandai untuk ditambahkan
-                newDevices.push(device);
-            }
-        }
-
-        // Masukkan perangkat baru ke database
-        if (newDevices.length > 0) {
-            await DeviceError.bulkCreate(newDevices);
-            console.log(`Perangkat baru ditambahkan: ${JSON.stringify(newDevices)}`);
-        }
-
-        // Perbarui perangkat dengan status berbeda
-        for (const device of updatedDevices) {
-            await DeviceError.update({ status: device.status }, { where: { no: device.no } });
-            console.log(`Perangkat diperbarui: ${JSON.stringify(device)}`);
-        }
-
-        // Kirim email jika ada perangkat baru atau diperbarui
-        if (newDevices.length > 0 || updatedDevices.length > 0) {
-            // Ambil email pengguna dengan role petugas dan system_engineer
-            const penggunaTarget = await Pengguna.findAll({
-                where: {
-                    role: ['petugas', 'system_engineer'], // Filter role petugas dan system_engineer
-                },
-                attributes: ['email'], // Hanya ambil email
+            // Ambil data existing dari database
+            const existingDevices = await DeviceError.findAll({
+                attributes: ["id", "status", "no"]
             });
 
-            const emailRecipients = penggunaTarget.map(user => user.email).join(","); // Gabungkan email penerima
-
-            if (emailRecipients) {
-                const mailOptions = {
-                    from: 'iqbal.gitlab@gmail.com',
-                    to: emailRecipients, // Kirim ke semua penerima
-                    subject: "Peringatan Perangkat Error",
-                    html: `
-                        <h1>Peringatan Perangkat Error</h1>
-                        <p>Ada perangkat baru atau perangkat yang diperbarui dengan status error.</p>
-                        <h2>Perangkat Baru</h2>
-                        <pre>${JSON.stringify(newDevices, null, 2)}</pre>
-                        <h2>Perangkat Diperbarui</h2>
-                        <pre>${JSON.stringify(updatedDevices, null, 2)}</pre>
-                    `,
+            const existingDeviceMap = existingDevices.reduce((acc, device) => {
+                acc[device.id] = {
+                    status: device.status,
+                    no: device.no
                 };
+                return acc;
+            }, {});
 
-                transporter.sendMail(mailOptions, (err, info) => {
-                    if (err) {
-                        console.error("Gagal mengirim email:", err);
-                    } else {
-                        console.log("Email berhasil dikirim ke:", emailRecipients);
-                        console.log("Respons email:", info.response);
+            const newDevices = [];
+            const updatedDevices = [];
+
+            // Proses setiap device yang error
+            for (const device of deviceFailure) {
+                const existingDevice = existingDeviceMap[device.id];
+
+                if (existingDevice) {
+                    // Update jika status berbeda
+                    if (existingDevice.status !== device.status) {
+                        updatedDevices.push({
+                            ...device,
+                            no: existingDevice.no // Tambahkan no dari data existing
+                        });
                     }
+                } else {
+                    // Device baru
+                    newDevices.push(device);
+                }
+            }
+
+            // Proses device baru
+            if (newDevices.length > 0) {
+                await DeviceError.bulkCreate(newDevices);
+                console.log(`${newDevices.length} perangkat baru ditambahkan`);
+            }
+
+            // Update device yang berubah
+            for (const device of updatedDevices) {
+                await DeviceError.update(
+                    { 
+                        status: device.status,
+                        ip: device.ip,
+                        location: device.location,
+                        memory: device.memory,
+                        onSiteTime: device.onSiteTime,
+                        onSiteValue: device.onSiteValue,
+                        regTime: device.regTime,
+                        regValue: device.regValue
+                    },
+                    { 
+                        where: { id: device.id } // Gunakan id sebagai kondisi
+                    }
+                );
+                console.log(`Perangkat ${device.id} diperbarui`);
+            }
+
+            // Kirim email jika ada perubahan
+            if (newDevices.length > 0 || updatedDevices.length > 0) {
+                const penggunaTarget = await Pengguna.findAll({
+                    where: {
+                        role: ['petugas', 'system_engineer']
+                    },
+                    attributes: ['email']
                 });
-            } else {
-                console.log("Tidak ada email penerima dengan role petugas atau system_engineer.");
+
+                const emailRecipients = penggunaTarget.map(user => user.email).join(",");
+
+                if (emailRecipients) {
+                    const mailOptions = {
+                        from: 'iqbal.gitlab@gmail.com',
+                        to: emailRecipients,
+                        subject: "Peringatan Perangkat Error",
+                        html: `
+                            <h1>Peringatan Perangkat Error</h1>
+                            <p>Ada perubahan status pada perangkat:</p>
+                            ${newDevices.length > 0 ? `
+                                <h2>Perangkat Baru (${newDevices.length})</h2>
+                                <ul>
+                                    ${newDevices.map(device => `
+                                        <li>
+                                            ID: ${device.id}<br>
+                                            Status: ${device.status}<br>
+                                            Lokasi: ${device.location}<br>
+                                            Waktu: ${device.onSiteTime}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            ` : ''}
+                            ${updatedDevices.length > 0 ? `
+                                <h2>Perangkat Diperbarui (${updatedDevices.length})</h2>
+                                <ul>
+                                    ${updatedDevices.map(device => `
+                                        <li>
+                                            ID: ${device.id}<br>
+                                            Status Baru: ${device.status}<br>
+                                            Lokasi: ${device.location}<br>
+                                            Waktu: ${device.onSiteTime}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            ` : ''}
+                        `,
+                    };
+
+                    try {
+                        await transporter.sendMail(mailOptions);
+                        console.log("Email berhasil dikirim ke:", emailRecipients);
+                    } catch (error) {
+                        console.error("Gagal mengirim email:", error);
+                    }
+                } else {
+                    console.log("Tidak ada email penerima dengan role petugas atau system_engineer.");
+                }
             }
         }
+    } catch (error) {
+        console.error("Error dalam trackedFailureListener:", error);
     }
 };
 
@@ -375,92 +417,116 @@ export const detectedEarthquakeListener = async () => {
     });
 
     onValue(dbRef, async (snapshot) => {
-        if (snapshot.exists()) {
-            const allDevice = snapshot.val();
-            const changedDevices = [];
+        try {
+            if (snapshot.exists()) {
+                const allDevice = snapshot.val();
+                const changedDevices = [];
 
-            for (const [key, value] of Object.entries(allDevice)) {
-                if (value.onSiteValue && value.regValue) {
-                    const [mmiOnSite] = value.onSiteValue.split(" ");
-                    const [mmiReg] = value.regValue.split(" ");
-
-                    // Cek apakah data perangkat ada di database
-                    const existingDevice = await DeviceEarthquake.findByPk(key);
-
-                    if (
-                        !existingDevice || // Perangkat baru
-                        existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
-                        existingDevice.regValue !== value.regValue // Nilai regValue berubah
-                    ) {
-                        // Tambahkan ke daftar perangkat yang berubah
-                        changedDevices.push({ id: key, ...value });
-
-                        // Perbarui atau masukkan data perangkat ke database
-                        await DeviceEarthquake.upsert({
-                            id: key,
-                            ip: value.ip || null,
-                            location: value.location || null,
-                            memory: value.memory || null,
-                            onSiteTime: value.onSiteTime || null,
-                            onSiteValue: value.onSiteValue || null,
-                            regCO: value.regCO || null,
-                            regTime: value.regTime || null,
-                            regValue: value.regValue || null,
-                            status: value.status || null,
+                for (const [deviceId, value] of Object.entries(allDevice)) {
+                    if (value.onSiteValue && value.regValue) {
+                        // Cek apakah data perangkat ada di database berdasarkan id
+                        const existingDevice = await DeviceEarthquake.findOne({
+                            where: { id: deviceId }
                         });
+
+                        if (
+                            !existingDevice || // Perangkat baru
+                            existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
+                            existingDevice.regValue !== value.regValue // Nilai regValue berubah
+                        ) {
+                            // Tambahkan ke daftar perangkat yang berubah
+                            changedDevices.push({ id: deviceId, ...value });
+
+                            // Perbarui atau masukkan data perangkat ke database
+                            await DeviceEarthquake.upsert({
+                                id: deviceId, // Gunakan deviceId sebagai identifier
+                                ip: value.ip || null,
+                                location: value.location || null,
+                                memory: value.memory || null,
+                                onSiteTime: value.onSiteTime || null,
+                                onSiteValue: value.onSiteValue || null,
+                                regCO: value.regCO || null,
+                                regTime: value.regTime || null,
+                                regValue: value.regValue || null,
+                                status: value.status || null,
+                            });
+                        }
+                    }
+                }
+
+                if (changedDevices.length > 0) {
+                    // Format email dengan informasi lebih terstruktur
+                    let emailContent = `
+                        <h1>Pemberitahuan Deteksi Gempa</h1>
+                        <p>Terdeteksi ${changedDevices.length} perangkat dengan perubahan nilai:</p>
+                        <div style="margin: 20px 0;">
+                    `;
+
+                    changedDevices.forEach((device) => {
+                        // Ekstrak nilai MMI untuk ditonjolkan
+                        const onSiteMMI = device.onSiteValue ? device.onSiteValue.split(" ")[0] : 'N/A';
+                        const regMMI = device.regValue ? device.regValue.split(" ")[0] : 'N/A';
+
+                        emailContent += `
+                            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+                                <h2 style="color: #333;">Perangkat ID: ${device.id}</h2>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+                                        <h3 style="color: #d9534f;">Nilai OnSite</h3>
+                                        <p><strong>MMI:</strong> ${onSiteMMI}</p>
+                                        <p><strong>Waktu:</strong> ${device.onSiteTime || 'N/A'}</p>
+                                        <p><strong>Nilai Lengkap:</strong> ${device.onSiteValue || 'N/A'}</p>
+                                    </div>
+                                    <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+                                        <h3 style="color: #5bc0de;">Nilai Regional</h3>
+                                        <p><strong>MMI:</strong> ${regMMI}</p>
+                                        <p><strong>Waktu:</strong> ${device.regTime || 'N/A'}</p>
+                                        <p><strong>Nilai Lengkap:</strong> ${device.regValue || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <p><strong>Lokasi:</strong> ${device.location || 'N/A'}</p>
+                                    <p><strong>IP:</strong> ${device.ip || 'N/A'}</p>
+                                    <p><strong>Status:</strong> ${device.status || 'N/A'}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    emailContent += '</div>';
+
+                    try {
+                        const penggunaList = await Pengguna.findAll({
+                            where: {
+                                role: ["petugas", "system_engineer"],
+                            },
+                            attributes: ['email']
+                        });
+
+                        const emailRecipients = penggunaList.map((user) => user.email).join(", ");
+
+                        if (emailRecipients) {
+                            await transporter.sendMail({
+                                from: "skripsidiwd@gmail.com",
+                                to: emailRecipients,
+                                subject: "Peringatan - Deteksi Aktivitas Gempa",
+                                html: emailContent,
+                            });
+
+                            console.log(`Email terkirim ke ${penggunaList.length} penerima`);
+                        } else {
+                            console.log("Tidak ada penerima email yang ditemukan");
+                        }
+                    } catch (error) {
+                        console.error("Gagal mengirim email:", error);
                     }
                 }
             }
-
-            if (changedDevices.length > 0) {
-                let emailContent = `<h1>Pemberitahuan Perangkat</h1><p>Berikut adalah perangkat yang terdeteksi perubahan:</p><ul>`;
-                changedDevices.forEach((device) => {
-                    emailContent += `
-                        <li>
-                            <p><strong>ID:</strong> ${device.id}</p>
-                            <p><strong>IP:</strong> ${device.ip}</p>
-                            <p><strong>Location:</strong> ${device.location}</p>
-                            <p><strong>Memory:</strong> ${device.memory}</p>
-                            <p><strong>OnSite Time:</strong> ${device.onSiteTime}</p>
-                            <p><strong>OnSite Value:</strong> ${device.onSiteValue}</p>
-                            <p><strong>Reg CO:</strong> ${device.regCO}</p>
-                            <p><strong>Reg Time:</strong> ${device.regTime}</p>
-                            <p><strong>Reg Value:</strong> ${device.regValue}</p>
-                            <p><strong>Status:</strong> ${device.status}</p>
-                        </li>
-                    `;
-                });
-                emailContent += `</ul>`;
-
-                try {
-                    const penggunaList = await Pengguna.findAll({
-                        where: {
-                            role: ["petugas", "system_engineer"],
-                        },
-                    });
-
-                    const emailRecipients = penggunaList.map((user) => user.email).join(", ");
-
-                    await transporter.sendMail({
-                        from: "skripsidiwd@gmail.com",
-                        to: emailRecipients,
-                        subject: "Pemberitahuan Perangkat yang Nilainya Berubah",
-                        html: emailContent,
-                    });
-
-                    console.log("Email sent successfully for changed devices to:", emailRecipients);
-                } catch (error) {
-                    console.error("Failed to send email for changed devices", error);
-                }
-            } else {
-                console.log("No changes detected in device values.");
-            }
-        } else {
-            console.log("No devices found in database.");
+        } catch (error) {
+            console.error("Error dalam detectedEarthquakeListener:", error);
         }
     });
 };
-
 
 // export const listenForFirebaseChanges = () => {
 //     const dbRef = ref(database, "/"); // Mengacu pada root Firebase
