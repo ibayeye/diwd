@@ -257,58 +257,48 @@ export const detectedEarthquake = asyncHandler(async (req, res) => {
     }
 })
 
-export const trackedFailureListener = async () => {
-    try {
-        const dbRef = ref(database, "/");
-        const snapshot = await get(dbRef);
+export const trackedFailureListener = () => {
+    const transporter = nodemailer.createTransport({
+        secure: true,
+        host: 'smtp.gmail.com',
+        port: 465,
+        auth: {
+            user: 'iqbal.gitlab@gmail.com',
+            pass: 'mofr isxk fbwu fucd',
+        },
+    });
 
-        const transporter = nodemailer.createTransport({
-            secure: true,
-            host: 'smtp.gmail.com',
-            port: 465,
-            auth: {
-                user: 'iqbal.gitlab@gmail.com',
-                pass: 'mofr isxk fbwu fucd',
-            },
-        });
+    const dbRef = ref(database, "/");
+    onValue(dbRef, async (snapshot) => {
+        try {
+            if (snapshot.exists()) {
+                // Filter device dengan status error
+                const allDevice = snapshot.val();
+                const deviceFailure = Object.entries(allDevice)
+                    .filter(([key, value]) => value.status && value.status !== "0,0")
+                    .map(([key, value]) => ({ id: key, ...value }));
 
-        if (snapshot.exists()) {
-            // Filter device dengan status error
-            const allDevice = snapshot.val();
-            const deviceFailure = Object.entries(allDevice)
-                .filter(([key, value]) => value.status && value.status !== "0,0")
-                .map(([key, value]) => ({ id: key, ...value }));
+                // Ambil data existing terbaru untuk setiap device
+                const latestDevices = await DeviceError.findAll({
+                    attributes: ["id", "status"],
+                    order: [['createdAt', 'DESC']], // Ambil yang terbaru
+                    group: ['id'],  // Grouped by device id
+                });
 
-            // Ambil data existing dari database
-            const existingDevices = await DeviceError.findAll({
-                attributes: ["id", "status", "no"]
-            });
+                const latestDeviceMap = latestDevices.reduce((acc, device) => {
+                    acc[device.id] = device.status;
+                    return acc;
+                }, {});
 
-            const existingDeviceMap = existingDevices.reduce((acc, device) => {
-                acc[device.id] = {
-                    status: device.status,
-                    no: device.no
-                };
-                return acc;
-            }, {});
+                const newRecords = [];
 
-            const newDevices = [];
-            const updatedDevices = [];
+                // Proses setiap device yang error
+                for (const device of deviceFailure) {
+                    const latestStatus = latestDeviceMap[device.id];
 
-            // Proses setiap device yang error
-            for (const device of deviceFailure) {
-                const existingDevice = existingDeviceMap[device.id];
-
-                if (existingDevice) {
-                    // Update jika status berbeda
-                    if (existingDevice.status !== device.status) {
-                        updatedDevices.push({
-                            ...device,
-                            no: existingDevice.no
-                        });
-
-                        // Simpan data lama sebagai history
-                        await DeviceError.create({
+                    // Jika status berbeda atau device baru, buat record baru
+                    if (!latestStatus || latestStatus !== device.status) {
+                        newRecords.push({
                             id: device.id,
                             ip: device.ip,
                             location: device.location,
@@ -321,75 +311,33 @@ export const trackedFailureListener = async () => {
                             status: device.status
                         });
                     }
-                } else {
-                    // Device baru
-                    newDevices.push(device);
                 }
-            }
 
-            // Proses device baru
-            if (newDevices.length > 0) {
-                await DeviceError.bulkCreate(newDevices);
-                console.log(`${newDevices.length} perangkat baru ditambahkan`);
-            }
+                // Simpan semua record baru
+                if (newRecords.length > 0) {
+                    await DeviceError.bulkCreate(newRecords);
+                    console.log(`${newRecords.length} record baru ditambahkan`);
 
-            // Update device yang berubah
-            for (const device of updatedDevices) {
-                await DeviceError.update(
-                    {
-                        status: device.status,
-                        ip: device.ip,
-                        location: device.location,
-                        memory: device.memory,
-                        onSiteTime: device.onSiteTime,
-                        onSiteValue: device.onSiteValue,
-                        regCD: device.regCD,
-                        regTime: device.regTime,
-                        regValue: device.regValue
-                    },
-                    {
-                        where: { id: device.id }
-                    }
-                );
-                console.log(`Perangkat ${device.id} diperbarui`);
-            }
+                    // Kirim email notifikasi
+                    const penggunaTarget = await Pengguna.findAll({
+                        where: {
+                            role: ['petugas', 'system_engineer']
+                        },
+                        attributes: ['email']
+                    });
 
-            // Kirim email jika ada perubahan
-            if (newDevices.length > 0 || updatedDevices.length > 0) {
-                const penggunaTarget = await Pengguna.findAll({
-                    where: {
-                        role: ['petugas', 'system_engineer']
-                    },
-                    attributes: ['email']
-                });
+                    const emailRecipients = penggunaTarget.map(user => user.email).join(",");
 
-                const emailRecipients = penggunaTarget.map(user => user.email).join(",");
-
-                if (emailRecipients) {
-                    const mailOptions = {
-                        from: 'iqbal.gitlab@gmail.com',
-                        to: emailRecipients,
-                        subject: "Peringatan Perangkat Error",
-                        html: `
-                            <h1>Peringatan Perangkat Error</h1>
-                            <p>Ada perubahan status pada perangkat:</p>
-                            ${newDevices.length > 0 ? `
-                                <h2>Perangkat Baru (${newDevices.length})</h2>
+                    if (emailRecipients) {
+                        const mailOptions = {
+                            from: 'iqbal.gitlab@gmail.com',
+                            to: emailRecipients,
+                            subject: "Peringatan Perubahan Status Perangkat",
+                            html: `
+                                <h1>Peringatan Perubahan Status Perangkat</h1>
+                                <p>Ada perubahan status pada ${newRecords.length} perangkat:</p>
                                 <ul>
-                                    ${newDevices.map(device => `
-                                        <li>
-                                            ID: ${device.id}<br>
-                                            Status: ${device.status}<br>
-                                            Lokasi: ${device.location}<br>
-                                            Waktu: ${device.onSiteTime}
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            ` : ''}
-                            ${updatedDevices.length > 0 ? `
-                                <h2>Perangkat Diperbarui (${updatedDevices.length})</h2>
-                                <ul>
-                                    ${updatedDevices.map(device => `
+                                    ${newRecords.map(device => `
                                         <li>
                                             ID: ${device.id}<br>
                                             Status Baru: ${device.status}<br>
@@ -398,24 +346,27 @@ export const trackedFailureListener = async () => {
                                         </li>
                                     `).join('')}
                                 </ul>
-                            ` : ''}
-                        `,
-                    };
+                            `,
+                        };
 
-                    try {
-                        await transporter.sendMail(mailOptions);
-                        console.log("Email berhasil dikirim ke:", emailRecipients);
-                    } catch (error) {
-                        console.error("Gagal mengirim email:", error);
+                        try {
+                            await transporter.sendMail(mailOptions);
+                            console.log("Email berhasil dikirim ke:", emailRecipients);
+                        } catch (error) {
+                            console.error("Gagal mengirim email:", error);
+                        }
+                    } else {
+                        console.log("Tidak ada email penerima dengan role petugas atau system_engineer.");
                     }
-                } else {
-                    console.log("Tidak ada email penerima dengan role petugas atau system_engineer.");
                 }
             }
+        } catch (error) {
+            console.error("Error dalam trackedFailureListener:", error);
         }
-    } catch (error) {
-        console.error("Error dalam trackedFailureListener:", error);
-    }
+    }, (error) => {
+        // Error handling untuk onValue
+        console.error('Error pada Firebase listener:', error);
+    });
 };
 
 export const detectedEarthquakeListener = async () => {

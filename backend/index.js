@@ -71,20 +71,22 @@ const syncModels = async () => {
         await DeviceEarthquake.sync();
         console.log("Device Earthquake synced.");
 
-        // listenForFirebaseChanges();
-        // console.log("Listener Firebase aktif.");
+        // Tambahkan try-catch khusus untuk listener
+        try {
+            trackedFailureListener();
+            console.log("Listener Failure aktif.");
 
-        trackedFailureListener();
-        console.log("Listener Failure aktif.");
-
-        detectedEarthquakeListener();
-        console.log("Listener Earthquake aktif.");
-
-        // sendNotification();
+            detectedEarthquakeListener();
+            console.log("Listener Earthquake aktif.");
+        } catch (listenerError) {
+            console.error("Error saat menginisialisasi listener:", listenerError);
+            // Bisa putuskan apakah perlu menghentikan aplikasi atau tidak
+            // Jika listener tidak kritis, bisa lanjut tanpa listener
+        }
 
     } catch (error) {
         console.error("Unable to connect to the database:", error);
-        process.exit(1); // Exit jika ada kegagalan
+        process.exit(1);
     }
 };
 
