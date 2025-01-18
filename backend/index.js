@@ -39,9 +39,50 @@ app.use(
 );
 
 
+// Tambahkan variable global untuk track status listener
+let isListenerActive = false;
+
+// Fungsi untuk setup dan manage listener
+const setupFirebaseListeners = () => {
+    // Cek apakah listener sudah aktif
+    if (!isListenerActive) {
+        try {
+            // Jalankan kedua listener
+            trackedFailureListener();
+            detectedEarthquakeListener();
+            
+            // Set flag ke true kalau berhasil
+            isListenerActive = true;
+            console.log("Firebase listeners activated successfully at:", new Date().toISOString());
+            
+        } catch (error) {
+            console.error("Failed to setup Firebase listeners:", error);
+            
+            // Jika gagal, coba lagi setelah 5 detik
+            setTimeout(setupFirebaseListeners, 5000);
+            
+            // Log untuk tracking retry
+            console.log("Retrying listener setup in 5 seconds...");
+        }
+    }
+};
+
+// Integrasikan dengan endpoint ping
 app.get('/ping', (req, res) => {
-    res.send('Ping received! App is active.');
+    // Setiap kali di-ping, cek dan setup listener kalau belum aktif
+    setupFirebaseListeners();
+    
+    // Tambahkan informasi status di response
+    res.json({
+        status: 'active',
+        listenerStatus: isListenerActive ? 'running' : 'inactive',
+        timestamp: new Date().toISOString()
+    });
 });
+
+// app.get('/ping', (req, res) => {
+//     res.send('Ping received! App is active.');
+// });
 
 // routing
 swaggerDocs(app, process.env.API_DOCS);
@@ -71,18 +112,18 @@ const syncModels = async () => {
         await DeviceEarthquake.sync();
         console.log("Device Earthquake synced.");
 
-        // Tambahkan try-catch khusus untuk listener
-        try {
-            trackedFailureListener();
-            console.log("Listener Failure aktif.");
+        // // Tambahkan try-catch khusus untuk listener
+        // try {
+        //     trackedFailureListener();
+        //     console.log("Listener Failure aktif.");
 
-            detectedEarthquakeListener();
-            console.log("Listener Earthquake aktif.");
-        } catch (listenerError) {
-            console.error("Error saat menginisialisasi listener:", listenerError);
-            // Bisa putuskan apakah perlu menghentikan aplikasi atau tidak
-            // Jika listener tidak kritis, bisa lanjut tanpa listener
-        }
+        //     detectedEarthquakeListener();
+        //     console.log("Listener Earthquake aktif.");
+        // } catch (listenerError) {
+        //     console.error("Error saat menginisialisasi listener:", listenerError);
+        //     // Bisa putuskan apakah perlu menghentikan aplikasi atau tidak
+        //     // Jika listener tidak kritis, bisa lanjut tanpa listener
+        // }
 
     } catch (error) {
         console.error("Unable to connect to the database:", error);
