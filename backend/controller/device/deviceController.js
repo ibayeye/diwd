@@ -397,10 +397,15 @@ export const detectedEarthquakeListener = async () => {
                         });
 
                         // Cek apakah ada perubahan nilai
+                        // if (
+                        //     !existingDevice || // Perangkat baru
+                        //     existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
+                        //     existingDevice.regValue !== value.regValue // Nilai regValue berubah
+                        // ) 
                         if (
                             !existingDevice || // Perangkat baru
-                            existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
-                            existingDevice.regValue !== value.regValue // Nilai regValue berubah
+                            parseFloat(existingDevice.onSiteValue.split(" ")[0]) !== parseFloat(value.onSiteValue.split(" ")[0]) || // Nilai MMI onsiteValue berubah
+                            parseFloat(existingDevice.regValue.split(" ")[0]) !== parseFloat(value.regValue.split(" ")[0]) // Nilai MMI regValue berubah
                         ) {
                             // Tambahkan ke daftar perangkat yang berubah
                             changedDevices.push({ id: deviceId, ...value });
