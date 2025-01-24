@@ -395,17 +395,16 @@ export const detectedEarthquakeListener = async () => {
                             where: { id: deviceId },
                             order: [['no', 'DESC']] // Ambil record terbaru
                         });
+                        const existingOnSiteMMI = existingDevice ? parseFloat(existingDevice.onSiteValue.split(" ")[0]) : null;
+                        const newOnSiteMMI = parseFloat(value.onSiteValue.split(" ")[0]);
 
-                        // Cek apakah ada perubahan nilai
-                        // if (
-                        //     !existingDevice || // Perangkat baru
-                        //     existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
-                        //     existingDevice.regValue !== value.regValue // Nilai regValue berubah
-                        // ) 
+                        const existingRegMMI = existingDevice ? parseFloat(existingDevice.regValue.split(" ")[0]) : null;
+                        const newRegMMI = parseFloat(value.regValue.split(" ")[0]);
+
                         if (
                             !existingDevice || // Perangkat baru
-                            parseFloat(existingDevice.onSiteValue.split(" ")[0]) !== parseFloat(value.onSiteValue.split(" ")[0]) || // Nilai MMI onsiteValue berubah
-                            parseFloat(existingDevice.regValue.split(" ")[0]) !== parseFloat(value.regValue.split(" ")[0]) // Nilai MMI regValue berubah
+                            existingOnSiteMMI !== newOnSiteMMI || // Nilai MMI onsiteValue berubah
+                            existingRegMMI !== newRegMMI // Nilai MMI regValue berubah
                         ) {
                             // Tambahkan ke daftar perangkat yang berubah
                             changedDevices.push({ id: deviceId, ...value });
