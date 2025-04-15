@@ -19,35 +19,35 @@ const LandingPage = () => {
   };
   return (
     <div style={bgawal} className="bg-gray-200 p-4">
-      <nav className="flex justify-between items-center border p-4 bg-white rounded-xl">
+      <nav className="flex justify-between items-center border py-2 bg-white rounded-lg">
         <div className="ml-8">
           <Logo />
         </div>
-        <div className="flex space-x-6">
-          <button className="text-xl text-gray-700">Titik Alat</button>
-          <button className="text-xl text-gray-700">Tentang</button>
+        <div className="flex space-x-8">
+          <button className="text-lg text-gray-700">Tool Point</button>
+          <button className="text-lg text-gray-700">About</button>
         </div>
         <div className="flex space-x-4 mr-8">
           <button
-            className="bg-orange-500 text-white rounded-xl px-4 py-2 hover:bg-orange-600"
+            className="bg-orange-500 text-white rounded-lg text-sm px-6 py-3 hover:bg-orange-600  hover:-translate-y-px active:opacity-85 hover:shadow-md"
             onClick={navigateRegister}
           >
             Register
           </button>
           <button
-            className="bg-blue-500 text-white rounded-xl px-4 py-2 hover:bg-blue-600"
+            className="bg-blue-500 text-white text-center text-sm rounded-lg px-6 py-3 hover:bg-blue-600 hover:-translate-y-px active:opacity-85 hover:shadow-md"
             onClick={navigateLogin}
           >
-            Login
+            Sign In
           </button>
         </div>
       </nav>
       <main className="flex-1 flex flex-col items-center justify-center text-center p-6">
-        <h1 className="text-3xl font-bold mb-2">
-          Selamat datang di Earthquake Early Warning System
+        <h1 className="text-2xl font-bold mb-2">
+          Welcome to the Earthquake Early Warning System
         </h1>
-        <h2 className="text-2xl text-gray-600">
-          Deteksi Gempa Cepat untuk Keselamatan Anda!
+        <h2 className="text-xl text-gray-600">
+          Fast Earthquake Detection for Your Safety!
         </h2>
         <div className="flex justify-center items-center mt-8">
           <Maps className="w-full h-auto" />

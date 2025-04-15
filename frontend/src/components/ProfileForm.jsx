@@ -2,22 +2,52 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
+// Komponen untuk menampilkan field profil
+const ProfileField = ({ label, value }) => (
+  <div className="text-start m-2">
+    <label className="block font-medium">{label}</label>
+    <div className="bg-white border border-gray-300 rounded-sm px-2 h-10 flex items-center">
+      {value || "Tidak tersedia"}
+    </div>
+  </div>
+);
+
 const ProfileForm = ({ onClose }) => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const userData = JSON.parse(Cookies.get("userData") || "{}");
+  // Data pengguna dari cookie
+  const userData = Cookies.get("userData")
+    ? JSON.parse(Cookies.get("userData"))
+    : {};
+
+  // Field profil untuk ditampilkan
+  const profileFields = [
+    { label: "Nama Lengkap", value: userData.nama },
+    { label: "Username", value: userData.username },
+    { label: "Email", value: userData.email },
+    { label: "NIP", value: userData.nip },
+    { label: "Nomor Telepon", value: userData.no_hp },
+  ];
 
   const handleLogout = () => {
-    Cookies.remove('token')
-    Cookies.remove(userData.token)
-    navigate('/login')
-    console.log('token dihappus',userData.username)
+    Cookies.remove("token");
+    Cookies.remove("userData");
+    navigate("/login");
+    console.log("Token dihapus. Token:", userData.token || "Guest");
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("File yang dipilih bukan gambar!");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File terlalu besar! Maksimum 2MB.");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result);
@@ -26,49 +56,52 @@ const ProfileForm = ({ onClose }) => {
     }
   };
 
+  const handleRemoveImage = () => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus gambar?")) {
+      setSelectedImage(null);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-      <div className="relative bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-4xl">
+    <div className="fixed bg-gray-500 flex justify-center items-center">
+      <div className="relative bg-white rounded-lg shadow-lg h-5/6 w-3/4 max-w-2xl">
         {/* Tombol Back */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-red-500 hover:text-red-700"
+          className="absolute top-2 left-2 text-gray-700"
         >
           Back
         </button>
 
         {/* Konten Profil */}
-        <div className="grid grid-cols-3 text-center h-96">
+        <div className="grid grid-cols-3 text-center">
           {/* Bagian Kiri: Foto Profil */}
           <div className="border-e-2 flex flex-col items-center p-4">
             {selectedImage ? (
               <img
                 src={selectedImage}
                 alt="Preview"
-                className="w-52 h-52 object-cover rounded-full"
+                className="object-cover rounded-full h-28 w-28"
               />
             ) : (
-              <div className="bg-gray-200 h-24 w-28 m-4 flex items-center justify-center">
-                Pilih file
+              <div
+                onClick={() => document.getElementById("fileInput").click()}
+                className="bg-gray-300 h-28 w-28 m-4 flex items-center justify-center rounded-full cursor-pointer"
+              >
+                <span>Upload Image</span>
               </div>
             )}
             <input
               type="file"
+              id="fileInput"
               accept="image/*"
               onChange={handleImageChange}
-              id="fileInput"
               className="hidden"
             />
-            <label
-              htmlFor="fileInput"
-              className="bg-blue-400 text-white px-4 py-2 rounded cursor-pointer mt-2 mb-3"
-            >
-              Pilih Gambar
-            </label>
             {selectedImage && (
               <button
-                onClick={() => setSelectedImage(null)}
-                className="bg-red-400 px-4 py-2 rounded text-white"
+                onClick={handleRemoveImage}
+                className="bg-red-400 px-4 py-2 rounded text-white mt-2"
               >
                 Remove Image
               </button>
@@ -83,47 +116,16 @@ const ProfileForm = ({ onClose }) => {
 
           {/* Bagian Kanan: Data Profil */}
           <div className="col-span-2 grid grid-cols-2 p-4">
-            <div>
-              <div className="text-start m-2">
-                Nama Lengkap
-                <div className="bg-white border border-black rounded-md px-2 w-80">
-                  {userData.nama || "Guest"}
-                </div>
-              </div>
-              <div className="text-start m-2">
-                Username
-                <div className="bg-white border border-black rounded-md px-2">
-                  {userData.username || "Guest"}
-                </div>
-              </div>
-              <div className="text-start m-2">
-                Email
-                <div className="bg-white border border-black rounded-md px-2">
-                  {userData.email || "Guest"}
-                </div>
-              </div>
-              <div className="text-start m-2">
-                NIP
-                <div className="bg-white border border-black rounded-md px-2">
-                  {userData.nip || "Guest"}
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="text-start m-2">
-                Nomor Telepon
-                <div className="bg-white border border-black rounded-md px-2">
-                  {userData.no_hp || "Guest"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 m-2 text-white">
-                <button className="bg-blue-400 border hover:bg-blue-500 rounded-md m-2 px-4 py-2">
-                  Edit
-                </button>
-                <button className="bg-green-400 border hover:bg-green-500 rounded-md m-2 px-4 py-2">
-                  Save
-                </button>
-              </div>
+            {profileFields.map(({ label, value }) => (
+              <ProfileField key={label} label={label} value={value} />
+            ))}
+            <div className="col-span-2 flex justify-around mt-4">
+              <button className="bg-blue-400 border hover:bg-blue-500 rounded-sm px-4 py-2">
+                Edit
+              </button>
+              <button className="bg-green-400 border hover:bg-green-500 rounded-sm px-4 py-2">
+                Save
+              </button>
             </div>
           </div>
         </div>

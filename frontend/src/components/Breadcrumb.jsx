@@ -5,7 +5,7 @@ const Breadcrumb = () => {
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
   if (pathnames.length === 0) return <span>Dashboard</span>; // Memecah path dan menghapus string kosong
-  console.log(location.pathnames);
+  // console.log(location.pathnames);
   return (
     <div className="text-base pl-2 text-gray-500 bg-white h-16 flex items-center">
       {pathnames.length > 0 ? (
@@ -30,7 +30,7 @@ const Breadcrumb = () => {
           })}
         </span>
       ) : (
-        <span>Dashboard</span>
+        <span>sdsdtbrfgvds</span>
       )}
     </div>
   );
