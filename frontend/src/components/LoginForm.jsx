@@ -8,6 +8,7 @@ import Bg from "../assets/images/bg1.svg";
 import { useLoader } from "../components/Loader";
 import Toast from "../components/Toast";
 import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
+import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const { showLoader, hideLoader } = useLoader();
@@ -31,22 +32,28 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     showLoader();
     e.preventDefault();
-
     setEmailError("");
     setPasswordError("");
+    setError(null); // Reset error sebelum submit
 
+    if (!email || !password) {
+      toast.error("Email dan password tidak boleh kosong", {
+        position: "top-right",
+      });
+      hideLoader();
+      return;
+    }
     try {
       const response = await login(email, password);
-      const token = response.data?.token; // Pastikan token ada di response
+      const token = response.data?.token;
       const userData = response.data;
 
       // Simpan data ke cookies
-      Cookies.set("token", token, { expires: 7, secure: true }); // Token disimpan di cookies selama 7 hari
+      Cookies.set("token", token, { expires: 7, secure: true });
       Cookies.set("userData", JSON.stringify(userData), {
         expires: 7,
         secure: true,
       });
-
       console.log(response);
       console.log("Token disimpan ke cookies:", token);
 

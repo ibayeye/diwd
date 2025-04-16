@@ -12,7 +12,8 @@ import ListPage from "./pages/ListPage";
 import DeviceReportPage from "./pages/DeviceReportPage";
 import EarthquakePage from "./pages/Eartquakepage";
 import UserPage from "./pages/UserPage";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const App = () => {
   return (
     <LoaderProvider>
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="*" element={<LandingPage />} />
           </Route>
         </Routes>
+        <ToastContainer />
       </Router>
     </LoaderProvider>
   );
