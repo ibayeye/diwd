@@ -9,10 +9,12 @@ const ProfileForm = ({ onClose }) => {
   const userData = JSON.parse(Cookies.get("userData") || "{}");
 
   const handleLogout = () => {
-    Cookies.remove('token')
-    Cookies.remove(userData.token)
-    navigate('/login')
-    console.log('token dihappus',userData.username)
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    Cookies.remove("token");
+    Cookies.remove(userData);
+    navigate("/login");
+    console.log("token dihappus", userData.username);
   };
 
   const handleImageChange = (e) => {

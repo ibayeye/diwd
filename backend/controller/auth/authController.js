@@ -19,7 +19,7 @@ export const register = asyncHandler(async (req, res) => {
 
     if (existingUser) {
         return res.status(400).json({
-            message: "Pengguna already exists"
+            msg: "Pengguna already exists"
         })
     }
 
@@ -30,6 +30,10 @@ export const register = asyncHandler(async (req, res) => {
         });
     }
 
+    if (isNaN(role)) {
+        return res.status(400).json({ msg: "Role must be a number" });
+    }
+
     if (password !== confirmPassword) {
         return res.status(400).json({
             status: "error",
@@ -37,8 +41,9 @@ export const register = asyncHandler(async (req, res) => {
         })
     }
 
-    const allowedRoles = ['system_engineer', 'customer', 'petugas'];
-    if (!allowedRoles.includes(role)) {
+    const allowedRoles = [0, 1, 2];
+    const parsedRoles = parseInt(role);
+    if (!allowedRoles.includes(parsedRoles)) {
         return res.status(400).json({
             status: "error",
             msg: 'Invalid role',
@@ -55,7 +60,7 @@ export const register = asyncHandler(async (req, res) => {
         nama,
         nip,
         no_hp,
-        role
+        role: parsedRoles
     })
     res.status(201).json({
         status: "success",
@@ -86,15 +91,15 @@ export const login = asyncHandler(async (req, res) => {
 
     pengguna.activeSession = token;
     await pengguna.save();
-    
+
     // res.cookie("jwt", token, cookieOptions);
     res.cookie("token", token, {
         httpOnly: true, // Membuat cookie tidak bisa diakses dari JavaScript
         secure: true, // Cookie hanya dikirim melalui HTTPS
         sameSite: "strict", // Melindungi dari CSRF
         maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie berlaku selama 7 hari
-      });
-      
+    });
+
 
     res.status(200).json({
         status: "ok",
@@ -135,7 +140,7 @@ export const logout = asyncHandler(async (req, res) => {
     res.status(200).json({ status: "success", msg: "Logout successful." });
 });
 
-export const getPenggunas = asyncHandler(async (req, res) => {
+export const getPengguna = asyncHandler(async (req, res) => {
     const id = req.params.id;
 
     if (!id) {
@@ -164,7 +169,7 @@ export const getPenggunas = asyncHandler(async (req, res) => {
     });
 });
 
-export const getAllPenggunas = asyncHandler(async (req, res) => {
+export const getAllPengguna = asyncHandler(async (req, res) => {
 
     const [listpengguna, totalpengguna] = await Promise.all([
         Pengguna.findAll({
@@ -195,7 +200,7 @@ export const getAllPenggunas = asyncHandler(async (req, res) => {
     });
 });
 
-export const deletePenggunas = asyncHandler(async (req, res) => {
+export const deletePengguna = asyncHandler(async (req, res) => {
     const id = req.params.id;
 
 
@@ -223,7 +228,7 @@ export const deletePenggunas = asyncHandler(async (req, res) => {
     });
 });
 
-export const updatePenggunas = asyncHandler(async (req, res) => {
+export const updatePengguna = asyncHandler(async (req, res) => {
     //     const id = req.params.id;
     //     const apiKey = req.headers["x-api-key"];
 
@@ -351,7 +356,7 @@ export const updatePenggunas = asyncHandler(async (req, res) => {
         if (err) {
             return res.status(400).json({
                 status: "error",
-                msg: err.message,
+                msg: err.msg,
             });
         }
 

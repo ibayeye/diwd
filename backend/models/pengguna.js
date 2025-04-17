@@ -4,7 +4,7 @@ import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
 const Pengguna = db.define(
-  "penggunas", {
+  "pengguna", {
   id: {
     allowNull: false,
     primaryKey: true,
@@ -57,10 +57,13 @@ const Pengguna = db.define(
     type: DataTypes.BIGINT,
   },
   role: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    type: DataTypes.STRING,
-    enum: ['system_engineer', 'petugas', 'customer']
-  }
+    defaultValue: 0,
+    validate: {
+      isIn: [[0, 1, 2]] // 0:END USER, 1:PETUGAS, 2:SYSTEM_ENGINER
+    }
+  },
 }, {
   freezeTableName: true,
 }
