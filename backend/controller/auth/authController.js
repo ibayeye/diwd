@@ -13,65 +13,60 @@ import {
 } from "../../middleware/generateToken.js";
 
 export const register = asyncHandler(async (req, res) => {
-  const { username, email, password, confirmPassword, nama, nip, no_hp, role } =
-    req.body;
+    const { username, email, password, confirmPassword, nama, nip, no_hp, role } = req.body;
 
-  const existingUser = await Pengguna.findOne({ where: { email: email } });
+    const existingUser = await Pengguna.findOne({ where: { email: email } })
 
-  if (existingUser) {
-    return res.status(400).json({
-      message: "Pengguna already exists",
+    if (existingUser) {
+        return res.status(400).json({
+            msg: "Pengguna already exists"
+        })
+    }
+
+    if (!username || !password || !confirmPassword || !email || !nama || !nip || !no_hp || !role) {
+        return res.status(400).json({
+            status: "error",
+            msg: "All fields are required",
+        });
+    }
+
+    if (isNaN(role)) {
+        return res.status(400).json({ msg: "Role must be a number" });
+    }
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Password and Confirm Password do not match"
+        })
+    }
+
+    const allowedRoles = [0, 1, 2];
+    const parsedRoles = parseInt(role);
+    if (!allowedRoles.includes(parsedRoles)) {
+        return res.status(400).json({
+            status: "error",
+            msg: 'Invalid role',
+        });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+    await Pengguna.create({
+        apiKey: generateApiKey(20),
+        username,
+        password: hashPassword,
+        email,
+        nama,
+        nip,
+        no_hp,
+        role: parsedRoles
+    })
+    res.status(201).json({
+        status: "success",
+        msg: "Account successfully registered",
     });
-  }
-
-  if (
-    !username ||
-    !password ||
-    !confirmPassword ||
-    !email ||
-    !nama ||
-    !nip ||
-    !no_hp ||
-    !role
-  ) {
-    return res.status(400).json({
-      status: "error",
-      msg: "All fields are required",
-    });
-  }
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      status: "error",
-      msg: "Password and Confirm Password do not match",
-    });
-  }
-
-  const allowedRoles = ["system_engineer", "customer", "petugas"];
-  if (!allowedRoles.includes(role)) {
-    return res.status(400).json({
-      status: "error",
-      msg: "Invalid role",
-    });
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const hashPassword = await bcrypt.hash(password, salt);
-  await Pengguna.create({
-    apiKey: generateApiKey(20),
-    username,
-    password: hashPassword,
-    email,
-    nama,
-    nip,
-    no_hp,
-    role,
-  });
-  res.status(201).json({
-    status: "success",
-    msg: "Account successfully registered",
-  });
-});
+})
 
 export const login = asyncHandler(async (req, res) => {
   const { email, password, keepLogin } = req.body;
@@ -143,8 +138,9 @@ export const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", msg: "Logout successful." });
 });
 
-export const getPenggunas = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+export const getPengguna = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+
 
   if (!id) {
     return res.status(400).json({
@@ -172,7 +168,9 @@ export const getPenggunas = asyncHandler(async (req, res) => {
   });
 });
 
-export const getAllPenggunas = asyncHandler(async (req, res) => {
+
+export const getAllPengguna = asyncHandler(async (req, res) => {
+
   const [listpengguna, totalpengguna] = await Promise.all([
     Pengguna.findAll({
       attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
@@ -186,6 +184,7 @@ export const getAllPenggunas = asyncHandler(async (req, res) => {
       msg: "User not found",
     });
   }
+
 
   if (!listpengguna) {
     return res.status(404).json({
@@ -202,8 +201,10 @@ export const getAllPenggunas = asyncHandler(async (req, res) => {
   });
 });
 
-export const deletePenggunas = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+
+export const deletePengguna = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+
 
   if (!id) {
     return res.status(400).json({
@@ -229,67 +230,68 @@ export const deletePenggunas = asyncHandler(async (req, res) => {
   });
 });
 
-export const updatePenggunas = asyncHandler(async (req, res) => {
-  //     const id = req.params.id;
-  //     const apiKey = req.headers["x-api-key"];
 
-  //     if (!id) {
-  //         return res.status(400).json({
-  //             status: "error",
-  //             msg: "Pengguna ID is required",
-  //         });
-  //     }
+export const updatePengguna = asyncHandler(async (req, res) => {
+    //     const id = req.params.id;
+    //     const apiKey = req.headers["x-api-key"];
 
-  //     if (!apiKey) {
-  //         return res.status(401).json({
-  //             status: "error",
-  //             msg: "API Key is required",
-  //         });
-  //     }
+    //     if (!id) {
+    //         return res.status(400).json({
+    //             status: "error",
+    //             msg: "Pengguna ID is required",
+    //         });
+    //     }
 
-  //     const pengguna = await Pengguna.findOne({ where: { id } });
+    //     if (!apiKey) {
+    //         return res.status(401).json({
+    //             status: "error",
+    //             msg: "API Key is required",
+    //         });
+    //     }
 
-  //     if (!pengguna) {
-  //         return res.status(404).json({
-  //             status: "error",
-  //             msg: "Pengguna not found",
-  //         });
-  //     }
+    //     const pengguna = await Pengguna.findOne({ where: { id } });
 
-  //     if (pengguna.apiKey !== apiKey) {
-  //         return res.status(403).json({
-  //             status: "error",
-  //             msg: "You are not authorized to update this user.",
-  //         });
-  //     }
+    //     if (!pengguna) {
+    //         return res.status(404).json({
+    //             status: "error",
+    //             msg: "Pengguna not found",
+    //         });
+    //     }
 
-  //     const updatedFields = {};
-  //     Object.keys(req.body).forEach((key) => {
-  //         if (req.body[key] !== pengguna[key]) {
-  //             pengguna[key] = req.body[key];
-  //             updatedFields[key] = req.body[key];
-  //         }
-  //     });
+    //     if (pengguna.apiKey !== apiKey) {
+    //         return res.status(403).json({
+    //             status: "error",
+    //             msg: "You are not authorized to update this user.",
+    //         });
+    //     }
 
-  //     await pengguna.save();
+    //     const updatedFields = {};
+    //     Object.keys(req.body).forEach((key) => {
+    //         if (req.body[key] !== pengguna[key]) {
+    //             pengguna[key] = req.body[key];
+    //             updatedFields[key] = req.body[key];
+    //         }
+    //     });
 
-  //     res.status(200).json({
-  //         status: "success",
-  //         msg: "Pengguna updated successfully",
-  //         updatedFields: updatedFields,
-  //     });
-  // });
+    //     await pengguna.save();
 
-  const id = req.params.id;
-  const apiKey = req.headers["x-api-key"];
+    //     res.status(200).json({
+    //         status: "success",
+    //         msg: "Pengguna updated successfully",
+    //         updatedFields: updatedFields,
+    //     });
+    // });
 
-  // Validasi ID dan API Key
-  if (!id) {
-    return res.status(400).json({
-      status: "error",
-      msg: "Pengguna ID is required",
-    });
-  }
+    const id = req.params.id;
+    const apiKey = req.headers["x-api-key"];
+
+    // Validasi ID dan API Key
+    if (!id) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Pengguna ID is required",
+        });
+    }
 
   if (!apiKey) {
     return res.status(401).json({
@@ -374,21 +376,49 @@ export const updatePenggunas = asyncHandler(async (req, res) => {
       }
     });
 
-    // Jika ada file gambar, tambahkan ke database
-    if (req.file) {
-      const ImagePath = `/uploads/images/${req.file.filename}`; // Path yang lebih mudah untuk diakses frontend
-      pengguna.image = ImagePath;
-      updatedFields["image"] = ImagePath;
-    }
+    const upload = multer({
+        storage: storage,
+        limits: { fileSize: 5 * 1024 * 1024 },
+        fileFilter: fileFilter,
+    }).single("image");
 
-    // Simpan perubahan pengguna
-    await pengguna.save();
+    // Proses Upload Foto
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(400).json({
+                status: "error",
+                msg: err.msg,
+            });
+        }
 
-    // Response
-    res.status(200).json({
-      status: "success",
-      msg: "Pengguna updated successfully",
-      updatedFields: updatedFields,
+        const updatedFields = {};
+        const { body } = req;
+
+        // Perbarui data pengguna dari request body
+        Object.keys(body).forEach((key) => {
+            if (body[key] !== pengguna[key]) {
+                pengguna[key] = body[key];
+                updatedFields[key] = body[key];
+            }
+        });
+
+        // Jika ada file gambar, tambahkan ke database
+        if (req.file) {
+            const ImagePath = `/uploads/images/${req.file.filename}`; // Path yang lebih mudah untuk diakses frontend
+            pengguna.image = ImagePath;
+            updatedFields["image"] = ImagePath;
+        }
+
+        // Simpan perubahan pengguna
+        await pengguna.save();
+
+        // Response
+        res.status(200).json({
+            status: "success",
+            msg: "Pengguna updated successfully",
+            updatedFields: updatedFields,
+        });
+
     });
   });
 });

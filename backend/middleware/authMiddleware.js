@@ -5,7 +5,7 @@ import Pengguna from "../models/pengguna.js";
 // middleware yang mengharuskan login terlebih dahulu
 export const protectedMiddleware = asyncHandler(async (req, res, next) => {
     // Check both cookie and Authorization header
-    const token = req.cookies.token; 
+    const token = req.cookies.token;
 
     if (!token) {
         return res.status(401).json({ msg: "Not authorized, no token found in cookies" });
@@ -30,7 +30,7 @@ export const protectedMiddleware = asyncHandler(async (req, res, next) => {
 
 // middleware yang mengecek apakah pengguna adalah system_engineer
 export const internalMiddleware = (req, res, next) => {
-    const allowedRoles = ['system_engineer', 'petugas'];
+    const allowedRoles = [1, 2];
     if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
         next();
     } else {

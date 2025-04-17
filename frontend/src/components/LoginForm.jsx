@@ -48,6 +48,9 @@ const LoginForm = () => {
       const token = response.data?.token;
       const userData = response.data;
 
+      localStorage.setItem("token", token);
+      localStorage.setItem("userData", JSON.stringify(userData));
+
       // Simpan data ke cookies
       Cookies.set("token", token, { expires: 7, secure: true });
       Cookies.set("userData", JSON.stringify(userData), {

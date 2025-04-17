@@ -31,10 +31,13 @@ const ProfileForm = ({ onClose }) => {
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
     Cookies.remove("token");
-    Cookies.remove("userData");
+    Cookies.remove(userData);
     navigate("/login");
-    console.log("Token dihapus. Token:", userData.token || "Guest");
+    console.log("token dihappus", userData.username);
+
   };
 
   const handleImageChange = (e) => {

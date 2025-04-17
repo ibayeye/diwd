@@ -1,5 +1,5 @@
 import express from "express";
-import { deletePenggunas, getAllPenggunas, getPenggunas, login, logout, register, updatePenggunas } from "../../controller/auth/authController.js";
+import { deletePengguna, getAllPengguna, getPengguna, login, logout, register, updatePengguna } from "../../controller/auth/authController.js";
 import { internalMiddleware, protectedMiddleware } from "../../middleware/authMiddleware.js";
 
 
@@ -118,7 +118,7 @@ router.post('/logout', protectedMiddleware, logout);
  *       401:
  *         description: Unauthorized
  */
-router.get('/pengguna', protectedMiddleware, internalMiddleware, getAllPenggunas);
+router.get('/pengguna', protectedMiddleware, internalMiddleware, getAllPengguna);
 
 /**
  * @swagger
@@ -144,7 +144,7 @@ router.get('/pengguna', protectedMiddleware, internalMiddleware, getAllPenggunas
  *       404:
  *         description: User not found
  */
-router.get('/pengguna/:id', protectedMiddleware, getPenggunas);
+router.get('/pengguna/:id', protectedMiddleware, getPengguna);
 
 /**
  * @swagger
@@ -170,7 +170,7 @@ router.get('/pengguna/:id', protectedMiddleware, getPenggunas);
  *       404:
  *         description: User not found
  */
-router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, deletePenggunas);
+router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, deletePengguna);
 
 /**
  * @swagger
@@ -284,6 +284,6 @@ router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, d
  *                   type: string
  *                   example: User not found
  */
-router.put('/update_pengguna/:id', protectedMiddleware, updatePenggunas);
+router.put('/update_pengguna/:id', protectedMiddleware, updatePengguna);
 
 export default router;

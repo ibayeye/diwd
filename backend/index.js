@@ -9,10 +9,15 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
+import Device from './models/deviceError.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import swaggerDocs from './config/swagger.js';
+import DeviceEarthquake from './models/deviceEarthquake.js';
+import { detectedEarthquakeListener, trackedFailureListener } from './controller/device/deviceController.js';
+import DeviceError from './models/deviceError.js';
+// import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
 const __filename = fileURLToPath(import.meta.url);
@@ -27,12 +32,57 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
-  cors({
-    origin: "http://localhost:3000", // Asal spesifik frontend Anda
-    credentials: true, // Izinkan kredensial (cookie)
-  })
+    cors({
+        origin: "http://localhost:3000", // Asal spesifik frontend Anda
+        credentials: true, // Izinkan kredensial (cookie)
+    })
 );
 
+
+// Tambahkan variable global untuk track status listener
+let isListenerActive = false;
+
+// Fungsi untuk setup dan manage listener
+const setupFirebaseListeners = () => {
+    // Cek apakah listener sudah aktif
+    if (!isListenerActive) {
+        try {
+            // Jalankan kedua listener
+            trackedFailureListener();
+            detectedEarthquakeListener();
+            
+            // Set flag ke true kalau berhasil
+            isListenerActive = true;
+            console.log("Firebase listeners activated successfully at:", new Date().toISOString());
+            
+        } catch (error) {
+            console.error("Failed to setup Firebase listeners:", error);
+            
+            // Jika gagal, coba lagi setelah 5 detik
+            setTimeout(setupFirebaseListeners, 5000);
+            
+            // Log untuk tracking retry
+            console.log("Retrying listener setup in 5 seconds...");
+        }
+    }
+};
+
+// Integrasikan dengan endpoint ping
+app.get('/ping', (req, res) => {
+    // Setiap kali di-ping, cek dan setup listener kalau belum aktif
+    setupFirebaseListeners();
+    
+    // Tambahkan informasi status di response
+    res.json({
+        status: 'active',
+        listenerStatus: isListenerActive ? 'running' : 'inactive',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// app.get('/ping', (req, res) => {
+//     res.send('Ping received! App is active.');
+// });
 
 // routing
 swaggerDocs(app, process.env.API_DOCS);
@@ -45,9 +95,6 @@ app.use(router);
 app.use(notFound);
 app.use(errorHandler);
 
-app.get('/', (req,res) => {
-    res.send('SAMPURASUN')
-})
 const syncModels = async () => {
     try {
         await config.authenticate();
@@ -59,10 +106,28 @@ const syncModels = async () => {
         await Pengguna.sync();
         console.log("Pengguna synced.");
 
-        
+        await DeviceError.sync();
+        console.log("Device synced.");
+
+        await DeviceEarthquake.sync();
+        console.log("Device Earthquake synced.");
+
+        // // Tambahkan try-catch khusus untuk listener
+        // try {
+        //     trackedFailureListener();
+        //     console.log("Listener Failure aktif.");
+
+        //     detectedEarthquakeListener();
+        //     console.log("Listener Earthquake aktif.");
+        // } catch (listenerError) {
+        //     console.error("Error saat menginisialisasi listener:", listenerError);
+        //     // Bisa putuskan apakah perlu menghentikan aplikasi atau tidak
+        //     // Jika listener tidak kritis, bisa lanjut tanpa listener
+        // }
+
     } catch (error) {
         console.error("Unable to connect to the database:", error);
-        process.exit(1); // Exit jika ada kegagalan
+        process.exit(1);
     }
 };
 
