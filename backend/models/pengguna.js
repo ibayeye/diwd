@@ -25,7 +25,7 @@ const Pengguna = db.define(
     allowNull: true,
   },
   username: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
     unique: true,
   },

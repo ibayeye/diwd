@@ -12,8 +12,11 @@ import ListPage from "./pages/ListPage";
 import DeviceReportPage from "./pages/DeviceReportPage";
 import EarthquakePage from "./pages/Eartquakepage";
 import UserPage from "./pages/UserPage";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import AuthProtectedRoute from "./components/AuthProtectedRoute";
+import RoleProtectedRoute from "./components/RoleProtectedRoute";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
 const App = () => {
   return (
     <LoaderProvider>
@@ -22,16 +25,26 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dasboard" element={<Layout />}>
-            <Route path="view" element={<Dashboard />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="device/mapview" element={<MapView />} />
-            <Route path="device/list" element={<ListPage />} />
-            <Route path="report/devicereport" element={<DeviceReportPage />} />
-            <Route path="report/eartquake" element={<EarthquakePage />} />
-            <Route path="user" element={<UserPage />} />
-            <Route path="*" element={<LandingPage />} />
+
+          <Route element={<AuthProtectedRoute />}>
+            <Route path="/dasboard" element={<Layout />}>
+              <Route path="view" element={<Dashboard />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="device/mapview" element={<MapView />} />
+              <Route element={<RoleProtectedRoute allowedRoles={[1, 2]} />}>
+                <Route
+                  path="report/devicereport"
+                  element={<DeviceReportPage />}
+                />
+                <Route path="report/eartquake" element={<EarthquakePage />} />
+                <Route path="user" element={<UserPage />} />
+              </Route>
+              <Route path="device/list" element={<ListPage />} />
+              <Route path="*" element={<LandingPage />} />
+            </Route>
           </Route>
+
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
         </Routes>
         <ToastContainer />
       </Router>

@@ -34,7 +34,7 @@ const Dashboard = () => {
           response.data.totaldevice ||
             response.data.totaldata ||
             response.data.totaldeviceFailure ||
-            0
+            ""
         );
         // console.log(response.data.data.map(item => item.location));
         // console.log(response);
@@ -78,7 +78,7 @@ const Dashboard = () => {
     green: "border-green-500",
     yellow: "border-yellow-500",
   };
-  console.log(borderColors.yellow);
+  // console.log(borderColors.yellow);
   
   return (
     <div className="">
