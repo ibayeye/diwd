@@ -17,6 +17,7 @@ import swaggerDocs from './config/swagger.js';
 import DeviceEarthquake from './models/deviceEarthquake.js';
 import { detectedEarthquakeListener, trackedFailureListener } from './controller/device/deviceController.js';
 import DeviceError from './models/deviceError.js';
+import { v2 as cloudinary } from 'cloudinary';
 // import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
@@ -25,6 +26,11 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // middleware
 app.use(express.json());
@@ -50,17 +56,17 @@ const setupFirebaseListeners = () => {
             // Jalankan kedua listener
             trackedFailureListener();
             detectedEarthquakeListener();
-            
+
             // Set flag ke true kalau berhasil
             isListenerActive = true;
             console.log("Firebase listeners activated successfully at:", new Date().toISOString());
-            
+
         } catch (error) {
             console.error("Failed to setup Firebase listeners:", error);
-            
+
             // Jika gagal, coba lagi setelah 5 detik
             setTimeout(setupFirebaseListeners, 5000);
-            
+
             // Log untuk tracking retry
             console.log("Retrying listener setup in 5 seconds...");
         }
@@ -71,7 +77,7 @@ const setupFirebaseListeners = () => {
 app.get('/ping', (req, res) => {
     // Setiap kali di-ping, cek dan setup listener kalau belum aktif
     setupFirebaseListeners();
-    
+
     // Tambahkan informasi status di response
     res.json({
         status: 'active',

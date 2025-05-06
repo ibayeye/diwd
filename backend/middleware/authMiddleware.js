@@ -4,8 +4,10 @@ import Pengguna from "../models/pengguna.js";
 
 // middleware yang mengharuskan login terlebih dahulu
 export const protectedMiddleware = asyncHandler(async (req, res, next) => {
-  // Check both cookie and Authorization header
-  const token = req.cookies.token;
+
+    // Check both cookie and Authorization header
+    const token = req.cookies.token || req.headers.authorization;
+
 
   if (!token) {
     return res
