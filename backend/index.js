@@ -108,6 +108,8 @@ const syncModels = async () => {
 
         console.log("Firebase initialized " + JSON.stringify(database));
 
+        // await config.sync({alter: true})
+
         // Sinkronisasi model secara berurutan
         await Pengguna.sync();
         console.log("Pengguna synced.");

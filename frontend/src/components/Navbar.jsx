@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { ReactComponent as Profile } from "../assets/Icons/profile.svg";
 import { ReactComponent as Notif } from "../assets/images/icons/inotif.svg";
 import { ReactComponent as Hamburger } from "../assets/Icons/hamburger.svg";
+import { IoNotificationsOutline } from "react-icons/io5";
 import { Navigate, useNavigate } from "react-router-dom";
+import { RxAvatar } from "react-icons/rx";
 import ProfileForm from "./ProfileForm";
 import Cookies from "js-cookie";
 
@@ -39,21 +41,16 @@ const Navbar = ({ toggleSideBar }) => {
   };
 
   return (
-    <nav className="grid grid-cols-2 bg-white p-4 h-16 border-b">
+    <nav className="flex justify-end bg-zinc-50 p-4 border-b h-20">
       <div className="flex items-center">
-        <button onClick={toggleSideBar}>
-          <Hamburger />
-        </button>
+        <IoNotificationsOutline className="w-full h-6" />
       </div>
       <div className="flex justify-end">
-        <div className="flex items-center">
-          <Notif />
-        </div>
         <div
           className="cursor-pointer ml-4 flex items-center mr-3"
           onClick={() => setShowProfile(!showProfile)}
         >
-          <Profile />
+          <RxAvatar className="w-full h-6"/>
         </div>
       </div>
       {showProfile && (
@@ -61,7 +58,9 @@ const Navbar = ({ toggleSideBar }) => {
           ref={profileMenuRef}
           className="absolute right-3 top-16 bg-white shadow-lg rounded-md p-4 w-56 z-10"
         >
-          <p className="text-sm text-gray-700">Email : {userData.email || "Guest"}</p>
+          <p className="text-sm text-gray-700">
+            Email : {userData.email || "Guest"}
+          </p>
           <p className="text-sm text-gray-700">
             Username : {userData.username || "guest@example.com"}
           </p>
