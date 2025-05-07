@@ -4,31 +4,22 @@ import Pengguna from "../models/pengguna.js";
 
 // middleware yang mengharuskan login terlebih dahulu
 export const protectedMiddleware = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-    // Check both cookie and Authorization header
-    const token = req.cookies.token || req.headers.authorization;
-
-
-  if (!token) {
-    return res
-      .status(401)
-      .json({ msg: "Not authorized, no token found in cookies" });
-  }
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const pengguna = await Pengguna.findOne({
-      where: { id: decoded.id, activeSession: token },
-    });
+    const decoded = jwt.verify(token, process.env.ACCESS_SECRET); // Verifikasi token
 
-    if (!pengguna) {
-      return res.status(401).json({ msg: "Token invalid or session expired" });
-    }
+    // Cari user di database berdasarkan ID dari token
+    const user = await Pengguna.findByPk(decoded.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    req.pengguna = pengguna;
+    req.user = user; // Simpan data user ke req.user
     next();
-  } catch (err) {
-    return res.status(401).json({ msg: "Token verification failed" });
+  } catch (error) {
+    return res.status(403).json({ message: "Forbidden" });
   }
 });
 
@@ -43,12 +34,12 @@ export const internalMiddleware = (req, res, next) => {
   }
 };
 
-export const checkRole = (allowedRoles) =>{
-    return(req, res, next) => {
-        if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
-            next()
-        } else {
-            res.status(403).json({ msg: "Not authorized (Forbidden)"})
-        }
+export const checkRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
+      next()
+    } else {
+      res.status(403).json({ msg: "Not authorized (Forbidden)" })
     }
+  }
 }

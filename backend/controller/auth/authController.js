@@ -14,68 +14,51 @@ import {
 import { error } from "console";
 
 export const register = asyncHandler(async (req, res) => {
-  const { email, password, confirmPassword, nama, nip, no_hp, role } = req.body;
+    const { username, email, password, confirmPassword, nip } = req.body;
 
-  const existingUser = await Pengguna.findOne({ where: { email: email } });
+    const existingUser = await Pengguna.findOne({ where: { email: email } });
 
-  if (existingUser) {
-    return res.status(400).json({
-      msg: "Pengguna already exists",
+    if (existingUser) {
+        return res.status(400).json({
+            msg: "Pengguna already exists",
+        });
+    }
+
+    if (!username ||
+        !password ||
+        !confirmPassword ||
+        !email ||
+        !nip
+    ) {
+        return res.status(400).json({
+            status: "error",
+            msg: "All fields are required",
+        });
+    }
+
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Password and Confirm Password do not match",
+        });
+    }
+
+
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+    await Pengguna.create({
+        apiKey: generateApiKey(20),
+        username,
+        password: hashPassword,
+        email,
+        nip,
     });
-  }
-
-  if (
-    !password ||
-    !confirmPassword ||
-    !email ||
-    !nama ||
-    !nip ||
-    !no_hp ||
-    role === undefined ||
-    (role === null) === ""
-  ) {
-    return res.status(400).json({
-      status: "error",
-      msg: "All fields are required",
+    res.status(201).json({
+        status: "success",
+        msg: "Account successfully registered",
     });
-  }
-
-  if (isNaN(role)) {
-    return res.status(400).json({ msg: "Role must be a number" });
-  }
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      status: "error",
-      msg: "Password and Confirm Password do not match",
-    });
-  }
-
-  const allowedRoles = [0, 1, 2];
-  const parsedRoles = parseInt(role);
-  if (!allowedRoles.includes(parsedRoles)) {
-    return res.status(400).json({
-      status: "error",
-      msg: "Invalid role",
-    });
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const hashPassword = await bcrypt.hash(password, salt);
-  await Pengguna.create({
-    apiKey: generateApiKey(20),
-    // username,
-    password: hashPassword,
-    email,
-    nama,
-    nip,
-    no_hp,
-    role: parsedRoles,
-  });
-  res.status(201).json({
-    status: "success",
-    msg: "Account successfully registered",
-  });
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -153,7 +136,7 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const getPengguna = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+    const id = req.params.id;
 
     if (!id) {
         return res.status(400).json({
@@ -206,7 +189,7 @@ export const getAllPengguna = asyncHandler(async (req, res) => {
 });
 
 export const deletePengguna = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+    const id = req.params.id;
 
     if (!id) {
         return res.status(400).json({

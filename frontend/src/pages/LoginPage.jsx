@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -27,7 +27,7 @@ const LoginPage = () => {
     );
 
     if (!isFormComplete) {
-      toast.warning("Masukan Email dan Kata Sandi");
+      toast.warning("Masukan Username dan Kata Sandi");
       return;
     }
 
@@ -35,7 +35,7 @@ const LoginPage = () => {
       const response = await axios.post(
         "http://localhost:5000/api/v1/auth/login",
         {
-          email: formData.email,
+          username: formData.username,
           password: formData.password,
         }
       );
@@ -45,6 +45,7 @@ const LoginPage = () => {
       const role = response.data?.data.role;
       localStorage.setItem("userData", JSON.stringify(userData));
       localStorage.setItem("role", role);
+      localStorage.setItem("token", token);
 
       Cookies.set("role", role);
       Cookies.set("token", token, { expires: 7, secure: true });
@@ -71,12 +72,12 @@ const LoginPage = () => {
         const msg = error.response.data.msg;
         setErrors({ [field]: msg });
       } else {
-        toast.error("Email atau Kata Sandi Salah");
+        toast.error("Username atau Kata Sandi Salah");
       }
     }
   };
   const fields = [
-    { label: "Email", name: "email", type: "email" },
+    { label: "Username", name: "username", type: "text" },
     { label: "Katasandi", name: "password", type: "password" },
   ];
 

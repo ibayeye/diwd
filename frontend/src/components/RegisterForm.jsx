@@ -13,10 +13,10 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
-  const [nama, setNama] = useState("");
+  // const [nama, setNama] = useState("");
   const [nip, setNip] = useState("");
-  const [no_hp, setNohp] = useState("");
-  const [role, setRole] = useState("");
+  // const [no_hp, setNohp] = useState("");
+  // const [role, setRole] = useState("");
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
 
@@ -39,22 +39,22 @@ const RegisterForm = () => {
       toast.error("Confirm password tidak sama dengan password");
       return;
     }
-    if (!nama.trim()) {
-      toast.error("Nama tidak boleh kosong");
-      return;
-    }
+    // if (!nama.trim()) {
+    //   toast.error("Nama tidak boleh kosong");
+    //   return;
+    // }
     if (!nip.trim() || isNaN(parseInt(nip, 10))) {
       alert("NIP harus diisi dengan angka yang valid");
       return;
     }
-    if (!no_hp || isNaN(no_hp.replace(/-/g, ""))) {
-      toast.error("No HP harus diisi dengan angka yang valid");
-      return;
-    }
-    if (!role.trim()) {
-      toast.error("Role tidak boleh kosong");
-      return;
-    }
+    // if (!no_hp || isNaN(no_hp.replace(/-/g, ""))) {
+    //   toast.error("No HP harus diisi dengan angka yang valid");
+    //   return;
+    // }
+    // if (!role.trim()) {
+    //   toast.error("Role tidak boleh kosong");
+    //   return;
+    // }
 
     // Payload jika semua validasi lulus
     const payload = {
@@ -62,10 +62,10 @@ const RegisterForm = () => {
       password,
       confirmPassword,
       email,
-      nama,
+      // nama,
       nip: parseInt(nip, 10), // Konversi string menjadi integer
-      no_hp: parseInt(no_hp, 10), // Konversi string menjadi integer
-      role,
+      // no_hp: parseInt(no_hp, 10), // Konversi string menjadi integer
+      // role,
     };
     // console.log("Payload sebelum dikirim:", payload);
     //     console.log(
@@ -84,10 +84,10 @@ const RegisterForm = () => {
         payload.password,
         payload.confirmPassword,
         payload.email,
-        payload.nama,
+        // payload.nama,
         payload.nip,
-        payload.no_hp,
-        payload.role
+        // payload.no_hp,
+        // payload.role
       );
 
       setSuccess("Registration Successful!");
