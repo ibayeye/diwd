@@ -6,10 +6,9 @@ const { DataTypes } = Sequelize;
 const Pengguna = db.define(
   "pengguna", {
   id: {
-    allowNull: false,
+    type: DataTypes.INTEGER,
     primaryKey: true,
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4
+    autoIncrement: true
   },
   activeSession: {
     type: DataTypes.STRING,
@@ -45,20 +44,20 @@ const Pengguna = db.define(
     }
   },
   nama: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   nip: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.BIGINT,
   },
   no_hp: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.BIGINT,
   },
   role: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     defaultValue: 0,
     validate: {
       isIn: [[0, 1, 2]] // 0:END USER, 1:PETUGAS, 2:SYSTEM_ENGINER

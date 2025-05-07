@@ -13,8 +13,8 @@ const Navbar = ({ toggleSideBar }) => {
   const [viewProfile, setViewProfile] = useState(false);
   const userData = JSON.parse(Cookies.get("userData") || "{}");
   const profileMenuRef = useRef(null);
-
   const navigate = useNavigate();
+  const data = userData?.data
 
   // Fungsi untuk menutup menu profil ketika klik di luar
   const handleOutsideClick = (e) => {
@@ -40,6 +40,7 @@ const Navbar = ({ toggleSideBar }) => {
     navigate("/profile");
   };
 
+  console.log("ini user data",data);
   return (
     <nav className="flex justify-end bg-zinc-50 p-4 border-b h-20">
       <div className="flex items-center">
@@ -59,10 +60,10 @@ const Navbar = ({ toggleSideBar }) => {
           className="absolute right-3 top-16 bg-white shadow-lg rounded-md p-4 w-56 z-10"
         >
           <p className="text-sm text-gray-700">
-            Email : {userData.email || "Guest"}
+            Email : {data?.email || "Guest"}
           </p>
           <p className="text-sm text-gray-700">
-            Username : {userData.username || "guest@example.com"}
+            Username : {data?.username || "guest@example.com"}
           </p>
           <button
             className="bg-blue-500 text-white py-2 px-4 rounded-md w-full hover:bg-blue-600 mt-2"

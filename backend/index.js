@@ -13,7 +13,6 @@ import Device from './models/deviceError.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import swaggerDocs from './config/swagger.js';
 import DeviceEarthquake from './models/deviceEarthquake.js';
 import { detectedEarthquakeListener, trackedFailureListener } from './controller/device/deviceController.js';
 import DeviceError from './models/deviceError.js';
@@ -91,7 +90,6 @@ app.get('/ping', (req, res) => {
 // });
 
 // routing
-swaggerDocs(app, process.env.API_DOCS);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/', deviceRouter);
@@ -149,7 +147,6 @@ const startServer = async () => {
             console.log(`Server berjalan pada http://localhost:${port}`)
         })
 
-        swaggerDocs(app, port);
     } catch (error) {
         console.error("Failed to start the server:", error);
         process.exit(1); // Exit jika gagal menjalankan server

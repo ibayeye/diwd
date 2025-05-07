@@ -9,14 +9,14 @@ import { toast } from "react-toastify";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    // username: "",
-    nama: "",
+    username: "",
+    // nama: "",
     email: "",
     password: "",
     confirmPassword: "",
     nip: "",
-    no_hp: "",
-    role: "",
+    // no_hp: "",
+    // role: "",
   });
 
   const handleChange = (e) => {
@@ -43,7 +43,7 @@ const RegisterPage = () => {
     try {
       const payload = {
         ...formData,
-        role: parseInt(formData.role),
+        // role: parseInt(formData.role),
       };
       const response = await axios.post(
         "http://localhost:5000/api/v1/auth/register",
@@ -65,8 +65,8 @@ const RegisterPage = () => {
   };
 
   const fields = [
-    // { label: "Nama Pengguna", name: "username", type: "text" },
-    { label: "Nama Lengkap", name: "nama", type: "text" },
+    { label: "Nama Pengguna", name: "username", type: "text" },
+    // { label: "Nama Lengkap", name: "nama", type: "text" },
     { label: "email", name: "email", type: "email" },
     { label: "Kata Sandi", name: "password", type: "password" },
     {
@@ -75,17 +75,17 @@ const RegisterPage = () => {
       type: "password",
     },
     { label: "NIP", name: "nip", type: "number" },
-    { label: "Nomor Handphone", name: "no_hp", type: "number" },
-    {
-      label: "Role",
-      name: "role",
-      type: "select",
-      option: [
-        { value: 1, label: "Admin" },
-        { value: 2, label: "superAdmin" },
-        { value: 0, label: "User" },
-      ],
-    },
+    // { label: "Nomor Handphone", name: "no_hp", type: "number" },
+    // {
+    //   label: "Role",
+    //   name: "role",
+    //   type: "select",
+    //   option: [
+    //     { value: 1, label: "Admin" },
+    //     { value: 2, label: "superAdmin" },
+    //     { value: 0, label: "User" },
+    //   ],
+    // },
   ];
 
   return (

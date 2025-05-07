@@ -30,7 +30,7 @@ useEffect(() => {
     setError(null);
 
     try {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("token tidak ditemukan");
       }

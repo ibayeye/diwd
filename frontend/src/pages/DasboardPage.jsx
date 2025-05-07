@@ -22,12 +22,15 @@ const Dashboard = () => {
     setError(null);
 
     try {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("token tidak ditemukan");
       }
 
-      const response = await axios.get(url, { withCredentials: true });
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
       // console.log(response);
       if (response.data) {
         setter(
@@ -79,7 +82,7 @@ const Dashboard = () => {
     yellow: "border-yellow-500",
   };
   // console.log(borderColors.yellow);
-  
+
   return (
     <div className="">
       <div className="">
