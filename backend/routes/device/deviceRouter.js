@@ -12,5 +12,21 @@ router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware([1, 2]),
 // router.get('/detectedEarthquake', detectedEarthquake);
 router.get('/sendEmail', sendMail);
 
+router.post('/device-realtime', async (req, res) => {
+  const data = req.body;
+
+  try {
+    // Simpan ke DB kalau mau
+    // await DeviceEarthquake.create({ ...data });
+
+    // Atau kirim notifikasi
+    console.log("Terima data dari React:", data);
+
+    res.status(200).json({ message: "Data diterima" });
+  } catch (error) {
+    console.error("Error menyimpan data:", error);
+    res.status(500).json({ error: "Gagal menyimpan data" });
+  }
+});
 
 export default router;

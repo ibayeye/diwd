@@ -251,7 +251,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-    const { nama, email, no_hp, nip, image, password } = req.body;
+    const { nama, email, no_hp, nip, image, password, isActive } = req.body;
 
     // Siapkan data yang ingin diupdate
     const updatedData = {};
@@ -262,6 +262,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
     if (no_hp !== undefined) updatedData.no_hp = no_hp;
     if (nip !== undefined) updatedData.nip = nip;
     if (image !== undefined) updatedData.image = image;
+    if (isActive !== undefined) updatedData.isActive = isActive;
 
     if (password) {
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;

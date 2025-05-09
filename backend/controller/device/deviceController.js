@@ -68,10 +68,8 @@ const reverseGeocode = async (lat, lon) => {
 };
 
 export const getAllDataDevice = asyncHandler(async (req, res) => {
-    // Allow the client to specify if they want to skip geocoding
     const skipGeocoding = req.query.skipGeocoding === 'true';
     
-    // Get data from Firebase
     const dbRef = ref(database, "/");
     const snapshot = await get(dbRef);
     
@@ -85,11 +83,9 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
     const allData = snapshot.val();
     const totalDevice = Object.keys(allData || {}).length;
     
-    // Transform data with or without geocoding
     let enrichedData;
     
     if (skipGeocoding) {
-        // Skip geocoding and return data quickly
         enrichedData = Object.entries(allData).map(([deviceId, deviceData]) => ({
             deviceId,
             id: deviceId,
@@ -97,10 +93,8 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
             alamat: "Geocoding dilewati"
         }));
     } else {
-        // Process with batched geocoding
         const deviceEntries = Object.entries(allData);
         
-        // Create a batch processing function that will process requests in chunks
         const processBatch = async (batch) => {
             return Promise.all(
                 batch.map(async ([deviceId, deviceData]) => {
@@ -133,7 +127,6 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
         enrichedData = await processBatch(deviceEntries);
     }
     
-    // Send response
     res.status(200).json({
         status: "success",
         totalDevice,
@@ -141,11 +134,6 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
     });
 });
 
-/**
- * Cache management endpoints
- */
-
-// Get geocode cache stats
 export const getGeocodeStats = asyncHandler(async (req, res) => {
     const stats = geocodeCache.getStats();
     const keys = geocodeCache.keys();
@@ -158,7 +146,6 @@ export const getGeocodeStats = asyncHandler(async (req, res) => {
     });
 });
 
-// Clear geocode cache
 export const clearGeocodeCache = asyncHandler(async (req, res) => {
     geocodeCache.flushAll();
     

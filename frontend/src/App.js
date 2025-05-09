@@ -17,9 +17,11 @@ import "react-toastify/dist/ReactToastify.css";
 import AuthProtectedRoute from "./components/AuthProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import FirebaseListener from "./FirebaseListener.jsx";
 const App = () => {
   return (
     <LoaderProvider>
+        <FirebaseListener />
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
