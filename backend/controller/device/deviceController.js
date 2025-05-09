@@ -5,32 +5,167 @@ import DeviceError from "../../models/deviceError.js";
 import nodemailer from "nodemailer";
 import Pengguna from "../../models/pengguna.js";
 import DeviceEarthquake from "../../models/deviceEarthquake.js";
+import axios from "axios";
 // import sendMail  from "../mailer/mailerController.js";
+import NodeCache from 'node-cache';
+import pLimit from 'p-limit';
+
+// Create a cache with TTL of 7 days (in seconds)
+const geocodeCache = new NodeCache({ stdTTL: 604800 });
+
+// Rate limiting configuration for Nominatim API
+const REQUEST_LIMIT = 1; // Only 1 request at a time
+const REQUEST_DELAY = 1100; // 1.1 second between requests (Nominatim policy is 1 request per second)
+const limiter = pLimit(REQUEST_LIMIT);
+
+/**
+ * Reverse geocode a coordinate with caching and rate limiting
+ * @param {string} lat - Latitude
+ * @param {string} lon - Longitude
+ * @returns {Promise<string>} - Address string
+ */
+const reverseGeocode = async (lat, lon) => {
+    // Create a cache key based on coordinates
+    const cacheKey = `${lat},${lon}`;
+    
+    // Check if we have this location cached
+    const cachedAddress = geocodeCache.get(cacheKey);
+    if (cachedAddress) {
+        return cachedAddress;
+    }
+    
+    // If not in cache, make a rate-limited request
+    try {
+        const address = await limiter(async () => {
+            // Add a small delay to ensure we don't exceed rate limits
+            await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY));
+            
+            const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+                params: {
+                    lat,
+                    lon,
+                    format: 'json',
+                    addressdetails: 1,
+                    'accept-language': 'id'
+                },
+                headers: {
+                    'User-Agent': 'GPS-Tracker-App/1.0'
+                },
+                timeout: 10000
+            });
+            
+            return response.data.display_name || "Alamat tidak ditemukan";
+        });
+        
+        // Store in cache for future use
+        geocodeCache.set(cacheKey, address);
+        
+        return address;
+    } catch (error) {
+        console.error(`Geocoding error for [${lat}, ${lon}]:`, error.message);
+        return "Gagal mengambil alamat";
+    }
+};
 
 export const getAllDataDevice = asyncHandler(async (req, res) => {
-    const dbRef = ref(database, "/"); // Mengambil semua data dari root
+    // Allow the client to specify if they want to skip geocoding
+    const skipGeocoding = req.query.skipGeocoding === 'true';
+    
+    // Get data from Firebase
+    const dbRef = ref(database, "/");
     const snapshot = await get(dbRef);
-
-
-    if (snapshot.exists()) {
-        const allData = snapshot.val();
-        let totalDevice = 0;
-
-        if (typeof allData === "object" && allData !== null) {
-            totalDevice = Object.keys(allData).length;
-        }
-
-        res.status(200).json({
-            status: "success",
-            totaldevice: totalDevice,
-            data: allData
-        });
-    } else {
-        res.status(404).json({
+    
+    if (!snapshot.exists()) {
+        return res.status(404).json({
             status: "error",
             message: "No data found",
         });
     }
+    
+    const allData = snapshot.val();
+    const totalDevice = Object.keys(allData || {}).length;
+    
+    // Transform data with or without geocoding
+    let enrichedData;
+    
+    if (skipGeocoding) {
+        // Skip geocoding and return data quickly
+        enrichedData = Object.entries(allData).map(([deviceId, deviceData]) => ({
+            deviceId,
+            id: deviceId,
+            ...deviceData,
+            alamat: "Geocoding dilewati"
+        }));
+    } else {
+        // Process with batched geocoding
+        const deviceEntries = Object.entries(allData);
+        
+        // Create a batch processing function that will process requests in chunks
+        const processBatch = async (batch) => {
+            return Promise.all(
+                batch.map(async ([deviceId, deviceData]) => {
+                    const location = deviceData.location;
+                    if (location && typeof location === 'string' && location.includes(',')) {
+                        const [latStr, lonStr] = location.split(',');
+                        const lat = latStr.trim();
+                        const lon = lonStr.trim();
+                        
+                        const alamat = await reverseGeocode(lat, lon);
+                        
+                        return {
+                            deviceId,
+                            id: deviceId,
+                            ...deviceData,
+                            alamat
+                        };
+                    } else {
+                        return {
+                            deviceId,
+                            id: deviceId,
+                            ...deviceData,
+                            alamat: "Koordinat tidak tersedia"
+                        };
+                    }
+                })
+            );
+        };
+        
+        enrichedData = await processBatch(deviceEntries);
+    }
+    
+    // Send response
+    res.status(200).json({
+        status: "success",
+        totalDevice,
+        data: enrichedData
+    });
+});
+
+/**
+ * Cache management endpoints
+ */
+
+// Get geocode cache stats
+export const getGeocodeStats = asyncHandler(async (req, res) => {
+    const stats = geocodeCache.getStats();
+    const keys = geocodeCache.keys();
+    
+    res.status(200).json({
+        status: "success",
+        stats,
+        cacheSize: keys.length,
+        cachedLocations: keys
+    });
+});
+
+// Clear geocode cache
+export const clearGeocodeCache = asyncHandler(async (req, res) => {
+    geocodeCache.flushAll();
+    
+    res.status(200).json({
+        status: "success",
+        message: "Geocode cache cleared"
+    });
 });
 
 export const getDataDevice = asyncHandler(async (req, res) => {

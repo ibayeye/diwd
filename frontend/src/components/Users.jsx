@@ -25,14 +25,14 @@ const User = () => {
         withCredentials: true,
       });
       // console.log(response.data.data.map(item => item.location));
-      console.log(response);
+      console.log(response.data);
 
-      const { data, status } = response;
+      const { data } = response;
       if (data && Array.isArray(data.data)) {
         // Tambahkan status global ke setiap pengguna (opsional)
         const usersWithStatus = data.data.map((user) => ({
           ...user,
-          globalStatus: data.status === "success" ? "Active" : "Non Active", // Tambahkan `status` di luar sebagai contoh
+          globalStatus: user.isActive === 1 ? "Active" : "Non Active", // Tambahkan `status` di luar sebagai contoh
         }));
         setUsers(usersWithStatus);
       } else {
@@ -88,10 +88,10 @@ const User = () => {
                       className={`px-4  py-4 border-b border-gray-300 items-center justify-center`}
                     >
                       <span
-                        className={`px-4 py-1 text-xs rounded-lg text-green-400 ${
+                        className={`px-4 py-1 text-xs rounded-lg ${
                           user.globalStatus === "Active"
-                            ? "bg-green-100"
-                            : "bg-red-200"
+                            ? "bg-green-100 text-green-400 font-bold"
+                            : "bg-red-200 text-red-400 font-bold"
                         }`}
                       >
                         {user.globalStatus}

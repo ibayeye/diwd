@@ -63,6 +63,11 @@ const Pengguna = db.define(
       isIn: [[0, 1, 2]] // 0:END USER, 1:PETUGAS, 2:SYSTEM_ENGINER
     }
   },
+  isActive: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  }
 }, {
   freezeTableName: true,
 }

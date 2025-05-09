@@ -5,9 +5,9 @@ import { sendMail } from "../../controller/mailer/mailerController.js";
 
 const router = express.Router();
 
-router.get('/getDevice', protectedMiddleware, internalMiddleware, getAllDataDevice);
+router.get('/getDevice', protectedMiddleware, internalMiddleware([1, 2]), getAllDataDevice);
 router.get('/getDevice/:deviceId', protectedMiddleware, getDataDevice);
-router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware, deviceFailure);
+router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware([1, 2]), deviceFailure);
 // router.get('/trackedFailure', trackedFailure);
 // router.get('/detectedEarthquake', detectedEarthquake);
 router.get('/sendEmail', sendMail);

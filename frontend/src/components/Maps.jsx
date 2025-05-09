@@ -18,7 +18,7 @@ const Map = () => {
     setError(null);
 
     try {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token tidak ditemukan");
       }
@@ -31,7 +31,6 @@ const Map = () => {
       if (response.data && typeof response.data.data === "object") {
         const dataObject = response.data.data;
         const dataArray = Object.values(dataObject);
-        console.log(dataArray);
         const parsedLocations = dataArray.map((item) => {
           const [lat, lng] = item.location.split(",").map(Number); // Pisahkan latitude dan longitude
           return { ...item, lat, lng };
