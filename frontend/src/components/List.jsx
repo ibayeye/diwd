@@ -1,73 +1,39 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 import React, { useState, useEffect } from "react";
 import { ReactComponent as Detail } from "../assets/Icons/idetail.svg";
 
 const List = () => {
-  const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(true); // State untuk loading
+  const [devices, setDevices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [locations, setLocations] = useState({});
   const [selectedDevice, setSelectedDevice] = useState(null);
 
   const API_URL = "http://localhost:5000/api/v1/getDevice";
 
-  const getLocationName = async (lat, lon) => {
-    const URL = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+  useEffect(() => {
+    const fetchDevices = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Token tidak ditemukan");
 
-    try {
-      const response = await axios.get(URL);
-      return response.data.display_name || "Unknown Location";
-    } catch (error) {
-        console.error("Error fetching location:", error);
-        return "Unknown Location";
-    }
-};
-useEffect(() => {
-
-  const listDeive = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("token tidak ditemukan");
-      }
-
-      const response = await axios.get(API_URL, {
-        headers: { Authorization: `Bearer${token}` },
-        withCredentials: true,
-      });
-
-      // console.log(response);
-
-      if (response.data && typeof response.data.data === "object") {
-        const dataObject = response.data.data;
-        // console.log(dataObject);
-        const dataArray = Object.values(dataObject);
-        const listDevice = dataArray.map((item) => ({ ...item }));
-        setList(listDevice);
-        // console.log(listDevice);
-
-        dataArray.forEach( async (item) =>{
-            if (item.location) {
-                const [lat, lon] = item.location.split(","); // Misal "6.200000, 106.816666"
-              const locationName = await getLocationName(lat, lon);
-              setLocations((prev) => ({ ...prev, [item.id]: locationName }));
-            }
+        const response = await axios.get(API_URL, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-      } else {
-        throw new Error("Data yang diterima tidak valid");
+
+        const data = response?.data?.data;
+        if (!Array.isArray(data)) throw new Error("Format data tidak valid");
+
+        setDevices(data);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Gagal mengambil data perangkat");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-      setError(error.message || "Terjadi kesalahan saat mengambil data");
-    } finally {
-      setLoading(false);
-    }
-  };
-    listDeive();
+    };
+
+    fetchDevices();
   }, []);
 
   const handleDetailClick = (device) => {
@@ -75,36 +41,50 @@ useEffect(() => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4 h-full">
-      <div className="bg-white shadow-md rounded-md p-2 text-lg">
-        <h2>List Device</h2>
-        <table className="font-Poppins text-sm text-center">
-          <thead>
-            <tr>
-              <th>Device Name</th>
-              <th>Location</th>
-              <th>Status</th>
-              <th>Detail</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((item, index) => (
-              <tr key={index}>
-                <td>{`Device'${String.fromCharCode(65 + index)}`}</td>
-                <td>{locations[item.id] || "Fetching location..."}</td>
-                <td>{item.status}</td>
-                <td><button onClick={() => handleDetailClick(item)}><Detail/></button></td>
+    <div className="grid grid-cols-2 gap-4 h-full font-Poppins">
+      <div className="bg-white shadow-md rounded-md p-4 text-sm">
+        <h2 className="text-lg font-semibold mb-2">List Device</h2>
+
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <table className="w-full table-auto text-center border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border p-2">Device Name</th>
+                <th className="border p-2">Location</th>
+                <th className="border p-2">Status</th>
+                <th className="border p-2">Detail</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {devices.map((device, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="border p-2">{`Device ${String.fromCharCode(65 + index)}`}</td>
+                  <td className="border p-2">{device.alamat || "Unknown"}</td>
+                  <td className="border p-2">{device.status}</td>
+                  <td className="border p-2">
+                    <button onClick={() => handleDetailClick(device)}>
+                      <Detail />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-      <div className="bg-white shadow-md rounded-md p-2 text-lg">Detail Device
-      {selectedDevice ? (
-          <ul className="list-disc pl-5">
+
+      <div className="bg-white shadow-md rounded-md p-4 text-sm">
+        <h2 className="text-lg font-semibold mb-2">Detail Device</h2>
+        {selectedDevice ? (
+          <ul className="list-disc pl-5 space-y-1">
             <li><strong>Device ID:</strong> {selectedDevice.id}</li>
             <li><strong>Device IP:</strong> {selectedDevice.ip}</li>
             <li><strong>Location:</strong> {selectedDevice.location}</li>
+            <li><strong>Alamat:</strong> {selectedDevice.alamat}</li>
             <li><strong>Memories:</strong> {selectedDevice.memory}</li>
             <li><strong>Status:</strong> {selectedDevice.status}</li>
             <li><strong>OnSite Value:</strong> {selectedDevice.onSiteValue}</li>
@@ -114,7 +94,7 @@ useEffect(() => {
             <li><strong>Region Time:</strong> {selectedDevice.regTime}</li>
           </ul>
         ) : (
-          <p>Select a device to see details.</p>
+          <p className="text-gray-600">Pilih salah satu device untuk melihat detail.</p>
         )}
       </div>
     </div>

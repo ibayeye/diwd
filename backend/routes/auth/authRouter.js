@@ -8,9 +8,9 @@ const router = express.Router();
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', protectedMiddleware, logout);
-router.get('/pengguna', protectedMiddleware, internalMiddleware, getAllPengguna);
+router.get('/pengguna', protectedMiddleware, internalMiddleware([1, 2]), getAllPengguna);
 router.get('/pengguna/:id', protectedMiddleware, getPengguna);
-router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware, deletePengguna);
+router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware([1, 2]), deletePengguna);
 router.put('/update_pengguna/:id', protectedMiddleware, updatePengguna);
 
 export default router;

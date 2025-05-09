@@ -17,8 +17,8 @@ const ProfileForm = ({ onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   // Data pengguna dari cookie
-  const userData = Cookies.get("userData")
-    ? JSON.parse(Cookies.get("userData"))
+  const userData = localStorage.getItem("userData")
+    ? JSON.parse(localStorage.getItem("userData"))
     : {};
 
   // Field profil untuk ditampilkan
@@ -36,8 +36,6 @@ const ProfileForm = ({ onClose }) => {
     Cookies.remove("token");
     Cookies.remove(userData);
     navigate("/login");
-    console.log("token dihappus", userData.username);
-
   };
 
   const handleImageChange = (e) => {

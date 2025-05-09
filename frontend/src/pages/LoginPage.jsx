@@ -40,8 +40,8 @@ const LoginPage = () => {
         }
       );
 
-      const token = response.data?.data.token;
-      const userData = response.data;
+      const token = response?.data?.data?.token;
+      const userData = response.data?.data;
       const role = response.data?.data.role;
       localStorage.setItem("userData", JSON.stringify(userData));
       localStorage.setItem("role", role);
@@ -54,8 +54,8 @@ const LoginPage = () => {
         secure: true,
       });
 
-      console.log(response.data);
-      console.log(role);
+      // console.log(response.data);
+      // console.log(role);
 
       const tkn = Cookies.get("token");
       toast.success("Berhasil Masuk");

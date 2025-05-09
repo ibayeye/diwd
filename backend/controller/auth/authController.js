@@ -168,7 +168,7 @@ export const getAllPengguna = asyncHandler(async (req, res) => {
 
     const [listpengguna, totalpengguna] = await Promise.all([
         Pengguna.findAll({
-            attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
+            attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role", "isActive"],
         }),
         Pengguna.count(),
     ]);

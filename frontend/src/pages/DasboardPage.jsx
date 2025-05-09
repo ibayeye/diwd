@@ -31,16 +31,14 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
-      // console.log(response);
       if (response.data) {
         setter(
-          response.data.totaldevice ||
+          response.data.totalDevice ||
             response.data.totaldata ||
             response.data.totaldeviceFailure ||
             ""
         );
         // console.log(response.data.data.map(item => item.location));
-        // console.log(response);
       } else {
         throw new Error("Data yang diterima tidak valid");
       }

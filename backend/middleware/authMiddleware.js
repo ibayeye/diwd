@@ -10,7 +10,7 @@ export const protectedMiddleware = asyncHandler(async (req, res, next) => {
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_SECRET); // Verifikasi token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verifikasi token
 
     // Cari user di database berdasarkan ID dari token
     const user = await Pengguna.findByPk(decoded.id);
@@ -24,14 +24,22 @@ export const protectedMiddleware = asyncHandler(async (req, res, next) => {
 });
 
 // middleware yang mengecek apakah pengguna adalah system_engineer
-export const internalMiddleware = (req, res, next) => {
-  const allowedRoles = [0, 1, 2];
-  if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
+export const internalMiddleware = (allowedRoles) => {
+  return async (req, res, next) => {
+    // Pastikan middleware autentikasi sudah dijalankan sebelumnya
+    if (!req.user) {
+      return res.status(401).json({ msg: "Unauthorized" });
+    }
+
+    // Periksa apakah role pengguna termasuk dalam role yang diizinkan
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        msg: "Akses ditolak",
+      });
+    }
+
     next();
-  } else {
-    res.status(403);
-    throw new Error("Not authorized");
-  }
+  };
 };
 
 export const checkRole = (allowedRoles) => {
