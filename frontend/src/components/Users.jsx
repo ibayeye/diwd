@@ -3,13 +3,16 @@ import Cookies from "js-cookie";
 import React, { useState, useEffect } from "react";
 import { ReactComponent as Delete } from "../assets/Icons/delete.svg";
 import { ReactComponent as Edit } from "../assets/Icons/edit.svg";
+import EditeForm from "./EditeForm";
 const User = () => {
   const [users, setUsers] = useState([]); // State untuk menyimpan daftar pengguna
   const [loading, setLoading] = useState(true); // State untuk loading
   const [error, setError] = useState(null);
-
+  const [showFromEdit, setShowFromEdit] = useState(false);
+  
   const API_URL = "http://localhost:5000/api/v1/auth/pengguna";
 
+  const userData = localStorage.getItem("userData");
   const fetchPengguna = async () => {
     setLoading(true);
     setError(null);
@@ -98,9 +101,20 @@ const User = () => {
                       </span>
                     </td>
                     <td className="px-4  py-4 border-b border-gray-300 justify-center items-center">
-                      <button className="mr-4 clear-start justify-center items-center">
-                        <Edit />
+                      <button
+                        className="mr-4 clear-start justify-center items-center"
+                        onClick={() => setShowFromEdit(!showFromEdit)}
+                      >
+                        {showFromEdit ? "batal" : <Edit />}
                       </button>
+                      {showFromEdit && (
+                        <div className="">
+                          <EditeForm
+                            dataPengguna={userData}
+                            onClose={() => setShowFromEdit(false)}
+                          />
+                        </div>
+                      )}
                       <button className="justify-center items-center">
                         <Delete />
                       </button>

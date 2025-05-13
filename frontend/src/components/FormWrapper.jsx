@@ -4,6 +4,7 @@ import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 
 const FormWrapper = ({
   title,
+  subtitle,
   fields,
   onSubmit,
   formData,
@@ -15,10 +16,10 @@ const FormWrapper = ({
     <form
       action=""
       onSubmit={onSubmit}
-      className="max-w-3xl bg-white w-full px-6 rounded-xl z-20"
+      className=" bg-white w-full px-6 rounded-xl z-20"
     >
       <p className="text-3xl font-semibold">{title}</p>
-      <p className="text-gray-400 pb-8">selamat datang</p>
+      <p className="text-gray-400 pb-8">{subtitle}</p>
       <div
         className={`grid gap-4 ${
           columns === 2 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"

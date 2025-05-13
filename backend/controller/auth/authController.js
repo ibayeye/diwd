@@ -96,6 +96,7 @@ export const login = asyncHandler(async (req, res) => {
         msg: "Successful login",
         data: {
             token: token,
+            id: pengguna.id,
             username: pengguna.username, // Ganti dengan properti nama pengguna Anda dari database
             email: pengguna.email,
             role: pengguna.role,

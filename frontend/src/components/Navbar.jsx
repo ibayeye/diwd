@@ -1,20 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ReactComponent as Profile } from "../assets/Icons/profile.svg";
-import { ReactComponent as Notif } from "../assets/images/icons/inotif.svg";
-import { ReactComponent as Hamburger } from "../assets/Icons/hamburger.svg";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RxAvatar } from "react-icons/rx";
 import ProfileForm from "./ProfileForm";
 import Cookies from "js-cookie";
+import { IoPower } from "react-icons/io5";
 
 const Navbar = ({ toggleSideBar }) => {
   const [showProfile, setShowProfile] = useState(false);
   const [viewProfile, setViewProfile] = useState(false);
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+  const role = localStorage.getItem("role");
   const profileMenuRef = useRef(null);
   const navigate = useNavigate();
-
 
   // Fungsi untuk menutup menu profil ketika klik di luar
   const handleOutsideClick = (e) => {
@@ -37,12 +35,20 @@ const Navbar = ({ toggleSideBar }) => {
 
   const handleViewProfile = () => {
     setShowProfile(false);
-    navigate("/profile");
+    navigate("/dasboard/Profile");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    Cookies.remove("token");
+    Cookies.remove(userData);
+    navigate("/login");
   };
 
   // console.log("ini user data",data);
   return (
-    <nav className="flex justify-end bg-zinc-50 p-4 border-b h-20">
+    <nav className="flex justify-end bg-white p-4 border-b h-20">
       <div className="flex items-center">
         <IoNotificationsOutline className="w-full h-6" />
       </div>
@@ -51,25 +57,31 @@ const Navbar = ({ toggleSideBar }) => {
           className="cursor-pointer ml-4 flex items-center mr-3"
           onClick={() => setShowProfile(!showProfile)}
         >
-          <RxAvatar className="w-full h-6"/>
+          <RxAvatar className="w-full h-6" />
         </div>
       </div>
       {showProfile && (
         <div
           ref={profileMenuRef}
-          className="absolute right-3 top-16 bg-white shadow-lg rounded-md p-4 w-56 z-10"
+          className="absolute right-3 top-16 bg-white rounded-md z-10 shadow-md w-72"
         >
-          <p className="text-sm text-gray-700">
-            Email : {userData?.email || "Guest"}
-          </p>
-          <p className="text-sm text-gray-700">
-            Username : {userData?.username || "guest@example.com"}
-          </p>
+          <div className="p-2">
+            <p className="font-semibold">
+              {userData?.username || "guest@example.com"}
+            </p>
+            <p className="text-gray-700">{role}</p>
+          </div>
+          <button className="border-b px-4 w-full text-start" onClick={handleViewProfile}>
+            Profil
+          </button>
           <button
-            className="bg-blue-500 text-white py-2 px-4 rounded-md w-full hover:bg-blue-600 mt-2"
-            onClick={() => setViewProfile(true)}
+            className="flex w-full items-center rounded-md mt-4 px-4 py-2 "
+            onClick={handleLogout}
           >
-            View Profile
+            <div className="mr-10">
+              <IoPower />
+            </div>
+            Log Out
           </button>
         </div>
       )}

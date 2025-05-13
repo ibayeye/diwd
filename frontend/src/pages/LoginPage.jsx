@@ -43,18 +43,24 @@ const LoginPage = () => {
       const token = response?.data?.data?.token;
       const userData = response.data?.data;
       const role = response.data?.data.role;
+
+      const roleNum = response.data?.data.role;
+      let roleName = "user";
+      if (roleNum === 1) roleName = "super admin";
+      else if (roleNum === 2) roleName = "admin";
       localStorage.setItem("userData", JSON.stringify(userData));
-      localStorage.setItem("role", role);
+      localStorage.setItem("role", roleName);
       localStorage.setItem("token", token);
 
-      Cookies.set("role", role);
+      Cookies.set("role", roleName);
       Cookies.set("token", token, { expires: 7, secure: true });
       Cookies.set("userData", JSON.stringify(userData), {
         expires: 7,
         secure: true,
       });
 
-      // console.log(response.data);
+      console.log(response);
+      console.log(roleName);
       // console.log(role);
 
       const tkn = Cookies.get("token");
@@ -72,13 +78,13 @@ const LoginPage = () => {
         const msg = error.response.data.msg;
         setErrors({ [field]: msg });
       } else {
-        toast.error("Username atau Kata Sandi Salah");
+        toast.error("Nama Pengguna atau Kata Sandi Salah");
       }
     }
   };
   const fields = [
-    { label: "Username", name: "username", type: "text" },
-    { label: "Katasandi", name: "password", type: "password" },
+    { label: "Nama Pengguna", name: "username", type: "text" },
+    { label: "Kata sandi", name: "password", type: "password" },
   ];
 
   return (
@@ -93,6 +99,7 @@ const LoginPage = () => {
           </div>
           <FormWrapper
             title="Masuk"
+            subtitle="selamat datang"
             fields={fields}
             formData={formData}
             onSubmit={handleSubmit}
