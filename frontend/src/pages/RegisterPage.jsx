@@ -103,6 +103,7 @@ const RegisterPage = () => {
           </div>
           <FormWrapper
             title="Pendaftaran"
+            subtitle="silahkan isi semua data"
             fields={fields}
             formData={formData}
             onChange={handleChange}

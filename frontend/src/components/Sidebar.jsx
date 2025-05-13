@@ -3,50 +3,68 @@ import { Link, useLocation } from "react-router-dom";
 import { menuItem } from "../components/MenuItem";
 import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"; // arrow icons
+import Cookies from "js-cookie";
 
-const Sidebar = ({ role = 0 }) => {
-  const roleNumber = parseInt(role);
+const Sidebar = () => {
+  const role = Cookies.get("role");
   const location = useLocation();
   const [openMenus, setOpenmenus] = useState({});
+  console.log(role);
 
   const toggleMenu = (label) => {
-    setOpenmenus((prev) =>({
-      ...prev, 
+    setOpenmenus((prev) => ({
+      ...prev,
       [label]: !prev[label],
-    }))
-  }
+    }));
+  };
 
   const renderMenu = (menu) => {
-    if (!menu.role?.includes(roleNumber)) return null;
+    if (!menu.role?.includes(role)) return null;
 
-    const isActive = location.pathname === menu.path;
-    console.log("Sidebar received role:", role, typeof role);
+    const base = "/dasboard/";
+    const url = base + (menu.path ?? "");
+    const isActive = location.pathname === url;
+
+    const isChildActive = menu.children?.some(
+      (child) => location.pathname === base + child.path
+    );
+
+    const highlight = isActive || isChildActive;
 
     if (menu.children) {
       return (
         <div key={menu.label} className="mb-2">
           <div
-            className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100 text-gray-700"
+            className={`flex items-center justify-between px-4 py-2 cursor-pointer rounded-md
+          ${highlight ? "border-blue-500 bg-blue-500 text-white" : ""}
+        `}
             onClick={() => toggleMenu(menu.label)}
           >
-            <div className="flex items-center">
-              <span className="mr-2">{menu.icon}</span>
-              {menu.label}
+            <div className="flex items-center gap-2">
+              {menu.icon}
+              <span>{menu.label}</span>
             </div>
             {openMenus[menu.label] ? <FiChevronUp /> : <FiChevronDown />}
           </div>
+
           {openMenus[menu.label] && (
             <div className="ml-6">
               {menu.children.map((child) => {
-                if (!child.role?.includes(roleNumber)) return null;
-                const isChildActive = location.pathname === child.path;
+                if (!child.role.includes(role)) return null;
+                const childUrl = `/dasboard/${child.path}`;
+                const childActive = location.pathname === childUrl;
                 return (
                   <Link
                     key={child.label}
-                    to={child.path}
-                    className={`block px-4 py-1 rounded hover:bg-gray-100 ${
-                      isChildActive ? "bg-blue-100 text-blue-800" : "text-gray-600"
-                    }`}
+                    to={childUrl}
+                    className={`
+                  block px-4 py-2 text-sm border-l-4
+                  ${
+                    childActive
+                      ? " border-blue-500 text-blue-500"
+                      : " border-gray-500 hover:border-blue-500 hover:text-blue-500"
+                  }
+                `}
                   >
                     {child.label}
                   </Link>
@@ -61,10 +79,15 @@ const Sidebar = ({ role = 0 }) => {
     return (
       <Link
         key={menu.label}
-        to={menu.path}
-        className={`flex items-center px-4 py-2 mb-2 rounded hover:bg-gray-100 ${
-          isActive ? "bg-blue-100 text-blue-800" : "text-gray-600"
-        }`}
+        to={`/dasboard/${menu.path}`}
+        className={`
+      flex items-center px-4 py-2 mb-2 rounded-md
+      ${
+        isActive
+          ? "border-l-4 border-blue-500 bg-blue-500 text-white"
+          : "hover:bg-blue-500 hover:text-white"
+      }
+    `}
       >
         <span className="mr-2">{menu.icon}</span>
         {menu.label}
@@ -73,7 +96,7 @@ const Sidebar = ({ role = 0 }) => {
   };
 
   return (
-    <div className="bg-zinc-50 border-r">
+    <div className="border-r font-Inter font-light bg-white">
       <div className="flex justify-center items-center w-full h-20 border-b">
         <Logo />
       </div>

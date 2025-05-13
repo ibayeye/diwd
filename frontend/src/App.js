@@ -17,6 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import AuthProtectedRoute from "./components/AuthProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import RegisterForm from "./components/RegisterForm";
 const App = () => {
   return (
     <LoaderProvider>
@@ -31,12 +32,10 @@ const App = () => {
               <Route path="view" element={<Dashboard />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="device/mapview" element={<MapView />} />
-              <Route element={<RoleProtectedRoute allowedRoles={[1, 2]} />}>
-                <Route
-                  path="report/devicereport"
-                  element={<DeviceReportPage />}
-                />
-                <Route path="report/eartquake" element={<EarthquakePage />} />
+              <Route element={<RoleProtectedRoute allowedRoles={["admin","super admin"]} />}>
+                <Route path="registerform" element={<RegisterForm />} />
+                <Route path="devicereport" element={<DeviceReportPage />} />
+                <Route path="reporteartquake" element={<EarthquakePage />} />
                 <Route path="user" element={<UserPage />} />
               </Route>
               <Route path="device/list" element={<ListPage />} />
