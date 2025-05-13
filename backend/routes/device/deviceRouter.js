@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllDataDevice, getDataDevice, deviceFailure } from "../../controller/device/deviceController.js";
+import { getAllDataDevice, getDataDevice, deviceFailure, listeningEarthquakeFirebase, listeningErrorFirebase } from "../../controller/device/deviceController.js";
 import { internalMiddleware, protectedMiddleware } from "../../middleware/authMiddleware.js";
 import { sendMail } from "../../controller/mailer/mailerController.js";
 
@@ -11,22 +11,7 @@ router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware([1, 2]),
 // router.get('/trackedFailure', trackedFailure);
 // router.get('/detectedEarthquake', detectedEarthquake);
 router.get('/sendEmail', sendMail);
-
-router.post('/device-realtime', async (req, res) => {
-  const data = req.body;
-
-  try {
-    // Simpan ke DB kalau mau
-    // await DeviceEarthquake.create({ ...data });
-
-    // Atau kirim notifikasi
-    console.log("Terima data dari React:", data);
-
-    res.status(200).json({ message: "Data diterima" });
-  } catch (error) {
-    console.error("Error menyimpan data:", error);
-    res.status(500).json({ error: "Gagal menyimpan data" });
-  }
-});
+router.post('/earthquake-realtime', listeningEarthquakeFirebase);
+router.post('/error-realtime', listeningErrorFirebase);
 
 export default router;

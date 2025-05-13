@@ -42,12 +42,18 @@ export const internalMiddleware = (allowedRoles) => {
   };
 };
 
-export const checkRole = (allowedRoles) => {
-  return (req, res, next) => {
-    if (req.pengguna && allowedRoles.includes(req.pengguna.role)) {
-      next()
-    } else {
-      res.status(403).json({ msg: "Not authorized (Forbidden)" })
-    }
+
+export const checkIsActive = asyncHandler(async (req, res, next) => {
+  const user = await Pengguna.findOne({ where: { username: req.body.username } });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
   }
-}
+
+  if (user.isActive !== 1) {
+    return res.status(403).json({ message: "User is inactive" });
+  }
+
+  req.user = user;
+  next();
+});

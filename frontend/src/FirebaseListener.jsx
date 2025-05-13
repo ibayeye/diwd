@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import { database, ref, onValue } from "./firebase.jsx";
 
 function FirebaseListener() {
-  const [lastProcessedData, setLastProcessedData] = useState(null);
+  const lastProcessedData = useRef({}); // ✅ gunakan useRef
 
   useEffect(() => {
-    const dbRef = ref(database, "/"); // root path untuk mengakses semua data
+    const dbRef = ref(database, "/");
 
     const unsubscribe = onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
@@ -14,28 +14,20 @@ function FirebaseListener() {
       if (data) {
         console.log("Data Firebase:", data);
 
-        // Loop melalui semua entri ID alat (57B0000004AL230004, 57B0000004AL230005, dll)
         Object.entries(data).forEach(([deviceId, deviceData]) => {
-          // Cek apakah ini adalah entri baru
-          const isNewDevice =
-            !lastProcessedData || !lastProcessedData[deviceId];
+          const previousData = lastProcessedData.current[deviceId];
+          const isNewDevice = !previousData;
 
-          // Cek apakah onSiteValue telah berubah
           const valueChanged =
-            !isNewDevice &&
-            lastProcessedData[deviceId] &&
-            lastProcessedData[deviceId].onSiteValue !== deviceData.onSiteValue;
+            previousData && previousData.onSiteValue !== deviceData.onSiteValue;
 
-          // Jika alat baru atau nilai onSiteValue berubah, kirim ke backend
           if (isNewDevice || valueChanged) {
             console.log(
               `onSiteValue berubah untuk alat ${deviceId}:`,
               deviceData.onSiteValue
             );
-
-            // Kirim data ke backend saat onSiteValue berubah
             axios
-              .post("http://localhost:5000/api/v1/device-realtime", {
+              .post("http://localhost:5000/api/v1/earthquake-realtime", {
                 deviceId: deviceId,
                 ...deviceData,
               })
@@ -53,11 +45,16 @@ function FirebaseListener() {
               );
           }
 
-          // Tetap cek status gempa
-          if (deviceData.status === "gempa") {
-            console.log(`Status gempa terdeteksi untuk alat ${deviceId}`);
+          const statusChanged =
+            previousData && previousData.status !== deviceData.status;
+
+          if (statusChanged && deviceData.status !== "0,0") {
+            console.log(
+              `Status gempa berubah untuk alat ${deviceId}:`,
+              deviceData.status
+            );
             axios
-              .post("http://localhost:5000/api/v1/device-realtime", {
+              .post("http://localhost:5000/api/v1/error-realtime", {
                 deviceId: deviceId,
                 ...deviceData,
               })
@@ -74,21 +71,17 @@ function FirebaseListener() {
                 )
               );
           }
-        });
 
-        // Perbarui data terakhir yang diproses
-        setLastProcessedData(data);
+          // ✅ Simpan data terakhir
+          lastProcessedData.current[deviceId] = deviceData;
+        });
       }
     });
 
     return () => unsubscribe();
-  }, [lastProcessedData]);
+  }, []); // ✅ kosong, cukup dijalankan sekali saat mount
 
-  return (
-    <div>
-      <h1>Realtime Monitoring Gempa</h1>
-    </div>
-  );
+  return null;
 }
 
 export default FirebaseListener;

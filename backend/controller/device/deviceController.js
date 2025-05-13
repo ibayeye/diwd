@@ -27,19 +27,19 @@ const limiter = pLimit(REQUEST_LIMIT);
 const reverseGeocode = async (lat, lon) => {
     // Create a cache key based on coordinates
     const cacheKey = `${lat},${lon}`;
-    
+
     // Check if we have this location cached
     const cachedAddress = geocodeCache.get(cacheKey);
     if (cachedAddress) {
         return cachedAddress;
     }
-    
+
     // If not in cache, make a rate-limited request
     try {
         const address = await limiter(async () => {
             // Add a small delay to ensure we don't exceed rate limits
             await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY));
-            
+
             const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
                 params: {
                     lat,
@@ -53,13 +53,13 @@ const reverseGeocode = async (lat, lon) => {
                 },
                 timeout: 10000
             });
-            
+
             return response.data.display_name || "Alamat tidak ditemukan";
         });
-        
+
         // Store in cache for future use
         geocodeCache.set(cacheKey, address);
-        
+
         return address;
     } catch (error) {
         console.error(`Geocoding error for [${lat}, ${lon}]:`, error.message);
@@ -69,22 +69,22 @@ const reverseGeocode = async (lat, lon) => {
 
 export const getAllDataDevice = asyncHandler(async (req, res) => {
     const skipGeocoding = req.query.skipGeocoding === 'true';
-    
+
     const dbRef = ref(database, "/");
     const snapshot = await get(dbRef);
-    
+
     if (!snapshot.exists()) {
         return res.status(404).json({
             status: "error",
             message: "No data found",
         });
     }
-    
+
     const allData = snapshot.val();
     const totalDevice = Object.keys(allData || {}).length;
-    
+
     let enrichedData;
-    
+
     if (skipGeocoding) {
         enrichedData = Object.entries(allData).map(([deviceId, deviceData]) => ({
             deviceId,
@@ -94,7 +94,7 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
         }));
     } else {
         const deviceEntries = Object.entries(allData);
-        
+
         const processBatch = async (batch) => {
             return Promise.all(
                 batch.map(async ([deviceId, deviceData]) => {
@@ -103,9 +103,9 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
                         const [latStr, lonStr] = location.split(',');
                         const lat = latStr.trim();
                         const lon = lonStr.trim();
-                        
+
                         const alamat = await reverseGeocode(lat, lon);
-                        
+
                         return {
                             deviceId,
                             id: deviceId,
@@ -123,10 +123,10 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
                 })
             );
         };
-        
+
         enrichedData = await processBatch(deviceEntries);
     }
-    
+
     res.status(200).json({
         status: "success",
         totalDevice,
@@ -137,7 +137,7 @@ export const getAllDataDevice = asyncHandler(async (req, res) => {
 export const getGeocodeStats = asyncHandler(async (req, res) => {
     const stats = geocodeCache.getStats();
     const keys = geocodeCache.keys();
-    
+
     res.status(200).json({
         status: "success",
         stats,
@@ -148,7 +148,7 @@ export const getGeocodeStats = asyncHandler(async (req, res) => {
 
 export const clearGeocodeCache = asyncHandler(async (req, res) => {
     geocodeCache.flushAll();
-    
+
     res.status(200).json({
         status: "success",
         message: "Geocode cache cleared"
@@ -198,6 +198,53 @@ export const deviceFailure = asyncHandler(async (req, res) => {
     }
 })
 
+export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
+    const data = req.body;
+
+    try {
+        // Atau kirim notifikasi
+        console.log("Terima data dari React:", data);
+
+        // Simpan ke DB kalau mau
+        await DeviceEarthquake.create({ ...data });
+
+
+        res.status(200).json({ message: "Data diterima" });
+    } catch (error) {
+        console.error("Error menyimpan data:", error);
+        res.status(500).json({ error: "Gagal menyimpan data" });
+    }
+})
+
+export const listeningErrorFirebase = asyncHandler(async (req, res) => {
+    const { id, status, ...data } = req.body;
+
+  try {
+    const latestRecord = await DeviceError.findOne({
+      where: { id },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (latestRecord && latestRecord.status === status) {
+      return res.status(200).json({
+        message: "Status belum berubah, tidak disimpan ulang.",
+      });
+    }
+
+    await DeviceError.create({
+      id,
+      status,
+      ...data,
+    });
+
+    res.status(200).json({
+      message: "Status baru disimpan ke database.",
+    });
+  } catch (error) {
+    console.error("Error menyimpan data:", error);
+    res.status(500).json({ error: "Gagal menyimpan data" });
+  }
+})
 // export const trackedFailure = asyncHandler(async (req, res) => {
 //     const dbRef = ref(database, "/"); // Mengambil semua data dari root
 //     const snapshot = await get(dbRef);
