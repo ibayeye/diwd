@@ -1,5 +1,5 @@
 import express from "express";
-import { deletePengguna, getAllPengguna, getPengguna, login, logout, register, updatePengguna } from "../../controller/auth/authController.js";
+import { addPengguna, deletePengguna, getAllPengguna, getPengguna, login, logout, register, updatePengguna, userLoggedin } from "../../controller/auth/authController.js";
 import { checkIsActive, internalMiddleware, protectedMiddleware } from "../../middleware/authMiddleware.js";
 
 
@@ -12,5 +12,7 @@ router.get('/pengguna', protectedMiddleware, internalMiddleware([1, 2]), getAllP
 router.get('/pengguna/:id', protectedMiddleware, getPengguna);
 router.delete('/delete_pengguna/:id', protectedMiddleware, internalMiddleware([1, 2]), deletePengguna);
 router.put('/update_pengguna/:id', protectedMiddleware, updatePengguna);
+router.get('/me', protectedMiddleware, userLoggedin);
+router.post('/addPengguna', protectedMiddleware, internalMiddleware([1, 2]), addPengguna);
 
 export default router;

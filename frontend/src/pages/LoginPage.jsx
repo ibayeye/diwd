@@ -46,8 +46,8 @@ const LoginPage = () => {
 
       const roleNum = response.data?.data.role;
       let roleName = "user";
-      if (roleNum === 1) roleName = "super admin";
-      else if (roleNum === 2) roleName = "admin";
+      if (roleNum === 2) roleName = "super admin";
+      else if (roleNum === 1) roleName = "admin";
       localStorage.setItem("userData", JSON.stringify(userData));
       localStorage.setItem("role", roleName);
       localStorage.setItem("token", token);
@@ -69,6 +69,8 @@ const LoginPage = () => {
         navigate("/dasboard/view");
       }, 2000);
     } catch (error) {
+      const resMsg = error.response?.data?.message;
+    
       if (
         error.response &&
         error.response.data?.field &&
@@ -77,10 +79,13 @@ const LoginPage = () => {
         const field = error.response.data.field;
         const msg = error.response.data.msg;
         setErrors({ [field]: msg });
+      } else if (resMsg) {
+        toast.error(resMsg); // tangkap 'message' atau 'msg'
       } else {
         toast.error("Nama Pengguna atau Kata Sandi Salah");
       }
     }
+    
   };
   const fields = [
     { label: "Nama Pengguna", name: "username", type: "text" },
