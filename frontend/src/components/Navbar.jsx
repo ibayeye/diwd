@@ -63,7 +63,7 @@ const Navbar = ({ toggleSideBar }) => {
       {showProfile && (
         <div
           ref={profileMenuRef}
-          className="absolute right-3 top-16 bg-white rounded-md z-10 shadow-md w-72"
+          className="absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72"
         >
           <div className="p-2">
             <p className="font-semibold">

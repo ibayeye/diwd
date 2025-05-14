@@ -220,7 +220,6 @@ export const updatePengguna = asyncHandler(async (req, res) => {
 
 
     const id = req.params.id;
-    const apiKey = req.headers["x-api-key"];
 
     if (!id) {
         return res.status(400).json({
@@ -229,12 +228,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-    if (!apiKey) {
-        return res.status(401).json({
-            status: "error",
-            msg: "API Key is required",
-        });
-    }
+   
 
     const pengguna = await Pengguna.findOne({ where: { id } });
 
@@ -245,12 +239,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-    if (pengguna.apiKey !== apiKey) {
-        return res.status(403).json({
-            status: "error",
-            msg: "You are not authorized to update this user.",
-        });
-    }
+  
 
     const { nama, email, no_hp, nip, image, password } = req.body;
 

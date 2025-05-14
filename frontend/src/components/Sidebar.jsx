@@ -9,7 +9,7 @@ const Sidebar = () => {
   const role = Cookies.get("role");
   const location = useLocation();
   const [openMenus, setOpenmenus] = useState({});
-  console.log(role);
+  // console.log(role);
 
   const toggleMenu = (label) => {
     setOpenmenus((prev) => ({
