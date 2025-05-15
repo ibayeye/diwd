@@ -47,11 +47,11 @@ export const checkIsActive = asyncHandler(async (req, res, next) => {
   const user = await Pengguna.findOne({ where: { username: req.body.username } });
 
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: "Pengguna tidak ditemukan!" });
   }
 
   if (user.isActive !== 1) {
-    return res.status(403).json({ message: "User is inactive" });
+    return res.status(403).json({ message: "Pengguna belum aktif!" });
   }
 
   req.user = user;

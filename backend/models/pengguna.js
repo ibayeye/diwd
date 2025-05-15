@@ -67,6 +67,10 @@ const Pengguna = db.define(
     type: DataTypes.INTEGER,
     allowNull: true,
     defaultValue: 0,
+  },
+  address: {
+    allowNull: true,
+    type: DataTypes.STRING(5000),
   }
 }, {
   freezeTableName: true,
