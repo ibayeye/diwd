@@ -2,12 +2,15 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { ReactComponent as Detail } from "../assets/Icons/idetail.svg";
 import { IoEye } from "react-icons/io5";
+import { Link, useNavigate } from "react-router-dom";
 const List = () => {
   const [devices, setDevices] = useState([]);
+  const [devicesDetail, setDevicesDetail] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
 
+  const navigate = useNavigate();
   const API_URL = "http://localhost:5000/api/v1/getDevice";
 
   useEffect(() => {
@@ -31,7 +34,9 @@ const List = () => {
       } finally {
         setLoading(false);
       }
-    };
+      
+      
+  };
 
     fetchDevices();
   }, []);
@@ -40,6 +45,23 @@ const List = () => {
     setSelectedDevice(device);
   };
 
+  const handleDataDevice =  async (id) =>{
+      try {
+        const token = localStorage.getItem("token");
+        const {data: { data: detail } } = await axios.get(`http://localhost:5000/api/v1/getDevice/${id}`, 
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        // console.log(responseDevice);
+        
+        // setDevicesDetail(responseDevice.data.data)
+        navigate(`device/detail${id}`,{ state: { detail } })
+      } catch (err) {
+        console.error(err);
+      setError(err.response?.data?.msg || err.message);
+      }
+    }
   return (
     <div className="h-full font-Poppins">
         <h2 className="text-lg font-semibold my-4">Daftar Perangkat</h2>
@@ -68,7 +90,7 @@ const List = () => {
                   <td className=" p-2">{device.alamat || "Unknown"}</td>
                   <td className=" p-2 text-center">{device.status}</td>
                   <td className="text-center">
-                    <button className="" onClick={() => handleDetailClick(device)}>
+                    <button className="" onClick={() => handleDataDevice(device.id)}>
                       <IoEye className="w-full h-5"/>
                     </button>
                   </td>
@@ -79,50 +101,7 @@ const List = () => {
         )}
       </div>
 
-      <div className="bg-white shadow-md rounded-md p-4 text-sm">
-        <h2 className="text-lg font-semibold mb-2">Detail Device</h2>
-        {selectedDevice ? (
-          <ul className="list-disc pl-5 space-y-1">
-            <li>
-              <strong>Device ID:</strong> {selectedDevice.id}
-            </li>
-            <li>
-              <strong>Device IP:</strong> {selectedDevice.ip}
-            </li>
-            <li>
-              <strong>Location:</strong> {selectedDevice.location}
-            </li>
-            <li>
-              <strong>Alamat:</strong> {selectedDevice.alamat}
-            </li>
-            <li>
-              <strong>Memories:</strong> {selectedDevice.memory}
-            </li>
-            <li>
-              <strong>Status:</strong> {selectedDevice.status}
-            </li>
-            <li>
-              <strong>OnSite Value:</strong> {selectedDevice.onSiteValue}
-            </li>
-            <li>
-              <strong>OnSite Time:</strong> {selectedDevice.onSiteTime}
-            </li>
-            <li>
-              <strong>Region Value:</strong> {selectedDevice.regValue}
-            </li>
-            <li>
-              <strong>Region Count Down:</strong> {selectedDevice.regCD}
-            </li>
-            <li>
-              <strong>Region Time:</strong> {selectedDevice.regTime}
-            </li>
-          </ul>
-        ) : (
-          <p className="text-gray-600">
-            Pilih salah satu device untuk melihat detail.
-          </p>
-        )}
-      </div>
+      
     </div>
   );
 };
