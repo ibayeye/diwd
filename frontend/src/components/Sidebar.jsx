@@ -9,7 +9,7 @@ const Sidebar = () => {
   const role = Cookies.get("role");
   const location = useLocation();
   const [openMenus, setOpenmenus] = useState({});
-  console.log(role);
+  // console.log(role);
 
   const toggleMenu = (label) => {
     setOpenmenus((prev) => ({
@@ -36,7 +36,7 @@ const Sidebar = () => {
         <div key={menu.label} className="mb-2">
           <div
             className={`flex items-center justify-between px-4 py-2 cursor-pointer rounded-md
-          ${highlight ? "border-blue-500 bg-blue-500 text-white" : ""}
+          ${highlight ? "bg-sky-500 text-white" : ""}
         `}
             onClick={() => toggleMenu(menu.label)}
           >
@@ -62,7 +62,7 @@ const Sidebar = () => {
                   ${
                     childActive
                       ? " border-blue-500 text-blue-500"
-                      : " border-gray-500 hover:border-blue-500 hover:text-blue-500"
+                      : " border-gray-500 hover:border-sky-500 hover:text-sky-500"
                   }
                 `}
                   >

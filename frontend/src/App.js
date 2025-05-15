@@ -19,6 +19,7 @@ import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import FirebaseListener from "./FirebaseListener.jsx";
 import RegisterForm from "./components/RegisterForm";
+import DetailDevice from "./components/DetailDevice.jsx";
 const App = () => {
   return (
     <LoaderProvider>
@@ -41,6 +42,7 @@ const App = () => {
                 <Route path="user" element={<UserPage />} />
               </Route>
               <Route path="device/list" element={<ListPage />} />
+              <Route path="device/detail" element={<DetailDevice />} />
               <Route path="*" element={<LandingPage />} />
             </Route>
           </Route>

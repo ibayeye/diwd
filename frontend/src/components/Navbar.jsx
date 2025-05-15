@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { RxAvatar } from "react-icons/rx";
+import { ReactComponent as RxAvatar} from "../assets/Icons/userProfile.svg";
 import ProfileForm from "./ProfileForm";
 import Cookies from "js-cookie";
 import { IoPower } from "react-icons/io5";
@@ -54,16 +54,16 @@ const Navbar = ({ toggleSideBar }) => {
       </div>
       <div className="flex justify-end">
         <div
-          className="cursor-pointer ml-4 flex items-center mr-3"
+          className="cursor-pointer ml-4 flex justify-end items-center mr-3"
           onClick={() => setShowProfile(!showProfile)}
         >
-          <RxAvatar className="w-full h-6" />
+          <RxAvatar className="w-full h-14" />
         </div>
       </div>
       {showProfile && (
         <div
           ref={profileMenuRef}
-          className="absolute right-3 top-16 bg-white rounded-md z-10 shadow-md w-72"
+          className="absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72"
         >
           <div className="p-2">
             <p className="font-semibold">
