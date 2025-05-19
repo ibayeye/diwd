@@ -61,6 +61,57 @@ export const register = asyncHandler(async (req, res) => {
     });
 });
 
+export const addPengguna = asyncHandler(async (req, res) => {
+    const { username, email, password, confirmPassword, nip, no_hp, role } = req.body;
+
+    const existingUser = await Pengguna.findOne({ where: { email: email } });
+
+    if (existingUser) {
+        return res.status(400).json({
+            msg: "Pengguna already exists",
+        });
+    }
+
+    if (!username ||
+        !password ||
+        !confirmPassword ||
+        !email ||
+        !nip || !no_hp || !role
+    ) {
+        return res.status(400).json({
+            status: "error",
+            msg: "All fields are required",
+        });
+    }
+
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            status: "error",
+            msg: "Password and Confirm Password do not match",
+        });
+    }
+
+
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+    await Pengguna.create({
+        apiKey: generateApiKey(20),
+        username,
+        password: hashPassword,
+        email,
+        nip,
+        no_hp,
+        role,
+        isActive: 1
+    });
+    res.status(201).json({
+        status: "success",
+        msg: "Account successfully registered",
+    });
+});
+
 export const login = asyncHandler(async (req, res) => {
 
     const { username, password, keepLogin } = req.body;
@@ -217,8 +268,6 @@ export const deletePengguna = asyncHandler(async (req, res) => {
 });
 
 export const updatePengguna = asyncHandler(async (req, res) => {
-
-
     const id = req.params.id;
 
     if (!id) {
@@ -241,18 +290,16 @@ export const updatePengguna = asyncHandler(async (req, res) => {
 
   
 
-    const { nama, email, no_hp, nip, image, password, isActive } = req.body;
+    const { nama, email, no_hp, nip, image, password, isActive, address } = req.body;
 
-    // Siapkan data yang ingin diupdate
     const updatedData = {};
-
-    // Isi hanya field yang ada di req.body
     if (nama !== undefined) updatedData.nama = nama;
     if (email !== undefined) updatedData.email = email;
     if (no_hp !== undefined) updatedData.no_hp = no_hp;
     if (nip !== undefined) updatedData.nip = nip;
     if (image !== undefined) updatedData.image = image;
     if (isActive !== undefined) updatedData.isActive = isActive;
+    if (address !== undefined) updatedData.address = address;
 
     if (password) {
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
@@ -267,7 +314,6 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         updatedData.password = hashedPassword;
     }
 
-    // Kalau tidak ada data yang diupdate
     if (Object.keys(updatedData).length === 0) {
         return res.status(400).json({
             status: "error",
@@ -275,16 +321,38 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-    // Update pengguna
     await pengguna.update(updatedData);
 
-    // Fetch pengguna terbaru setelah update
     const updatedPengguna = await Pengguna.findByPk(id);
+
+    // Hapus password dari respon
+    const penggunaWithoutPassword = { ...updatedPengguna.toJSON() };
+    delete penggunaWithoutPassword.password;
 
     res.status(200).json({
         status: "success",
         msg: "Berhasil ubah data akun!",
-        data: updatedPengguna
+        data: penggunaWithoutPassword,
+    });
+});
 
+
+export const userLoggedin = asyncHandler(async (req, res) => {
+    const pengguna = await Pengguna.findOne({
+        where: { id: req.user.id },
+        attributes: ["id", "username", "image", "email", "nama", "nip", "no_hp", "role", "isActive"],
+    });
+
+    if (!pengguna) {
+        return res.status(404).json({
+            status: "error",
+            msg: "Pengguna not found",
+        });
+    }
+
+    res.status(200).json({
+        status: "success",
+        msg: "Pengguna data retrieved successfully",
+        data: pengguna,
     });
 });
