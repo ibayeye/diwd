@@ -23,8 +23,7 @@ const Breadcrumb = () => {
               <span key={index}>
                 <Link to={routeTo} className="hover:text-blue-500">
                   {displayName}
-                </Link>{" "}
-                |{" "}
+                </Link>{" "}/{" "}
               </span>
             );
           })}

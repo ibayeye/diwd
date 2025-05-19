@@ -5,29 +5,32 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const EditeForm = ({ dataPengguna, onClose }) => {
-
-
   const [formData, setFormData] = useState({
     nama: dataPengguna.nama || "",
     email: dataPengguna.email || "",
     no_hp: dataPengguna.no_hp || "",
     nip: dataPengguna.nip || "",
-    image: dataPengguna.address || "",
+    address: dataPengguna.address || "",
     role: dataPengguna.role || "",
   });
 
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
   const fields = [
     { label: "Nama Lengkap", name: "nama", type: "text" },
     { label: "Nomor Induk Pegawai", name: "nip", type: "number" },
     { label: "Email", name: "email", type: "email" },
     { label: "Nomor Telepon", name: "no_hp", type: "number" },
     { label: "Alamat", name: "address", type: "text" },
-    { label: "Role", name: "role", type: "select", option:[
+    {
+      label: "Role",
+      name: "role",
+      type: "select",
+      option: [
         { value: 1, label: "Admin" },
         { value: 2, label: "superAdmin" },
         { value: 0, label: "User" },
-    ]},
+      ],
+    },
   ];
 
   const [errors, setErrors] = useState({});
@@ -42,7 +45,7 @@ const EditeForm = ({ dataPengguna, onClose }) => {
       await axios.put(
         `http://localhost:5000/api/v1/auth/update_pengguna/${dataPengguna.id}`,
         formData,
-        {  headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Profile berhasil diperbarui");
       onClose();

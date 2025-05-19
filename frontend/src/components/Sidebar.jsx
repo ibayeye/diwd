@@ -100,7 +100,7 @@ const Sidebar = () => {
       <div className="flex justify-center items-center w-full h-20 border-b">
         <Logo />
       </div>
-      <aside className="w-64 p-3 shadow-md h-screen">
+      <aside className="w-72 p-3 shadow-md h-screen">
         {menuItem.map(renderMenu)}
       </aside>
     </div>

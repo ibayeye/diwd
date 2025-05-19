@@ -34,9 +34,7 @@ const List = () => {
       } finally {
         setLoading(false);
       }
-      
-      
-  };
+    };
 
     fetchDevices();
   }, []);
@@ -45,28 +43,27 @@ const List = () => {
     setSelectedDevice(device);
   };
 
-  const handleDataDevice =  async (id) =>{
-      try {
-        const token = localStorage.getItem("token");
-        const {data: { data: detail } } = await axios.get(`http://localhost:5000/api/v1/getDevice/${id}`, 
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        // console.log(responseDevice);
-        
-        // setDevicesDetail(responseDevice.data.data)
-        navigate(`device/detail${id}`,{ state: { detail } })
-      } catch (err) {
-        console.error(err);
+  const handleDataDevice = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const {
+        data: { data: detail },
+      } = await axios.get(`http://localhost:5000/api/v1/getDevice/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // console.log(responseDevice);
+
+      // setDevicesDetail(responseDevice.data.data)
+      navigate(`device/detail${id}`, { state: { detail } });
+    } catch (err) {
+      console.error(err);
       setError(err.response?.data?.msg || err.message);
-      }
     }
+  };
   return (
     <div className="h-full font-Poppins">
-        <h2 className="text-lg font-semibold my-4">Daftar Perangkat</h2>
+      <h2 className="text-lg font-semibold my-4">Daftar Perangkat</h2>
       <div className="bg-white shadow-md rounded-md p-4 text-sm">
-
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -90,8 +87,11 @@ const List = () => {
                   <td className=" p-2">{device.alamat || "Unknown"}</td>
                   <td className=" p-2 text-center">{device.status}</td>
                   <td className="text-center">
-                    <button className="" onClick={() => handleDataDevice(device.id)}>
-                      <IoEye className="w-full h-5"/>
+                    <button
+                      className=""
+                      onClick={() => handleDataDevice(device.id)}
+                    >
+                      <IoEye className="w-full h-5" />
                     </button>
                   </td>
                 </tr>
@@ -100,8 +100,6 @@ const List = () => {
           </table>
         )}
       </div>
-
-      
     </div>
   );
 };

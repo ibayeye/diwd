@@ -34,7 +34,6 @@ const Navbar = ({ toggleSideBar }) => {
   }, [showProfile]);
 
   const handleViewProfile = () => {
-    setShowProfile(false);
     navigate("/dasboard/Profile");
   };
 

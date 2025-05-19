@@ -3,12 +3,13 @@ import User from "../components/Users";
 import axios from "axios";
 import { toast } from "react-toastify";
 import TableWrapper from "../components/TableWrapper";
+import EditeForm from "../components/EditeForm";
 
 const UserPage = () => {
   const [users, setUsers] = useState([]); // State untuk menyimpan daftar pengguna
   const [loading, setLoading] = useState(true); // State untuk loading
   const [error, setError] = useState(null);
-  const [showFromEdit, setShowFromEdit] = useState(false);
+  const [showFormEdit, setShowFormEdit] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -20,10 +21,13 @@ const UserPage = () => {
       if (!token) {
         throw new Error("token tidak ditemukan");
       }
-      const response = await axios.get("http://localhost:5000/api/v1/auth/pengguna", {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        "http://localhost:5000/api/v1/auth/pengguna",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
       console.log(response.data);
 
       const { data } = response;
@@ -53,7 +57,7 @@ const UserPage = () => {
         }
       );
       setEditingUser(responseUser.data.data);
-      setShowFromEdit(true);
+      setShowFormEdit(true);
       console.log("iniiiiii :", responseUser.data);
     } catch (err) {
       console.error(err);
@@ -66,10 +70,10 @@ const UserPage = () => {
   };
 
   useEffect(() => {
-      fetchPengguna();
-    }, []);
+    fetchPengguna();
+  }, []);
 
-    const handleDelet = async (id) => {
+  const handleDelet = async (id) => {
     const valid = window.confirm("Anda Akan Menghapus Pengguna ini?");
     if (!valid) return;
 
@@ -90,24 +94,31 @@ const UserPage = () => {
   };
 
   const columns = [
-    {key: "nama", label: "Nama"},
-    {key: "email", label: "Email"},
-    {key: "role", label: "Role"},
-    {key: "status", label: "Status"},
-  ]
-
+    { key: "nama", label: "Nama" },
+    { key: "email", label: "Email" },
+    { key: "role", label: "Role" },
+    { key: "status", label: "Status" },
+  ];
+  const handleCloseEdit = () => {
+    setShowFormEdit(false);
+    setEditingUser(null);
+    fetchPengguna(); // refresh data setelah edit
+  };
   return (
     <div>
-        <h2>Daftar Pengguna</h2>
-        <TableWrapper
+      <p className="text-2xl font-Inter font-bold my-3">Daftar Pengguna</p>
+      <TableWrapper
         columns={columns}
         data={users}
         loading={loading}
         error={error}
         onEdit={handleDataEdit}
         onDelete={handleDelet}
-        ItemsPage={5}
-        />
+        ItemsPage={10}
+      />
+      {showFormEdit && editingUser && (
+        <EditeForm dataPengguna={editingUser} onClose={handleCloseEdit} />
+      )}
     </div>
   );
 };

@@ -74,7 +74,7 @@ const Dashboard = () => {
     fetchAllData();
   }, []);
   const borderColors = {
-    red: "border-red-500",
+    red: "border-b border-red-500",
     blue: "border-blue-500",
     green: "border-green-500",
     yellow: "border-yellow-500",
@@ -86,13 +86,13 @@ const Dashboard = () => {
       <div className="">
         <div className="grid grid-cols-2 gap-4">
           <DataCard
-            title="Total Device"
+            title="Total Perangkat"
             value={loading.totalDevice ? "Loading..." : totalDevice}
             Icon={Loc}
             borderColor={borderColors.blue}
           />
           <DataCard
-            title="Device detected failure"
+            title="Kegagalan Perangkat Terdeteksi"
             value={
               loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure
             }
@@ -103,7 +103,7 @@ const Dashboard = () => {
             title={
               loading.users
                 ? "Loading Users..."
-                : `There are ${totalUsers || 0} users in this system`
+                : `Terdapat ${totalUsers || 0} Pengguna Dalam Sistem`
             }
             value={loading.totalUsers ? "Loading..." : totalUsers}
             Icon={IUser}
