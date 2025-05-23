@@ -130,302 +130,178 @@ def top_hourly_error_messages(top_n=5):
         return top_errors.to_dict(orient='records')
     except Exception as e:
         return {"error": str(e)}
+    
+def daily_status_trend():
+    try:
+        df_cleaned = get_cleaned_df()
+        df_cleaned["Date"] = df_cleaned["Timestamp"].dt.date
+        status_labels = {0: 'Low', 1: 'Warning', 2: 'Critical'}
+
+        daily_status_counts = (
+            df_cleaned.groupby(["Date", "Status"])
+            .size()
+            .reset_index(name="Count")
+        )
+
+        last_7_days = sorted(df_cleaned["Date"].unique())[-7:]
+        filtered = daily_status_counts[daily_status_counts["Date"].isin(last_7_days)]
+        filtered["Status Label"] = filtered["Status"].map(status_labels)
+
+        result = (
+            filtered.groupby(["Date", "Status Label"])["Count"]
+            .sum()
+            .unstack(fill_value=0)
+            .reset_index()
+            .to_dict(orient='records')
+        )
+
+        return result
+    except Exception as e:
+        return {"error": str(e)}
 
 
-# # Buat kolom 'Date' dari Timestamp jika belum ada
-# df_cleaned["Date"] = df_cleaned["Timestamp"].dt.date
+def top_daily_error_messages(top_n=3):
+    try:
+        df_cleaned = get_cleaned_df()
+        df_cleaned["Date"] = df_cleaned["Timestamp"].dt.date
 
-# # Hitung jumlah Error Message per tanggal
-# daily_error_counts = (
-#     df_cleaned.groupby(["Date", "Error Message"])
-#     .size()
-#     .reset_index(name="Count")
-# )
+        daily_error_counts = (
+            df_cleaned.groupby(["Date", "Error Message"])
+            .size()
+            .reset_index(name="Count")
+        )
 
-# # Ambil 7 hari terakhir dari data
-# last_7_days = sorted(df_cleaned["Date"].unique())[-7:]
+        last_7_days = sorted(df_cleaned["Date"].unique())[-7:]
+        filtered = daily_error_counts[daily_error_counts["Date"].isin(last_7_days)]
 
-# # Filter data hanya untuk 7 hari terakhir
-# filtered_daily_errors = daily_error_counts[daily_error_counts["Date"].isin(last_7_days)]
+        top_daily_errors = (
+            filtered.sort_values(["Date", "Count"], ascending=[True, False])
+            .groupby("Date")
+            .head(top_n)
+        )
 
-# # Ambil top N error message terbanyak untuk tiap hari
-# top_n = 3
-# top_daily_errors = (
-#     filtered_daily_errors
-#     .sort_values(['Date', 'Count'], ascending=[True, False])
-#     .groupby('Date')
-#     .head(top_n)
-# )
+        return top_daily_errors.to_dict(orient='records')
+    except Exception as e:
+        return {"error": str(e)}
 
-# # Visualisasi barplot top error message per hari selama 7 hari terakhir
-# plt.figure(figsize=(16, 8))
-# sns.barplot(
-#     x="Date", y="Count", hue="Error Message",
-#     data=top_daily_errors, dodge=True, palette="Set3"
-# )
+def weekly_status_trend():
+    try:
+        df_cleaned = get_cleaned_df()
+        df_cleaned["Week"] = df_cleaned["Timestamp"].dt.to_period("W").apply(lambda r: r.start_time.date())
+        status_labels = {0: 'Low', 1: 'Warning', 2: 'Critical'}
 
-# plt.title(f"Top {top_n} Error Message per Hari (7 Hari Terakhir)")
-# plt.xlabel("Tanggal")
-# plt.ylabel("Jumlah Error")
-# plt.xticks(rotation=45)
-# plt.legend(title="Error Message", bbox_to_anchor=(1.05, 1), loc="upper left")
-# plt.tight_layout()
-# plt.show()
+        weekly_status_counts = (
+            df_cleaned.groupby(["Week", "Status"])
+            .size()
+            .reset_index(name="Count")
+        )
 
-# # Hitung jumlah Status per tanggal
-# daily_status_counts = (
-#     df_cleaned.groupby(["Date", "Status"])
-#     .size()
-#     .reset_index(name="Count")
-# )
+        last_5_weeks = sorted(df_cleaned["Week"].unique())[-5:]
+        filtered = weekly_status_counts[weekly_status_counts["Week"].isin(last_5_weeks)]
+        filtered["Status Label"] = filtered["Status"].map(status_labels)
 
-# # Ambil 7 tanggal terakhir
-# last_7_days = sorted(df_cleaned["Date"].unique())[-7:]
+        result = (
+            filtered.groupby(["Week", "Status Label"])["Count"]
+            .sum()
+            .unstack(fill_value=0)
+            .reset_index()
+            .to_dict(orient='records')
+        )
 
-# # Filter hanya data dari 7 hari terakhir
-# filtered_daily_status = daily_status_counts[daily_status_counts["Date"].isin(last_7_days)]
+        return result
+    except Exception as e:
+        return {"error": str(e)}
 
-# # Mapping status ke label yang lebih informatif (opsional)
-# status_labels = {0: 'Low', 1: 'Warning', 2: 'Critical'}
-# filtered_daily_status["Status Label"] = filtered_daily_status["Status"].map(status_labels)
 
-# # Buat pivot table supaya tiap Status Label jadi kolom dan tanggal jadi index
-# pivot_status = filtered_daily_status.pivot(index="Date", columns="Status Label", values="Count").fillna(0)
+def top_weekly_error_messages(top_n=3):
+    try:
+        df_cleaned = get_cleaned_df()
+        df_cleaned["Week"] = df_cleaned["Timestamp"].dt.to_period("W").apply(lambda r: r.start_time.date())
 
-# # Plot tren jumlah Status per hari
-# plt.figure(figsize=(16, 8))
-# for status_label in pivot_status.columns:
-#     plt.plot(pivot_status.index, pivot_status[status_label], marker='o', label=status_label)
+        weekly_error_counts = (
+            df_cleaned.groupby(["Week", "Error Message"])
+            .size()
+            .reset_index(name="Count")
+        )
 
-# plt.title("Tren Jumlah Status Error per Hari (7 Hari Terakhir)")
-# plt.xlabel("Tanggal")
-# plt.ylabel("Jumlah Error")
-# plt.xticks(rotation=45)
-# plt.legend(title="Status")
-# plt.grid(True)
-# plt.tight_layout()
-# plt.show()
+        last_5_weeks = sorted(df_cleaned["Week"].unique())[-5:]
+        filtered = weekly_error_counts[weekly_error_counts["Week"].isin(last_5_weeks)]
 
-# # Tambahkan kolom 'Week' berdasarkan nomor minggu dari Timestamp
-# df_cleaned["Week"] = df_cleaned["Timestamp"].dt.isocalendar().week
+        top_weekly_errors = (
+            filtered.sort_values(["Week", "Count"], ascending=[True, False])
+            .groupby("Week")
+            .head(top_n)
+        )
 
-# # Hitung jumlah error per minggu
-# weekly_errors = df_cleaned.groupby("Week").size()
+        return top_weekly_errors.to_dict(orient='records')
+    except Exception as e:
+        return {"error": str(e)}
 
-# # Visualisasi jumlah error per minggu dalam bentuk bar chart
-# plt.figure(figsize=(12, 6))
-# weekly_errors.plot(kind="bar", color="red")
+def monthly_status_trend():
+    try:
+        df_cleaned = get_cleaned_df()
+        df_cleaned["Month"] = df_cleaned["Timestamp"].dt.to_period("M").astype(str)
+        monthly_trend = (
+            df_cleaned.groupby(["Month", "Status"])
+            .size()
+            .reset_index(name="Count")
+        )
+        status_labels = {0: "Low", 1: "Warning", 2: "Critical"}
+        monthly_trend["Status Label"] = monthly_trend["Status"].map(status_labels)
+        return monthly_trend.to_dict(orient='records')
+    except Exception as e:
+        return {"error": str(e)}
 
-# plt.title("Jumlah Error per Minggu")
-# plt.xlabel("Minggu ke-")
-# plt.ylabel("Jumlah Error")
-# plt.grid(axis='y')
-# plt.tight_layout()
-# plt.show()
+def top_monthly_error_messages(top_n=3):
+    try:
+        df_cleaned = get_cleaned_df()
+        df_cleaned["Month"] = df_cleaned["Timestamp"].dt.to_period("M").astype(str)
 
-# # Hitung jumlah error per minggu per Status
-# weekly_status_counts = (
-#     df_cleaned.groupby(["Week", "Status"])
-#     .size()
-#     .reset_index(name="Count")
-# )
+        monthly_error_msg = (
+            df_cleaned.groupby(["Month", "Error Message"])
+            .size()
+            .reset_index(name="Count")
+        )
 
-# # Mapping status ke label yang informatif (opsional)
-# status_labels = {0: 'Low', 1: 'Warning', 2: 'Critical'}
-# weekly_status_counts["Status Label"] = weekly_status_counts["Status"].map(status_labels)
+        top_monthly = (
+            monthly_error_msg
+            .sort_values(["Month", "Count"], ascending=[True, False])
+            .groupby("Month")
+            .head(top_n)
+        )
+        return top_monthly.to_dict(orient="records")
+    except Exception as e:
+        return {"error": str(e)}
 
-# # Visualisasi tren jumlah error per Status tiap minggu
-# plt.figure(figsize=(12, 6))
-# sns.lineplot(x="Week", y="Count", hue="Status Label", data=weekly_status_counts, marker="o", palette="Set1")
+def error_status_distribution():
+    try:
+        df_cleaned = get_cleaned_df()
+        status_labels = {0: "Low", 1: "Warning", 2: "Critical"}
+        df_cleaned['Status Label'] = df_cleaned['Status'].map(status_labels)
+        distribution = df_cleaned['Status Label'].value_counts().to_dict()
+        return distribution
+    except Exception as e:
+        return {"error": str(e)}
 
-# plt.title("Tren Jumlah Status Error per Minggu")
-# plt.xlabel("Minggu")
-# plt.ylabel("Jumlah Error")
-# plt.xticks(rotation=45)
-# plt.grid(True)
-# plt.tight_layout()
-# plt.show()
+def top_error_messages_per_status(top_n=5):
+    try:
+        df_cleaned = get_cleaned_df()
+        status_labels = {0: "Low", 1: "Warning", 2: "Critical"}
+        df_cleaned['Status Label'] = df_cleaned['Status'].map(status_labels)
 
-# # Hitung jumlah error message per minggu
-# weekly_error_msg = (
-#     df_cleaned.groupby(["Week", "Error Message"])
-#     .size()
-#     .reset_index(name="Count")
-# )
+        top_errors_by_status = (
+            df_cleaned.groupby(['Status Label', 'Error Message'])
+            .size()
+            .reset_index(name='Count')
+            .sort_values(['Status Label', 'Count'], ascending=[True, False])
+        )
 
-# # Ambil top 3 error message tiap minggu
-# top_n = 3
-# top_weekly_error_msg = (
-#     weekly_error_msg
-#     .sort_values(["Week", "Count"], ascending=[True, False])
-#     .groupby("Week")
-#     .head(top_n)
-# )
+        top_errors_filtered = (
+            top_errors_by_status.groupby('Status Label')
+            .head(top_n)
+            .reset_index(drop=True)
+        )
 
-# # Visualisasi barplot top error message per minggu
-# plt.figure(figsize=(16, 8))
-# sns.barplot(x="Week", y="Count", hue="Error Message", data=top_weekly_error_msg, dodge=True, palette="Set2")
-
-# plt.title(f"Top {top_n} Error Message per Minggu")
-# plt.xlabel("Minggu")
-# plt.ylabel("Jumlah Error")
-# plt.xticks(rotation=45)
-# plt.legend(title="Error Message", bbox_to_anchor=(1.05, 1), loc="upper left")
-# plt.tight_layout()
-# plt.show()
-
-# # Tambahkan kolom 'Month' berdasarkan bulan dari Timestamp
-# df_cleaned["Month"] = df_cleaned["Timestamp"].dt.to_period("M").astype(str)
-
-# # Visualisasi jumlah error per bulan
-# plt.figure(figsize=(12, 6))
-# sns.countplot(x=df_cleaned["Month"], order=sorted(df_cleaned["Month"].unique()), color="royalblue")
-
-# plt.xticks(rotation=45)
-# plt.xlabel("Bulan")
-# plt.ylabel("Jumlah Error")
-# plt.title("Distribusi Error per Bulan")
-# plt.show()
-
-# # Hitung jumlah status per bulan
-# monthly_status_trend = (
-#     df_cleaned.groupby(["Month", "Status"])
-#     .size()
-#     .reset_index(name="Count")
-# )
-
-# # Mapping status
-# status_labels = {0: "Low", 1: "Warning", 2: "Critical"}
-# monthly_status_trend["Status Label"] = monthly_status_trend["Status"].map(status_labels)
-
-# # Visualisasi tren status
-# plt.figure(figsize=(14, 7))
-# sns.lineplot(data=monthly_status_trend, x="Month", y="Count", hue="Status Label", marker="o")
-# plt.title("Tren Status Error per Bulan")
-# plt.xlabel("Bulan")
-# plt.ylabel("Jumlah Error")
-# plt.xticks(rotation=45)
-# plt.legend(title="Status", bbox_to_anchor=(1.05, 1), loc="upper left")
-# plt.tight_layout()
-# plt.grid(True)
-# plt.show()
-
-# # Hitung jumlah error message per bulan
-# monthly_error_msg = (
-#     df_cleaned.groupby(["Month", "Error Message"])
-#     .size()
-#     .reset_index(name="Count")
-# )
-
-# # Ambil top 3 error message tiap bulan
-# top_n = 3
-# top_monthly_error_msg = (
-#     monthly_error_msg
-#     .sort_values(["Month", "Count"], ascending=[True, False])
-#     .groupby("Month")
-#     .head(top_n)
-# )
-
-# # Visualisasi error message tiap bulan
-# plt.figure(figsize=(16, 8))
-# sns.barplot(x="Month", y="Count", hue="Error Message", data=top_monthly_error_msg, dodge=True, palette="Pastel2")
-# plt.title(f"Top {top_n} Error Message per Bulan")
-# plt.xlabel("Bulan")
-# plt.ylabel("Jumlah Error")
-# plt.xticks(rotation=45)
-# plt.legend(title="Error Message", bbox_to_anchor=(1.05, 1), loc="upper left")
-# plt.tight_layout()
-# plt.show()
-
-# # Ubah kode Status menjadi label teks yang mudah dibaca
-# status_labels = {0: "Low", 1: "Warning", 2: "Critical"}
-# df_cleaned['Status Label'] = df_cleaned['Status'].map(status_labels)
-
-# # Visualisasi distribusi Status Error dengan pie chart
-# plt.figure(figsize=(6, 6))
-# df_cleaned['Status Label'].value_counts().plot.pie(
-#     autopct='%1.1f%%',
-#     startangle=140,
-#     colors=["#90ee90", "#ffcc00", "#ff6666"]
-# )
-# plt.title("Distribusi Status Error")
-# plt.ylabel("")
-# plt.tight_layout()
-# plt.show()
-
-# # Hitung jumlah kemunculan tiap Error Message
-# error_counts = df_cleaned['Error Message'].value_counts()
-
-# # Ambil top 5 error
-# top_n = 5
-# top_errors = error_counts.head(top_n)
-
-# # Gabungkan sisa error sebagai 'Lainnya'
-# others = error_counts[top_n:].sum()
-# error_labels = list(top_errors.index) + ['Lainnya']
-# error_values = list(top_errors.values) + [others]
-
-# # Visualisai menggunakan Pie Chart
-# plt.figure(figsize=(7, 7))
-# plt.pie(
-#     error_values,
-#     labels=error_labels,
-#     autopct='%1.1f%%',
-#     startangle=140,
-#     colors=sns.color_palette("pastel")[0:top_n+1]
-# )
-
-# plt.title(f"Distribusi Top {top_n} Error Message")
-# plt.tight_layout()
-# plt.show()
-
-# # Pastikan label status sudah ada dalam bentuk teks
-# status_labels = {0: "Low", 1: "Warning", 2: "Critical"}
-# df_cleaned['Status Label'] = df_cleaned['Status'].map(status_labels)
-
-# # Hitung jumlah tiap Error Message per Status
-# top_n = 5
-# top_errors_by_status = (
-#     df_cleaned.groupby(['Status Label', 'Error Message'])
-#     .size()
-#     .reset_index(name='Count')
-#     .sort_values(['Status Label', 'Count'], ascending=[True, False])
-# )
-
-# # Ambil top 5 error message untuk setiap status
-# top_errors_filtered = (
-#     top_errors_by_status.groupby('Status Label')
-#     .head(top_n)
-#     .reset_index(drop=True)
-# )
-
-# # Visualisasi barplot top error message per status dengan warna sesuai status
-# plt.figure(figsize=(14, 8))
-# sns.barplot(
-#     data=top_errors_filtered,
-#     x='Count',
-#     y='Error Message',
-#     hue='Status Label',
-#     palette={'Low': '#90ee90', 'Warning': '#ffcc00', 'Critical': '#ff6666'}
-# )
-
-# plt.title(f"Top {top_n} Error Message per Status")
-# plt.xlabel("Jumlah Error")
-# plt.ylabel("Error Message")
-# plt.legend(title="Status", bbox_to_anchor=(1.05, 1), loc="upper left")
-# plt.tight_layout()
-# plt.show()
-
-# # Hitung jumlah kemunculan setiap error message
-# error_counts = df_cleaned["Error Message"].value_counts()
-
-# # Hitung jumlah error unik dan tidak unik
-# num_unique = (error_counts == 1).sum()
-# num_not_unique = (error_counts > 1).sum()
-
-# # Buat pie chart
-# plt.figure(figsize=(6, 6))
-# plt.pie([num_unique, num_not_unique], labels=["Unik (1x Muncul)", "Tidak Unik (>1x Muncul)"],
-#         autopct="%1.1f%%", colors=["royalblue", "tomato"], startangle=90)
-# plt.title("Distribusi Error Message Unik vs Tidak Unik")
-# plt.show()
+        return top_errors_filtered.to_dict(orient='records')
+    except Exception as e:
+        return {"error": str(e)}
