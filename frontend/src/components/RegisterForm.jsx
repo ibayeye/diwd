@@ -1,184 +1,103 @@
 import React, { useState } from "react";
-import { register } from "../api";
-import IconLen from "../assets/images/icons/len.png";
+import FormWrapper from "../components/FormWrapper";
+import axios from "axios";
+import { ReactComponent as Ilen } from "../assets/Icons/logoLen2.svg";
+import bgimage from "../assets/images/bglen.svg";
+import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const RegisterForm = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setconfirmPassword] = useState("");
-  const [nama, setNama] = useState("");
-  const [nip, setNip] = useState("");
-  const [no_hp, setNohp] = useState("");
-  const [role, setRole] = useState("");
-  const [success, setSuccess] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    // nama: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    nip: "",
+    // no_hp: "",
+    role: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // console.log("form submitted:", formData);
 
-    if (!username.trim()) {
-      alert("Username tidak boleh kosong");
-      return;
-    }
-    if (!email.trim()) {
-      alert("Email tidak boleh kosong");
-      return;
-    }
-    if (!password.trim()) {
-      alert("Password tidak boleh kosong");
-      return;
-    }
-    if (password !== confirmPassword) {
-      alert("Confirm password tidak sama dengan password");
-      return;
-    }
-    if (!nama.trim()) {
-      alert("Nama tidak boleh kosong");
-      return;
-    }
-    if (!nip || isNaN(nip)) {
-      alert("NIP harus diisi dengan angka yang valid");
-      return;
-    }
-    if (!no_hp || isNaN(no_hp)) {
-      alert("No HP harus diisi dengan angka yang valid");
-      return;
-    }
-    if (!role.trim()) {
-      alert("Role tidak boleh kosong");
+    const isFormComplete = Object.values(formData).every(
+      (val) => val.trim() !== ""
+    );
+    if (!isFormComplete) {
+      toast.error("semua data belum terisi");
       return;
     }
 
-    // Payload jika semua validasi lulus
-    const payload = {
-      username,
-      password,
-      confirmPassword,
-      email,
-      nama,
-      nip: parseInt(nip, 10), // Konversi string menjadi integer
-      no_hp: parseInt(no_hp, 10), // Konversi string menjadi integer
-      role,
-    };
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Ulangi kata sandi harus sama");
+      return;
+    }
 
-    console.log("Payload sebelum dikirim:", payload);
-console.log(payload.username,
-  payload.email,
-  payload.password,
-  payload.nama,
-  payload.nip,
-  payload.no_hp,
-  payload.role);
     try {
-      const response = await register(
-        payload.username,
-        payload.password,
-        payload.confirmPassword,
-        payload.email,
-        payload.nama,
-        payload.nip,
-        payload.no_hp,
-        payload.role,
-        
+      const payload = {
+        ...formData,
+        // role: parseInt(formData.role),
+      };
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/auth/register",
+        payload
       );
-
-      setSuccess("Registration Successful!");
-      console.log("Response dari server:", response);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch (err) {
-      console.error("Error saat mengirim data:", err.response?.data || err);
-      alert("Pendaftaran gagal. Periksa input Anda dan coba lagi.");
+      toast.success("Pendaftaran Behasil");
+      console.log(response.data);
+    } catch (error) {
+      if (error.response) {
+        console.error("Gagal daftar:", error.response.data);
+        toast.error(
+          error.response.data.msg || "Terjadi kesalahan saat mendaftar."
+        );
+      } else {
+        console.error("Error:", error.message);
+        toast.error("Gagal koneksi ke server.");
+      }
     }
   };
 
+  const fields = [
+    { label: "Nama Pengguna", name: "username", type: "text" },
+    // { label: "Nama Lengkap", name: "nama", type: "text" },
+    { label: "email", name: "email", type: "email" },
+    { label: "Kata Sandi", name: "password", type: "password" },
+    {
+      label: "Ulangi Kata Sandi",
+      name: "confirmPassword",
+      type: "password",
+    },
+    { label: "NIP", name: "nip", type: "number" },
+    // { label: "Nomor Handphone", name: "no_hp", type: "number" },
+    {
+      label: "Role",
+      name: "role",
+      type: "select",
+      option: [
+        { value: 1, label: "Admin" },
+        { value: 2, label: "superAdmin" },
+        { value: 0, label: "User" },
+      ],
+    },
+  ];
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-slate-100">
-      <form
+    <div className="flex flex-col font-Poppins py-4 relative justify-center bg-white w-full">
+      <FormWrapper
+        title="Pendaftaran"
+        fields={fields}
+        formData={formData}
+        onChange={handleChange}
         onSubmit={handleSubmit}
-        className="border bg-white rounded-xl text-center w-2/4 grid grid-cols-2"
-      >
-        <div className="icon flex justify-center items-center">
-          <img src={IconLen} alt="iconlen" />
-        </div>
-        <div className="content flex flex-col mt-5 mb-5">
-          <div className="title">Register</div>
-          {success && <p>{success}</p>}
-          <input
-            className="border mt-5 px-2 ml-10 mr-5 rounded-md"
-            type="text"
-            placeholder="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <input
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setconfirmPassword(e.target.value)}
-          />
-          <input
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            type="text"
-            placeholder="nama"
-            value={nama}
-            onChange={(e) => setNama(e.target.value)}
-          />
-          <input
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            type="number"
-            placeholder="nip"
-            value={nip}
-            onChange={(e) => setNip(e.target.value)}
-          />
-          <input
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            type="number"
-            placeholder="no hp"
-            value={no_hp}
-            onChange={(e) => setNohp(e.target.value)}
-          />
-          <select
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              select role
-            </option>
-            <option value="system_engineer">produk owner</option>
-            <option value="petugas">petugas</option>
-            <option value="user">customer</option>
-          </select>
-          <button
-            className="border mt-4 px-2 mx-10 ml-10 mr-5 rounded-md bg-blue-400 text-white hover:bg-blue-500"
-            type="submit"
-          >
-            Register
-          </button>
-          <div className="text-xs text-end mr-5 mt-2">
-            already have an account? <Link to="/login" className="text-blue-500 text-xs hover:text-blue-500">Login Now</Link>
-          </div>
-        </div>
-      </form>
+        submitLabel="Daftar"
+      />
     </div>
   );
 };
