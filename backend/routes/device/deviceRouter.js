@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllDataDevice, getDataDevice, deviceFailure, listeningEarthquakeFirebase, listeningErrorFirebase } from "../../controller/device/deviceController.js";
+import { getAllDataDevice, getDataDevice, deviceFailure, listeningEarthquakeFirebase, listeningErrorFirebase, listeningDeviceFirebase } from "../../controller/device/deviceController.js";
 import { internalMiddleware, protectedMiddleware } from "../../middleware/authMiddleware.js";
 import { sendMail } from "../../controller/mailer/mailerController.js";
 
@@ -13,5 +13,6 @@ router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware([1, 2]),
 router.get('/sendEmail', sendMail);
 router.post('/earthquake-realtime', listeningEarthquakeFirebase);
 router.post('/error-realtime', listeningErrorFirebase);
+router.post('/all-device', listeningDeviceFirebase);
 
 export default router;

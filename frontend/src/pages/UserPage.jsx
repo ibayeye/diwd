@@ -24,7 +24,7 @@ const UserPage = () => {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
-      console.log(response.data);
+      console.log(response.data.data?.[0]);
 
       const { data } = response;
       if (data && Array.isArray(data.data)) {

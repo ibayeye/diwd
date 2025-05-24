@@ -14,11 +14,6 @@ const Pengguna = db.define(
     type: DataTypes.STRING,
     allowNull: true,
   },
-  apiKey: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: true,
-  },
   image: {
     type: DataTypes.STRING,
     allowNull: true,

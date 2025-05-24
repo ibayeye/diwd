@@ -9,7 +9,7 @@ import morgan from 'morgan'
 import config from './config/config.js';
 import database from './config/firebase.js'
 import Pengguna from './models/pengguna.js';
-import Device from './models/deviceError.js';
+import Device from './models/device.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -106,17 +106,20 @@ const syncModels = async () => {
 
         console.log("Firebase initialized " + JSON.stringify(database));
 
-        await config.sync({alter: true})
+        // await config.sync({alter: true})
 
         // Sinkronisasi model secara berurutan
         await Pengguna.sync();
         console.log("Pengguna synced.");
 
         await DeviceError.sync();
-        console.log("Device synced.");
+        console.log("Device Error synced.");
 
         await DeviceEarthquake.sync();
         console.log("Device Earthquake synced.");
+
+        await Device.sync();
+        console.log("Device synced.");
 
         // // Tambahkan try-catch khusus untuk listener
         // try {
