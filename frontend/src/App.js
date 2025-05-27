@@ -23,7 +23,7 @@ import DetailDevice from "./components/DetailDevice.jsx";
 const App = () => {
   return (
     <LoaderProvider>
-        {/* <FirebaseListener /> */}
+        <FirebaseListener />
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />

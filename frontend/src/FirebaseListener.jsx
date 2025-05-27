@@ -37,60 +37,28 @@ function FirebaseListener() {
           const isNewDevice = !previousData;
 
           const valueChanged =
-            previousData && previousData.onSiteValue !== deviceData.onSiteValue;
-
-          if (isNewDevice || valueChanged) {
-            console.log(
-              `onSiteValue berubah untuk alat ${deviceId}:`,
-              deviceData.onSiteValue
-            );
-            axios
-              .post("http://localhost:5000/api/v1/earthquake-realtime", {
-                deviceId: deviceId,
-                ...deviceData,
-              })
-              .then((res) =>
-                console.log(
-                  `Data untuk alat ${deviceId} terkirim ke server:`,
-                  res.data
-                )
-              )
-              .catch((err) =>
-                console.error(
-                  `Gagal mengirim data alat ${deviceId} ke server:`,
-                  err
-                )
-              );
-          }
+            previousData && previousData.regValue !== deviceData.regValue;
 
           const statusChanged =
             previousData && previousData.status !== deviceData.status;
 
-          if (statusChanged && deviceData.status !== "0,0") {
-            console.log(
-              `Status  berubah untuk alat ${deviceId}:`,
-              deviceData.status
-            );
-            axios
-              .post("http://localhost:5000/api/v1/error-realtime", {
-                deviceId: deviceId,
-                ...deviceData,
-              })
-              .then((res) =>
-                console.log(
-                  `Data status untuk alat ${deviceId} terkirim ke server:`,
-                  res.data
-                )
-              )
-              .catch((err) =>
-                console.error(
-                  `Gagal mengirim data status untuk alat ${deviceId}:`,
-                  err
-                )
-              );
+          // Kirim jika baru atau regValue berubah
+          if (isNewDevice || valueChanged) {
+            axios.post("http://localhost:5000/api/v1/earthquake-realtime", {
+              device_id: deviceId,
+              ...deviceData,
+            });
           }
 
-          // ✅ Simpan data terakhir
+          // Kirim jika status berubah dan bukan "0,0"
+          if (isNewDevice || (statusChanged && deviceData.status !== "0,0")) {
+            axios.post("http://localhost:5000/api/v1/error-realtime", {
+              device_id: deviceId,
+              ...deviceData,
+            });
+          }
+
+          // Simpan data terakhir di memori
           lastProcessedData.current[deviceId] = deviceData;
         });
       }
