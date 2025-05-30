@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
@@ -13,11 +13,6 @@ const Pengguna = db.define(
   activeSession: {
     type: DataTypes.STRING,
     allowNull: true,
-  },
-  apiKey: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: true,
   },
   image: {
     type: DataTypes.STRING,

@@ -1,28 +1,15 @@
-import bcrypt from "bcrypt";
 import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
 const DeviceEarthquake = db.define(
-    "deviceEarthquake", {
+    "deviceearthquake", {
     no: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    id: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    ip: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    location: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    memory: {
+    device_id: {
         type: DataTypes.STRING,
         allowNull: true,
     },
@@ -43,10 +30,6 @@ const DeviceEarthquake = db.define(
         type: DataTypes.STRING,
     },
     regValue: {
-        allowNull: true,
-        type: DataTypes.STRING,
-    },
-    status: {
         allowNull: true,
         type: DataTypes.STRING,
     },

@@ -1,87 +1,73 @@
-// import React, { useEffect, useRef } from "react";
-// import axios from "axios";
-// import { database, ref, onValue } from "./firebase.jsx";
+import React, { useEffect, useRef } from "react";
+import axios from "axios";
+import { database, ref, onValue } from "./firebase.jsx";
 
-// function FirebaseListener() {
-//   const lastProcessedData = useRef({}); // ✅ gunakan useRef
+function FirebaseListener() {
+  const lastProcessedData = useRef({});
+  const lastAllDataSnapshot = useRef(null);
 
-//   useEffect(() => {
-//     const dbRef = ref(database, "/");
+  useEffect(() => {
+    const dbRef = ref(database, "/");
 
-//     const unsubscribe = onValue(dbRef, (snapshot) => {
-//       const data = snapshot.val();
+    const unsubscribe = onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
 
-//       if (data) {
-//         console.log("Data Firebase:", data);
+      if (data) {
+        console.log("Data Firebase:", data);
 
-//         Object.entries(data).forEach(([deviceId, deviceData]) => {
-//           const previousData = lastProcessedData.current[deviceId];
-//           const isNewDevice = !previousData;
+        const dataString = JSON.stringify(data);
+        const prevDataString = JSON.stringify(lastAllDataSnapshot.current);
+        const allDataChanged = dataString !== prevDataString;
 
-//           const valueChanged =
-//             previousData && previousData.onSiteValue !== deviceData.onSiteValue;
+        if (allDataChanged) {
+          axios
+            .post("http://localhost:5000/api/v1/all-device", data)
+            .then((res) =>
+              console.log("Semua data Firebase dikirim ke server:", res.data)
+            )
+            .catch((err) =>
+              console.error("Gagal mengirim semua data ke server:", err)
+            );
 
-//           if (isNewDevice || valueChanged) {
-//             console.log(
-//               `onSiteValue berubah untuk alat ${deviceId}:`,
-//               deviceData.onSiteValue
-//             );
-//             axios
-//               .post("http://localhost:5000/api/v1/earthquake-realtime", {
-//                 deviceId: deviceId,
-//                 ...deviceData,
-//               })
-//               .then((res) =>
-//                 console.log(
-//                   `Data untuk alat ${deviceId} terkirim ke server:`,
-//                   res.data
-//                 )
-//               )
-//               .catch((err) =>
-//                 console.error(
-//                   `Gagal mengirim data alat ${deviceId} ke server:`,
-//                   err
-//                 )
-//               );
-//           }
+          lastAllDataSnapshot.current = data; // ✅ simpan snapshot terakhir
+        }
 
-//           const statusChanged =
-//             previousData && previousData.status !== deviceData.status;
+        Object.entries(data).forEach(([deviceId, deviceData]) => {
+          const previousData = lastProcessedData.current[deviceId];
+          const isNewDevice = !previousData;
 
-//           if (statusChanged && deviceData.status !== "0,0") {
-//             console.log(
-//               `Status gempa berubah untuk alat ${deviceId}:`,
-//               deviceData.status
-//             );
-//             axios
-//               .post("http://localhost:5000/api/v1/error-realtime", {
-//                 deviceId: deviceId,
-//                 ...deviceData,
-//               })
-//               .then((res) =>
-//                 console.log(
-//                   `Data gempa untuk alat ${deviceId} terkirim ke server:`,
-//                   res.data
-//                 )
-//               )
-//               .catch((err) =>
-//                 console.error(
-//                   `Gagal mengirim data gempa untuk alat ${deviceId}:`,
-//                   err
-//                 )
-//               );
-//           }
+          const valueChanged =
+            previousData && previousData.regValue !== deviceData.regValue;
 
-//           // ✅ Simpan data terakhir
-//           lastProcessedData.current[deviceId] = deviceData;
-//         });
-//       }
-//     });
+          const statusChanged =
+            previousData && previousData.status !== deviceData.status;
 
-//     return () => unsubscribe();
-//   }, []); // ✅ kosong, cukup dijalankan sekali saat mount
+          // Kirim jika baru atau regValue berubah
+          if (isNewDevice || valueChanged) {
+            axios.post("http://localhost:5000/api/v1/earthquake-realtime", {
+              device_id: deviceId,
+              ...deviceData,
+            });
+          }
 
-//   return null;
-// }
+          // Kirim jika status berubah dan bukan "0,0"
+          if (isNewDevice || (statusChanged && deviceData.status !== "0,0")) {
+            axios.post("http://localhost:5000/api/v1/error-realtime", {
+              device_id: deviceId,
+              ...deviceData,
+            });
+          }
 
-// export default FirebaseListener;
+          // Simpan data terakhir di memori
+          lastProcessedData.current[deviceId] = deviceData;
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []); // ✅ kosong, cukup dijalankan sekali saat mount
+
+  return null;
+}
+
+export default FirebaseListener;

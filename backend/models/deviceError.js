@@ -1,48 +1,23 @@
-import bcrypt from "bcrypt";
 import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
 const DeviceError = db.define(
-  "deviceError", {
+  "deviceerror", {
   no: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  id: {
+  device_id: {
     type: DataTypes.STRING,
     allowNull: true,
-  },
-  ip: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  location: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  memory: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
+},
   onSiteTime: {
     allowNull: true,
     type: DataTypes.STRING,
   },
   onSiteValue: {
-    allowNull: true,
-    type: DataTypes.STRING,
-  },
-  regCD: {
-    allowNull: true,
-    type: DataTypes.STRING,
-  },
-  regTime: {
-    allowNull: true,
-    type: DataTypes.STRING,
-  },
-  regValue: {
     allowNull: true,
     type: DataTypes.STRING,
   },
