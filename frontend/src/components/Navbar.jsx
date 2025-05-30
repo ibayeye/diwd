@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { ReactComponent as RxAvatar} from "../assets/Icons/userProfile.svg";
+import { ReactComponent as RxAvatar } from "../assets/Icons/userProfile.svg";
 import ProfileForm from "./ProfileForm";
 import Cookies from "js-cookie";
 import { IoPower } from "react-icons/io5";
@@ -33,10 +33,7 @@ const Navbar = ({ toggleSideBar }) => {
     };
   }, [showProfile]);
 
-  const handleViewProfile = () => {
-    setShowProfile(false);
-    navigate("/dasboard/Profile");
-  };
+  const handleViewProfile = () => navigate("/dasboard/Profile");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -63,7 +60,8 @@ const Navbar = ({ toggleSideBar }) => {
       {showProfile && (
         <div
           ref={profileMenuRef}
-          className="absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72"
+          className={`absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72 transform transition ease-out duration-200 origin-top-right
+          ${showProfile ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
         >
           <div className="p-2">
             <p className="font-semibold">
@@ -71,7 +69,10 @@ const Navbar = ({ toggleSideBar }) => {
             </p>
             <p className="text-gray-700">{role}</p>
           </div>
-          <button className="border-b px-4 w-full text-start" onClick={handleViewProfile}>
+          <button
+            className="border-b px-4 w-full text-start"
+            onClick={handleViewProfile}
+          >
             Profil
           </button>
           <button

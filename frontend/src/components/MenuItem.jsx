@@ -1,6 +1,9 @@
 import { BsFillBoxFill } from "react-icons/bs";
 import { GoHomeFill } from "react-icons/go";
 import { MdOutlineMyLocation } from "react-icons/md";
+import { FaSquarePollVertical } from "react-icons/fa6";
+import { FaUserGroup } from "react-icons/fa6";
+import { FaUserPlus } from "react-icons/fa6";
 export const menuItem = [
   {
     label: "Dashboard",
@@ -16,7 +19,7 @@ export const menuItem = [
   },
   {
     label: "Report",
-    icon: <BsFillBoxFill />,
+    icon: <FaSquarePollVertical />,
     role: ["admin", "super admin"],
     children: [
       {
@@ -32,20 +35,14 @@ export const menuItem = [
     ],
   },
   {
-    label: "Profile",
-    icon: <BsFillBoxFill />,
-    path: "Profile",
-    role: ["user", "admin", "super admin"],
-  },
-  {
-    label: "User",
-    icon: <BsFillBoxFill />,
+    label: "Daftar Akun Pengguna",
+    icon: <FaUserGroup />,
     path: "user",
     role: ["admin", "super admin"],
   },
   {
     label: "Pendaftaran",
-    icon: <BsFillBoxFill />,
+    icon: <FaUserPlus />,
     path: "registerform",
     role: ["admin", "super admin"],
   },

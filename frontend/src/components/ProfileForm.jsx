@@ -35,13 +35,6 @@ const ProfileForm = () => {
     </div>
   );
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    Cookies.remove("token");
-    Cookies.remove(userData);
-    navigate("/login");
-  };
   const nav =()=>{
     navigate("/editform")
   }
@@ -78,7 +71,7 @@ const ProfileForm = () => {
       <p className="text-2xl font-Inter font-semibold py-4">Detail Pengguna</p>
       <div className="grid grid-cols-3 gap-4 font-Inter font-light">
         <div>
-          <div className="flex flex-col justify-center items-center bg-white rounded-md py-6">
+          <div className="flex flex-col justify-center items-center bg-white rounded-md py-6 px-4">
             <img
               src={selectedImage || ImgProfile}
               alt=""
@@ -86,7 +79,7 @@ const ProfileForm = () => {
             />
             <label
               htmlFor="inputImage"
-              className="cursor-pointer border border-blue-500 rounded-md w-60 h-8 flex justify-center"
+              className="cursor-pointer border border-blue-500 rounded-md w-full h-8 flex justify-center"
             >
               Unggah Foto
               <input

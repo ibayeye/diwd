@@ -1,45 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 import { ReactComponent as Maps } from "../assets/images/maps.svg";
 import { useNavigate } from "react-router-dom";
 import Bg from "../assets/images/bg1.svg";
+import { RxHamburgerMenu } from "react-icons/rx";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const navigateRegister = () => {
-    navigate("/register");
-  };
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigateRegister = () => navigate("/register");
+  const navigateLogin = () => navigate("/login");
 
   const bgawal = {
     backgroundImage: `url(${Bg})`,
     backgroundSize: "cover",
   };
-  const navigateLogin = () => {
-    navigate("/login");
-  };
+
   return (
     <div style={bgawal} className="bg-gray-200 p-4 font-Poppins">
-      <nav className="flex justify-between items-center border py-2 bg-white rounded-lg">
+      <nav className="flex border py-2 bg-white rounded-lg">
         <div className="ml-8">
           <Logo />
         </div>
-        <div className="flex space-x-8">
-          <button className="text-lg text-gray-700">Titik Alat</button>
-          <button className="text-lg text-gray-700">Tetang</button>
-        </div>
-        <div className="flex space-x-4 mr-8">
-          <button
-            className="bg-orange-500 text-white rounded-lg text-sm px-6 py-3 hover:bg-orange-600  hover:-translate-y-px active:opacity-85 hover:shadow-md"
-            onClick={navigateRegister}
-          >
-            Daftar
-          </button>
-          <button
-            className="bg-blue-500 text-white text-center text-sm rounded-lg px-6 py-3 hover:bg-blue-600 hover:-translate-y-px active:opacity-85 hover:shadow-md"
-            onClick={navigateLogin}
-          >
-            Masuk
-          </button>
+        <button
+          className="flex items-center flex-1 justify-end md:hidden text-gray-700 focus:outline-none"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <RxHamburgerMenu />
+        </button>
+        <div
+          className={`${
+            menuOpen ? "block" : "hidden"
+          } w-full md:flex md:items-center md:w-auto flex-1`}
+        >
+          <div className="flex space-x-8 flex-1 justify-center">
+            <button className="text-lg text-gray-700 md:w-48">
+              Titik Alat
+            </button>
+            <button className="text-lg text-gray-700">Tetang</button>
+          </div>
+          <div className="flex space-x-4 mr-8 flex-none">
+            <button
+              className="bg-orange-500 text-white rounded-lg text-sm px-6 py-3 hover:bg-orange-600  hover:-translate-y-px active:opacity-85 hover:shadow-md"
+              onClick={navigateRegister}
+            >
+              Daftar
+            </button>
+            <button
+              className="bg-blue-500 text-white text-center text-sm rounded-lg px-6 py-3 hover:bg-blue-600 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+              onClick={navigateLogin}
+            >
+              Masuk
+            </button>
+          </div>
         </div>
       </nav>
       <main className="flex-1 flex flex-col items-center justify-center text-center p-6">
