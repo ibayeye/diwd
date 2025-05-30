@@ -20,7 +20,15 @@ const EditeForm = ({ dataPengguna, onClose }) => {
     { label: "Nomor Induk Pegawai", name: "nip", type: "number" },
     { label: "Email", name: "email", type: "email" },
     { label: "Nomor Telepon", name: "no_hp", type: "number" },
-    { label: "Alamat", name: "address", type: "text" },
+    {
+      label: "Status",
+      name: "isActive",
+      type: "select",
+      option: [
+        { value: 1, label: "Aktiv" },
+        { value: 0, label: "Non aktiv" },
+      ],
+    },
     {
       label: "Role",
       name: "role",

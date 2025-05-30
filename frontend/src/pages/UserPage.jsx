@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import User from "../components/Users";
 import axios from "axios";
 import { toast } from "react-toastify";
 import TableWrapper from "../components/TableWrapper";
 import EditeForm from "../components/EditeForm";
 
 const UserPage = () => {
-  const [users, setUsers] = useState([]); // State untuk menyimpan daftar pengguna
-  const [loading, setLoading] = useState(true); // State untuk loading
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFormEdit, setShowFormEdit] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -96,8 +95,37 @@ const UserPage = () => {
   const columns = [
     { key: "nama", label: "Nama" },
     { key: "email", label: "Email" },
-    { key: "role", label: "Role" },
-    { key: "status", label: "Status" },
+    {
+      key: "role",
+      label: "Role",
+      render: (value) => {
+        switch (Number(value)) {
+          case 0:
+            return "Pengguna";
+          case 1:
+            return "Admin";
+          case 2:
+            return "Super Admin";
+          default:
+            return "—";
+        }
+      },
+    },
+    {
+      key: "isActive",
+      label: "Status",
+      render: (value) => (
+        <span
+          className={
+            value === 1
+              ? "text-green-500 font-semibold"
+              : "text-red-500 font-semibold"
+          }
+        >
+          {value === 1 ? "Aktif" : "Non Aktif"}
+        </span>
+      ),
+    },
   ];
   const handleCloseEdit = () => {
     setShowFormEdit(false);

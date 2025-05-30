@@ -121,10 +121,9 @@ const Dashboard = () => {
             <p>Error: {error}</p>
           </div>
         )}
-        <div className="border rounded-md mt-4 z-0">
-          <Maps />
-        </div>
       </div>
+          <Maps />
+        
     </div>
   );
 };

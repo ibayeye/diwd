@@ -3,11 +3,16 @@ import List from "../components/List";
 import { useEffect, useState } from "react";
 import TableWrapper from "../components/TableWrapper";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
+
 
 const ListPage = () => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const fetchDevice = async () => {
@@ -20,7 +25,7 @@ const ListPage = () => {
       );
 
       const data = response?.data?.data;
-      console.log(data);
+      console.log("list",data);
 
       if (!Array.isArray(data)) throw new Error("Format data tidak valid");
 
@@ -60,13 +65,15 @@ const ListPage = () => {
     {
       key: "status",
       label: "Status",
-      render: (value) => <span className={value === "0,0" ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+      render: (value) => <span className={value === "0,0" ? "text-green-500 font-semibold" : "text-yellow-500 font-semibold"}>
     {value === "0,0" ? "Aman" : "Bermasalah"}
   </span>,
     },
   ];
 
-  const handleDetail = () => {};
+  const handleDetail = (id) => {
+     navigate(`/dasboard/device/detail/${id}`);
+  };
 
   return (
     <div>
