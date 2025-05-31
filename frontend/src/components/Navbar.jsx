@@ -54,7 +54,7 @@ const Navbar = ({ toggleSideBar }) => {
       {/* Profile Menu */}
       <div
         ref={profileMenuRef}
-        className={`absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72 transform transition ease-out duration-100 origin-top-right
+        className={`absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72 transform transition ease-out duration-200 origin-top-right
           ${showProfile ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
       >
         <div className="p-4">
@@ -65,17 +65,17 @@ const Navbar = ({ toggleSideBar }) => {
         </div>
 
         <button
-          className="border-t px-4 w-full text-start py-2 hover:bg-gray-100"
+          className="border-t px-4 w-full text-start py-2 hover:bg-gray-100 text-sm"
           onClick={handleViewProfile}
         >
           Profil
         </button>
         <button
-          className="flex w-full items-center rounded-b-md px-4 py-2 hover:bg-gray-100"
+          className="flex w-full items-center rounded-b-md px-4 py-2 hover:bg-gray-100 text-sm hover:text-red-500"
           onClick={handleLogout}
         >
-          <IoPower className="w-8 h-6 border-r mr-2" />
-          Log Out
+          <IoPower className="border-r border-black mr-2 w-6" />
+          LOG OUT
         </button>
       </div>
     </nav>

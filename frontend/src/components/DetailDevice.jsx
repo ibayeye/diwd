@@ -16,9 +16,7 @@ const DetailDevice = () => {
           `http://localhost:5000/api/v1/getDevice/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setDevice(res?.data?.data);
-        console.log("detail", res?.data?.data);
-        
+        setDevice(res.data.data);
       } catch (err) {
         setError(err.message || "Gagal mengambil detail perangkat");
       } finally {
@@ -44,24 +42,29 @@ const DetailDevice = () => {
     );
   }
 
-  const fields = [
+  // pisahkan fields
+  const leftFields = [
     { label: "ID Perangkat", value: device.id },
     { label: "Alamat IP", value: device.ip },
+    { label: "Titik Lokasi", value: device.location },
+  ];
+  const rightFields = [
     { label: "Memori", value: device.memory },
     { label: "onSiteTime", value: device.onSiteTime },
     { label: "onSiteValue", value: device.onSiteValue },
     { label: "regCD", value: device.regCD },
     { label: "regTime", value: device.regTime },
     { label: "regValue", value: device.regValue },
-    { label: "Titik Lokasi", value: device.location },
   ];
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto max-w-4xl">
       <h1 className="text-2xl font-bold mb-4">Detail Perangkat</h1>
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-          {fields.map((f) => (
+      {/* grid 2 kolom */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* kiri */}
+        <div className="space-y-4 bg-white p-4 rounded-md shadow-md">
+          {leftFields.map((f) => (
             <div key={f.label}>
               <p className="text-sm font-semibold">{f.label}</p>
               <p className="mt-1 text-gray-800">{f.value}</p>
@@ -83,7 +86,18 @@ const DetailDevice = () => {
             </span>
           </div>
         </div>
+
+        {/* kanan */}
+        <div className="space-y-4 bg-white p-4 rounded-md shadow-md">
+          {rightFields.map((f) => (
+            <div key={f.label}>
+              <p className="text-sm font-semibold">{f.label}</p>
+              <p className="mt-1 text-gray-800">{f.value}</p>
+            </div>
+          ))}
+        </div>
       </div>
+
       <button
         onClick={() => window.history.back()}
         className="mt-6 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
