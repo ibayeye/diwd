@@ -2,7 +2,7 @@ import asyncHandler from "../../middleware/asyncHandler.js";
 import axios from "axios";
 
 export const getDataML = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/hello');
+    const response = await axios.get('http://ml-service:5001/api/hello');
     const data = response.data
 
     res.status(200).json({
@@ -12,7 +12,7 @@ export const getDataML = asyncHandler(async (req, res) => {
 })
 
 export const getDataSet = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/describe-dataset');
+    const response = await axios.get('http://ml-service:5001/api/describe-dataset');
     const data = response.data
 
     res.status(200).json({
@@ -22,7 +22,7 @@ export const getDataSet = asyncHandler(async (req, res) => {
 })
 
 export const getCleanDataSet = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/clean-dataset');
+    const response = await axios.get('http://ml-service:5001/api/clean-dataset');
     const data = response.data
 
     res.status(200).json({
@@ -32,7 +32,7 @@ export const getCleanDataSet = asyncHandler(async (req, res) => {
 })
 
 export const getHourlyErrorTrend = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/hourly-error-trend');
+    const response = await axios.get('http://ml-service:5001/api/hourly-error-trend');
     const data = response.data
 
     res.status(200).json({
@@ -42,7 +42,7 @@ export const getHourlyErrorTrend = asyncHandler(async (req, res) => {
 })
 
 export const getTopHourlyError = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/top-hourly-errors');
+    const response = await axios.get('http://ml-service:5001/api/top-hourly-errors');
     const data = response.data
 
     res.status(200).json({
@@ -52,7 +52,7 @@ export const getTopHourlyError = asyncHandler(async (req, res) => {
 })
 
 export const getDailyStatusTrend = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/daily-status-trend');
+    const response = await axios.get('http://ml-service:5001/api/daily-status-trend');
     const data = response.data
 
     res.status(200).json({
@@ -62,7 +62,7 @@ export const getDailyStatusTrend = asyncHandler(async (req, res) => {
 })
 
 export const getTopDailyError = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/top-daily-errors');
+    const response = await axios.get('http://ml-service:5001/api/top-daily-errors');
     const data = response.data
 
     res.status(200).json({
@@ -72,7 +72,7 @@ export const getTopDailyError = asyncHandler(async (req, res) => {
 })
 
 export const getWeeklyStatusTrend = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/weekly-status-trend');
+    const response = await axios.get('http://ml-service:5001/api/weekly-status-trend');
     const data = response.data
 
     res.status(200).json({
@@ -82,7 +82,7 @@ export const getWeeklyStatusTrend = asyncHandler(async (req, res) => {
 })
 
 export const getTopWeeklyError = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/top-weekly-errors');
+    const response = await axios.get('http://ml-service:5001/api/top-weekly-errors');
     const data = response.data
 
     res.status(200).json({
@@ -92,7 +92,7 @@ export const getTopWeeklyError = asyncHandler(async (req, res) => {
 })
 
 export const getMonthlyStatusTrend = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/monthly-status-trend');
+    const response = await axios.get('http://ml-service:5001/api/monthly-status-trend');
     const data = response.data
 
     res.status(200).json({
@@ -102,7 +102,7 @@ export const getMonthlyStatusTrend = asyncHandler(async (req, res) => {
 })
 
 export const getTopMothlyError = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/top-monthly-errors');
+    const response = await axios.get('http://ml-service:5001/api/top-monthly-errors');
     const data = response.data
 
     res.status(200).json({
@@ -112,7 +112,7 @@ export const getTopMothlyError = asyncHandler(async (req, res) => {
 })
 
 export const getStatusDistribution = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/status-distribution');
+    const response = await axios.get('http://ml-service:5001/api/status-distribution');
     const data = response.data
 
     res.status(200).json({
@@ -122,7 +122,7 @@ export const getStatusDistribution = asyncHandler(async (req, res) => {
 })
 
 export const getTopErrorPerStatus = asyncHandler(async (req, res) => {
-    const response = await axios.get('http://localhost:5001/api/top-errors-per-status');
+    const response = await axios.get('http://ml-service:5001/api/top-errors-per-status');
     const data = response.data
 
     res.status(200).json({
