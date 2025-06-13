@@ -5,32 +5,155 @@ import DeviceError from "../../models/deviceError.js";
 import nodemailer from "nodemailer";
 import Pengguna from "../../models/pengguna.js";
 import DeviceEarthquake from "../../models/deviceEarthquake.js";
+import axios from "axios";
 // import sendMail  from "../mailer/mailerController.js";
+import NodeCache from 'node-cache';
+import pLimit from 'p-limit';
+import Device from "../../models/device.js";
+
+// Create a cache with TTL of 7 days (in seconds)
+const geocodeCache = new NodeCache({ stdTTL: 604800 });
+
+// Rate limiting configuration for Nominatim API
+const REQUEST_LIMIT = 1; // Only 1 request at a time
+const REQUEST_DELAY = 1100; // 1.1 second between requests (Nominatim policy is 1 request per second)
+const limiter = pLimit(REQUEST_LIMIT);
+
+/**
+ * Reverse geocode a coordinate with caching and rate limiting
+ * @param {string} lat - Latitude
+ * @param {string} lon - Longitude
+ * @returns {Promise<string>} - Address string
+ */
+const reverseGeocode = async (lat, lon) => {
+    // Create a cache key based on coordinates
+    const cacheKey = `${lat},${lon}`;
+
+    // Check if we have this location cached
+    const cachedAddress = geocodeCache.get(cacheKey);
+    if (cachedAddress) {
+        return cachedAddress;
+    }
+
+    // If not in cache, make a rate-limited request
+    try {
+        const address = await limiter(async () => {
+            // Add a small delay to ensure we don't exceed rate limits
+            await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY));
+
+            const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+                params: {
+                    lat,
+                    lon,
+                    format: 'json',
+                    addressdetails: 1,
+                    'accept-language': 'id'
+                },
+                headers: {
+                    'User-Agent': 'GPS-Tracker-App/1.0'
+                },
+                timeout: 10000
+            });
+
+            return response.data.display_name || "Alamat tidak ditemukan";
+        });
+
+        // Store in cache for future use
+        geocodeCache.set(cacheKey, address);
+
+        return address;
+    } catch (error) {
+        console.error(`Geocoding error for [${lat}, ${lon}]:`, error.message);
+        return "Gagal mengambil alamat";
+    }
+};
 
 export const getAllDataDevice = asyncHandler(async (req, res) => {
-    const dbRef = ref(database, "/"); // Mengambil semua data dari root
+    const skipGeocoding = req.query.skipGeocoding === 'true';
+
+    const dbRef = ref(database, "/");
     const snapshot = await get(dbRef);
 
-
-    if (snapshot.exists()) {
-        const allData = snapshot.val();
-        let totalDevice = 0;
-
-        if (typeof allData === "object" && allData !== null) {
-            totalDevice = Object.keys(allData).length;
-        }
-
-        res.status(200).json({
-            status: "success",
-            totaldevice: totalDevice,
-            data: allData
-        });
-    } else {
-        res.status(404).json({
+    if (!snapshot.exists()) {
+        return res.status(404).json({
             status: "error",
             message: "No data found",
         });
     }
+
+    const allData = snapshot.val();
+    const totalDevice = Object.keys(allData || {}).length;
+
+    let enrichedData;
+
+    if (skipGeocoding) {
+        enrichedData = Object.entries(allData).map(([deviceId, deviceData]) => ({
+            deviceId,
+            id: deviceId,
+            ...deviceData,
+            alamat: "Geocoding dilewati"
+        }));
+    } else {
+        const deviceEntries = Object.entries(allData);
+
+        const processBatch = async (batch) => {
+            return Promise.all(
+                batch.map(async ([deviceId, deviceData]) => {
+                    const location = deviceData.location;
+                    if (location && typeof location === 'string' && location.includes(',')) {
+                        const [latStr, lonStr] = location.split(',');
+                        const lat = latStr.trim();
+                        const lon = lonStr.trim();
+
+                        const alamat = await reverseGeocode(lat, lon);
+
+                        return {
+                            deviceId,
+                            id: deviceId,
+                            ...deviceData,
+                            alamat
+                        };
+                    } else {
+                        return {
+                            deviceId,
+                            id: deviceId,
+                            ...deviceData,
+                            alamat: "Koordinat tidak tersedia"
+                        };
+                    }
+                })
+            );
+        };
+
+        enrichedData = await processBatch(deviceEntries);
+    }
+
+    res.status(200).json({
+        status: "success",
+        totalDevice,
+        data: enrichedData
+    });
+});
+
+export const getGeocodeStats = asyncHandler(async (req, res) => {
+    const stats = geocodeCache.getStats();
+    const keys = geocodeCache.keys();
+
+    res.status(200).json({
+        status: "success",
+        stats,
+        cacheSize: keys.length,
+        cachedLocations: keys
+    });
+});
+
+export const clearGeocodeCache = asyncHandler(async (req, res) => {
+    geocodeCache.flushAll();
+
+    res.status(200).json({
+        status: "success",
+        message: "Geocode cache cleared"
+    });
 });
 
 export const getDataDevice = asyncHandler(async (req, res) => {
@@ -76,100 +199,114 @@ export const deviceFailure = asyncHandler(async (req, res) => {
     }
 })
 
-// export const trackedFailure = asyncHandler(async (req, res) => {
-//     const dbRef = ref(database, "/"); // Mengambil semua data dari root
-//     const snapshot = await get(dbRef);
+export const listeningDeviceFirebase = asyncHandler(async (req, res) => {
+    const data = req.body;
 
-//     if (snapshot.exists()) {
-//         const allDevice = snapshot.val();
-//         const deviceFailure = Object.entries(allDevice)
-//             .filter(([key, value]) => {
-//                 return value.status && value.status !== "0,0";
-//             })
-//             .map(([key, value]) => ({ id: key, ...value }));
+    try {
+        console.log("Terima data dari React:", data);
 
-//         // Dapatkan ID perangkat yang sudah ada di model Device
-//         const existingDevices = await Device.findAll({
-//             attributes: ['id'] // Hanya ambil ID untuk perbandingan
-//         });
-//         const existingDeviceIds = existingDevices.map(device => device.id);
+        const createPromises = [];
 
-//         // Filter perangkat baru
-//         const newDevices = deviceFailure.filter(device => !existingDeviceIds.includes(device.id));
+        for (const key in data) {
+            const device = data[key];
+            console.log(`Memproses device dengan ID: ${device.id}`);
 
-//         // Masukkan perangkat baru ke model Device
-//         if (newDevices.length > 0) {
-//             await Device.bulkCreate(newDevices);
-//             console.log(`Perangkat baru ditambahkan: ${JSON.stringify(newDevices)}`);
-//         }
+            let alamat = "Lokasi tidak valid";
+            if (device.location && typeof device.location === 'string' && device.location.includes(',')) {
+                const [latStr, lonStr] = device.location.split(',');
+                const lat = parseFloat(latStr.trim());
+                const lon = parseFloat(lonStr.trim());
 
-//         res.status(200).json({
-//             status: "success",
-//             totalDeviceFailure: deviceFailure.length,
-//             newDevices: newDevices.length,
-//             data: deviceFailure
-//         });
-//     } else {
-//         res.status(404).json({
-//             status: "error",
-//             msg: "No device found"
-//         });
-//     }
-// });
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    alamat = await reverseGeocode(lat, lon);
+                    console.log(`Alamat untuk koordinat ${lat},${lon}: ${alamat}`);
+                } else {
+                    console.log(`Koordinat tidak valid untuk device ${device.id}`);
+                }
+            } else {
+                console.log(`Format lokasi tidak valid untuk device ${device.id}`);
+            }
 
-// export const trackedFailureListener = async () => {
-//     const dbRef = ref(database, "/"); // Mengambil semua data dari root
-//     const snapshot = await get(dbRef);
+            const createPromise = Device.create({
+                id: device.id,
+                ip: device.ip,
+                location: device.location,
+                alamat: alamat,
+                memory: device.memory,
+                onSiteTime: device.onSiteTime,
+                onSiteValue: device.onSiteValue,
+                regCD: device.regCD,
+                regTime: device.regTime,
+                regValue: device.regValue,
+                status: device.status,
+            });
 
-//     if (snapshot.exists()) {
-//         const allDevice = snapshot.val();
-//         const deviceFailure = Object.entries(allDevice)
-//             .filter(([key, value]) => {
-//                 return value.status && value.status !== "0,0";
-//             })
-//             .map(([key, value]) => ({ id: key, ...value }));
+            createPromises.push(createPromise);
+        }
 
-//         // Dapatkan ID dan status perangkat yang sudah ada di model Device
-//         const existingDevices = await DeviceError.findAll({
-//             attributes: ['id', 'status'] // Ambil ID dan status untuk perbandingan
-//         });
+        await Promise.all(createPromises);
 
-//         const existingDeviceMap = existingDevices.reduce((acc, device) => {
-//             acc[device.id] = device.status;
-//             return acc;
-//         }, {});
+        res.status(200).json({
+            status: "success",
+            message: "Data berhasil diterima dan disimpan"
+        });
+    } catch (error) {
+        console.error("Error menyimpan data:", error);
+        res.status(500).json({
+            status: "error",
+            message: "Gagal menyimpan data",
+            error: error.message
+        });
+    }
+});
 
-//         const newDevices = [];
-//         const updatedDevices = [];
+export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
+    const data = req.body;
 
-//         // Iterasi perangkat yang error
-//         for (const device of deviceFailure) {
-//             const existingStatus = existingDeviceMap[device.id];
+    try {
+        // Atau kirim notifikasi
+        console.log("Terima data dari React:", data);
 
-//             if (existingStatus) {
-//                 // Jika perangkat sudah ada dan statusnya berbeda, tandai untuk diperbarui
-//                 if (existingStatus !== device.status) {
-//                     updatedDevices.push(device);
-//                 }
-//             } else {
-//                 // Jika perangkat belum ada, tandai untuk ditambahkan
-//                 newDevices.push(device);
-//             }
-//         }
+        // Simpan ke DB kalau mau
+        await DeviceEarthquake.create({ ...data });
 
-//         // Masukkan perangkat baru ke database
-//         if (newDevices.length > 0) {
-//             await DeviceError.bulkCreate(newDevices);
-//             console.log(`Perangkat baru ditambahkan: ${JSON.stringify(newDevices)}`);
-//         }
 
-//         // Perbarui perangkat dengan status berbeda
-//         for (const device of updatedDevices) {
-//             await DeviceError.update({ status: device.status }, { where: { id: device.id } });
-//             console.log(`Perangkat diperbarui: ${JSON.stringify(device)}`);
-//         }
-//     }
-// };
+        res.status(200).json({ message: "Data diterima" });
+    } catch (error) {
+        console.error("Error menyimpan data:", error);
+        res.status(500).json({ error: "Gagal menyimpan data" });
+    }
+})
+
+export const listeningErrorFirebase = asyncHandler(async (req, res) => {
+    const { id, status, ...data } = req.body;
+
+    try {
+        const latestRecord = await DeviceError.findOne({
+            where: { id },
+            order: [["createdAt", "DESC"]],
+        });
+
+        if (latestRecord && latestRecord.status === status) {
+            return res.status(200).json({
+                message: "Status belum berubah, tidak disimpan ulang.",
+            });
+        }
+
+        await DeviceError.create({
+            id,
+            status,
+            ...data,
+        });
+
+        res.status(200).json({
+            message: "Status baru disimpan ke database.",
+        });
+    } catch (error) {
+        console.error("Error menyimpan data:", error);
+        res.status(500).json({ error: "Gagal menyimpan data" });
+    }
+})
 
 export const detectedEarthquake = asyncHandler(async (req, res) => {
     const dbRef = ref(database, "/"); // Mengambil semua data dari root
@@ -395,12 +532,16 @@ export const detectedEarthquakeListener = async () => {
                             where: { id: deviceId },
                             order: [['no', 'DESC']] // Ambil record terbaru
                         });
+                        const existingOnSiteMMI = existingDevice ? parseFloat(existingDevice.onSiteValue.split(" ")[0]) : null;
+                        const newOnSiteMMI = parseFloat(value.onSiteValue.split(" ")[0]);
 
-                        // Cek apakah ada perubahan nilai
+                        const existingRegMMI = existingDevice ? parseFloat(existingDevice.regValue.split(" ")[0]) : null;
+                        const newRegMMI = parseFloat(value.regValue.split(" ")[0]);
+
                         if (
                             !existingDevice || // Perangkat baru
-                            existingDevice.onSiteValue !== value.onSiteValue || // Nilai onsiteValue berubah
-                            existingDevice.regValue !== value.regValue // Nilai regValue berubah
+                            existingOnSiteMMI !== newOnSiteMMI || // Nilai MMI onsiteValue berubah
+                            existingRegMMI !== newRegMMI // Nilai MMI regValue berubah
                         ) {
                             // Tambahkan ke daftar perangkat yang berubah
                             changedDevices.push({ id: deviceId, ...value });
@@ -497,91 +638,3 @@ export const detectedEarthquakeListener = async () => {
         }
     });
 };
-
-// export const listenForFirebaseChanges = () => {
-//     const dbRef = ref(database, "/"); // Mengacu pada root Firebase
-
-//     onChildChanged(dbRef, async (snapshot) => {
-//         const deviceId = snapshot.key;
-//         const deviceData = snapshot.val();
-
-//         try {
-//             if (deviceData.status && deviceData.status !== "0,0") {
-//                 const existingDevice = await Device.findOne({ where: { id: deviceId } });
-
-//                 if (!existingDevice) {
-//                     // Tambahkan perangkat baru
-//                     await Device.create({ id: deviceId, ...deviceData });
-//                     console.log(`Perangkat baru ditambahkan: ${deviceId}`);
-//                 } else if (existingDevice.status !== deviceData.status) {
-//                     // Perbarui perangkat jika status berubah
-//                     await Device.update(deviceData, { where: { id: deviceId } });
-//                     console.log(`Perangkat diperbarui: ${deviceId}`);
-//                 }
-//             } else {
-//                 console.log(`Status tidak valid untuk perangkat: ${deviceId}`);
-//             }
-//         } catch (error) {
-//             console.error(`Error menyinkronkan perangkat ${deviceId}:`, error);
-//         }
-//     });
-
-//     console.log("Listener untuk perubahan data Firebase telah diaktifkan.");
-// };
-
-// export const listenForFirebaseChanges = () => {
-//     const dbRef = ref(database, "/"); // Mengacu pada root Firebase
-
-//     const extractFirstNumber = (str) => {
-//         const match = str.match(/[-+]?\d*\.?\d+/); // Ambil angka pertama dari string
-//         return match ? parseFloat(match[0]) : 0;  // Jika tidak ada angka, kembalikan 0
-//     };
-
-//     onChildChanged(dbRef, async (snapshot) => {
-//         const deviceId = snapshot.key;
-//         const deviceData = snapshot.val();
-
-//         console.log(`Perubahan terdeteksi untuk perangkat ${deviceId}:`, deviceData);
-
-//         try {
-//             if (deviceData.status && deviceData.status !== "0,0") {
-//                 const existingDevice = await Device.findOne({ where: { id: deviceId } });
-
-//                 if (!existingDevice) {
-//                     // Tambahkan perangkat baru
-//                     await Device.create({ id: deviceId, ...deviceData });
-//                     console.log(`Perangkat baru ditambahkan: ${deviceId}`);
-//                 } else if (existingDevice.status !== deviceData.status) {
-//                     // Perbarui perangkat jika status berubah
-//                     await Device.update(deviceData, { where: { id: deviceId } });
-//                     console.log(`Perangkat diperbarui: ${deviceId}`);
-//                 }
-
-//                 const onsitevalue = extractFirstNumber(deviceData.onSiteValue); // Ekstrak angka pertama
-//                 const regvalue = extractFirstNumber(deviceData.regValue);
-//                 // Periksa onsitevalue dan regvalue untuk pengiriman email
-//                 if (onsitevalue > 0 && regvalue > 0) {
-//                     const emailMessage = `
-//                         <h1>Pemberitahuan Perangkat</h1>
-//                         <p>Perangkat dengan ID: <strong>${deviceId}</strong></p>
-//                         <p>onsitevalue: ${onsitevalue}</p>
-//                         <p>regvalue: ${regvalue}</p>
-//                     `;
-
-//                     sendMail(
-//                         "skripsidiwd@gmail.com", // Email pengirim
-//                         "iqbal.gitlab@gmail.com", // Email penerima
-//                         `Pemberitahuan Perangkat ${deviceId}`, // Subjek email
-//                         emailMessage // Isi email
-//                     );
-//                 }
-//             } else {
-//                 console.log(`Status tidak valid untuk perangkat: ${deviceId}`);
-//             }
-//         } catch (error) {
-//             console.error(`Error menyinkronkan perangkat ${deviceId}:`, error);
-//         }
-//     });
-
-//     console.log("Listener untuk perubahan data Firebase telah diaktifkan.");
-// };

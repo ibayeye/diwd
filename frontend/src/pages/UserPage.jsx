@@ -1,0 +1,114 @@
+import { useState, useEffect } from "react";
+import User from "../components/Users";
+import axios from "axios";
+import { toast } from "react-toastify";
+import TableWrapper from "../components/TableWrapper";
+
+const UserPage = () => {
+  const [users, setUsers] = useState([]); // State untuk menyimpan daftar pengguna
+  const [loading, setLoading] = useState(true); // State untuk loading
+  const [error, setError] = useState(null);
+  const [showFromEdit, setShowFromEdit] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+
+  const token = localStorage.getItem("token");
+  const fetchPengguna = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (!token) {
+        throw new Error("token tidak ditemukan");
+      }
+      const response = await axios.get("http://localhost:5000/api/v1/auth/pengguna", {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+      console.log(response.data.data?.[0]);
+
+      const { data } = response;
+      if (data && Array.isArray(data.data)) {
+        const usersWithStatus = data.data.map((user) => ({
+          ...user,
+          globalStatus: user.isActive === 1 ? "Active" : "Non Active",
+        }));
+        setUsers(usersWithStatus);
+      } else {
+        throw new Error("Data yang diterima tidak valid");
+      }
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDataEdit = async (id) => {
+    try {
+      if (!id) throw new Error("User ID tidak ditemukan");
+      const responseUser = await axios.get(
+        `http://localhost:5000/api/v1/auth/pengguna/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      setEditingUser(responseUser.data.data);
+      setShowFromEdit(true);
+      console.log("iniiiiii :", responseUser.data);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.msg || err.message);
+    }
+    const handleCloseEdit = () => {
+      setEditingUser(null); // nutup form
+      fetchPengguna(); // refresh data tabel setelah update
+    };
+  };
+
+  useEffect(() => {
+      fetchPengguna();
+    }, []);
+
+    const handleDelet = async (id) => {
+    const valid = window.confirm("Anda Akan Menghapus Pengguna ini?");
+    if (!valid) return;
+
+    try {
+      await axios.delete(
+        `http://localhost:5000/api/v1/auth/delete_pengguna/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      toast.success("Pengguna Berhasil Dihapus");
+      fetchPengguna();
+    } catch (error) {
+      console.error("Gagal menghapus:", error.response || error);
+      toast.error("Gagal menghapus pengguna");
+    }
+  };
+
+  const columns = [
+    {key: "nama", label: "Nama"},
+    {key: "email", label: "Email"},
+    {key: "role", label: "Role"},
+    {key: "status", label: "Status"},
+  ]
+
+  return (
+    <div>
+        <h2>Daftar Pengguna</h2>
+        <TableWrapper
+        columns={columns}
+        data={users}
+        loading={loading}
+        error={error}
+        onEdit={handleDataEdit}
+        onDelete={handleDelet}
+        ItemsPage={5}
+        />
+    </div>
+  );
+};
+export default UserPage;

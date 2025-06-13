@@ -1,55 +1,91 @@
-import React, { useState } from "react";
-import { ReactComponent as Profile } from "../assets/Icons/profile.svg";
-import { ReactComponent as Notif } from "../assets/images/icons/inotif.svg";
-import { ReactComponent as Hamburger } from "../assets/Icons/hamburger.svg";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { IoNotificationsOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { ReactComponent as RxAvatar} from "../assets/Icons/userProfile.svg";
 import ProfileForm from "./ProfileForm";
 import Cookies from "js-cookie";
+import { IoPower } from "react-icons/io5";
 
-const Navbar = ({ toggleSidebar }) => {
+const Navbar = ({ toggleSideBar }) => {
   const [showProfile, setShowProfile] = useState(false);
   const [viewProfile, setViewProfile] = useState(false);
-  const userData = JSON.parse(Cookies.get('userData' || '{}'))
+  const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+  const role = localStorage.getItem("role");
+  const profileMenuRef = useRef(null);
+  const navigate = useNavigate();
 
-  const handleViewProfile = () =>{
+  // Fungsi untuk menutup menu profil ketika klik di luar
+  const handleOutsideClick = (e) => {
+    if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+      setShowProfile(false);
+    }
+  };
+
+  // Tambahkan dan hapus event listener untuk klik di luar
+  useEffect(() => {
+    if (showProfile) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    } else {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [showProfile]);
+
+  const handleViewProfile = () => {
     setShowProfile(false);
-    Navigate('/profile')
-  }
+    navigate("/dasboard/Profile");
+  };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    Cookies.remove("token");
+    Cookies.remove(userData);
+    navigate("/login");
+  };
+
+  // console.log("ini user data",data);
   return (
-    <nav className="grid grid-cols-2 bg-white p-4 h-16 border-b">
+    <nav className="flex justify-end bg-white p-4 border-b h-20">
       <div className="flex items-center">
-        <button onClick={toggleSidebar}>
-          <Hamburger />
-        </button>
+        <IoNotificationsOutline className="w-full h-6" />
       </div>
       <div className="flex justify-end">
-        <div className="flex items-center">
-          <Notif />
-        </div>
         <div
-          className="cursor-pointer ml-4 flex items-center mr-3"
+          className="cursor-pointer ml-4 flex justify-end items-center mr-3"
           onClick={() => setShowProfile(!showProfile)}
         >
-          <Profile />
+          <RxAvatar className="w-full h-14" />
         </div>
-
       </div>
-        {showProfile && (
-          <div className="absolute right-3 top-16 bg-white shadow-lg rounded-md p-4 w-56">
-            <p className="">{userData.email || 'Guest'}</p>
-            <p className="">{userData.username || 'guest@example.com'}</p>
-            <button
-              className="bg-blue-500 text-white py-2 px-4 rounded-md w-full hover:bg-blue-600"
-              onClick={()=> setViewProfile(true)}
-            >
-              View Profile
-            </button>
-            {viewProfile &&(
-              <ProfileForm onClose={()=> setViewProfile(false)}/>
-            )}
+      {showProfile && (
+        <div
+          ref={profileMenuRef}
+          className="absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72"
+        >
+          <div className="p-2">
+            <p className="font-semibold">
+              {userData?.username || "guest@example.com"}
+            </p>
+            <p className="text-gray-700">{role}</p>
           </div>
-        )}
+          <button className="border-b px-4 w-full text-start" onClick={handleViewProfile}>
+            Profil
+          </button>
+          <button
+            className="flex w-full items-center rounded-md mt-4 px-4 py-2 "
+            onClick={handleLogout}
+          >
+            <div className="mr-10">
+              <IoPower />
+            </div>
+            Log Out
+          </button>
+        </div>
+      )}
+      {viewProfile && <ProfileForm onClose={() => setViewProfile(false)} />}
     </nav>
   );
 };
