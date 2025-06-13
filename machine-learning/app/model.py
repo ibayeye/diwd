@@ -276,7 +276,7 @@ def predict_status(error_message, hour, day, month, year, message_type=None, err
     error_code = error_code or 0
     frequency = frequency or 0
 
-    # TF-IDF
+    # Gabungkan fitur numerik dengan hasil TF-IDF
     X_tfidf = vectorizer.transform([error_message]).toarray()
     df_tfidf = pd.DataFrame(X_tfidf, columns=vectorizer.get_feature_names_out())
 
@@ -293,13 +293,13 @@ def predict_status(error_message, hour, day, month, year, message_type=None, err
 
     df_input = pd.concat([df_tfidf, df_numeric], axis=1)
 
-    # ✅ Pastikan urutan kolom sesuai
+    # Urutkan kolom agar sesuai dengan urutan fitur saat pelatihan
     ordered_columns = list(vectorizer.get_feature_names_out()) + [
         "Message Type", "Error Code", "Frequency", "Hour", "Day", "Month", "Year"
     ]
     df_input = df_input[ordered_columns]
 
-    # Prediksi
+    # Prediksi status menggunakan model
     pred_code = model.predict(df_input)[0]
     label_map = {0: "Low", 1: "Warning", 2: "Critical"}
     
