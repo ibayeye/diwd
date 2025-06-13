@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoNotificationsOutline, IoPower } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { ReactComponent as RxAvatar } from "../assets/Icons/userProfile.svg";
-import ProfileForm from "./ProfileForm";
 import Cookies from "js-cookie";
 
 const Navbar = ({ toggleSideBar }) => {
@@ -47,7 +46,7 @@ const Navbar = ({ toggleSideBar }) => {
           className="cursor-pointer ml-4 flex items-center mr-3"
           onClick={() => setShowProfile(!showProfile)}
         >
-          <RxAvatar className="w-12" />
+          <RxAvatar />
         </div>
       </div>
 
