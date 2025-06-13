@@ -1,18 +1,13 @@
-import bcrypt from "bcrypt";
 import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
 const Device = db.define(
-    "deviceList", {
-    no: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
+    "devicelist", {
     id: {
         type: DataTypes.STRING,
-        allowNull: true,
+        primaryKey: true,
+        allowNull: false,
     },
     ip: {
         type: DataTypes.STRING,
@@ -29,30 +24,6 @@ const Device = db.define(
     memory: {
         type: DataTypes.STRING,
         allowNull: true,
-    },
-    onSiteTime: {
-        allowNull: true,
-        type: DataTypes.STRING,
-    },
-    onSiteValue: {
-        allowNull: true,
-        type: DataTypes.STRING,
-    },
-    regCD: {
-        allowNull: true,
-        type: DataTypes.STRING,
-    },
-    regTime: {
-        allowNull: true,
-        type: DataTypes.STRING,
-    },
-    regValue: {
-        allowNull: true,
-        type: DataTypes.STRING,
-    },
-    status: {
-        allowNull: true,
-        type: DataTypes.STRING,
     },
 }, {
     freezeTableName: true,

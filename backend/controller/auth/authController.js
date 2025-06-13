@@ -1,5 +1,5 @@
 import Pengguna from "../../models/pengguna.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import asyncHandler from "../../middleware/asyncHandler.js";
 import multer from "multer";
@@ -14,7 +14,7 @@ import {
 import { error } from "console";
 
 export const register = asyncHandler(async (req, res) => {
-    const { username, email, password, confirmPassword, nip } = req.body;
+    const { username, email, password, confirmPassword, nip, role, isActive } = req.body;
 
     const existingUser = await Pengguna.findOne({ where: { email: email } });
 
@@ -44,7 +44,14 @@ export const register = asyncHandler(async (req, res) => {
         });
     }
 
+    let newRole = role ?? 0;
+    let activated = isActive ?? 0;
 
+    const totalPengguna = await Pengguna.count();
+    if (totalPengguna === 0) {
+        newRole = 2;
+        activated = 1;
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
@@ -54,6 +61,8 @@ export const register = asyncHandler(async (req, res) => {
         password: hashPassword,
         email,
         nip,
+        role: newRole,
+        isActive: activated
     });
     res.status(201).json({
         status: "success",

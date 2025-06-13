@@ -2,33 +2,21 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Breadcrumb from "../components/Breadcrumb";
 import { Outlet } from "react-router-dom";
-import { useState } from "react";
-
-
-const Layout= ()=> {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
-  
-  const role = parseInt(localStorage.getItem("role") || "0")
+const Layout = () => {
+  const role = parseInt(localStorage.getItem("role") || "0");
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <aside>
-        <Sidebar role={role}/>
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
+      <aside className="h-full w-72 bg-white border-r overflow-y-auto">
+        <Sidebar role={role} />
       </aside>
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? "ml-0" : "ml-0"
+      <div className="flex flex-col flex-1 min-h-0">
+        <Navbar />
 
-        }`}> 
-        <Navbar toggleSideBar={toggleSidebar}/>
-
-        <div>
-          <div className="">
-            <Breadcrumb />
-          </div>
+        <div className="px-4 bg-white border-b">
+          <Breadcrumb />
         </div>
-        <div className="p-4 flex-1 overflow-auto">
+        <div className="flex-1 p-4 overflow-y-auto">
           <Outlet />
         </div>
       </div>

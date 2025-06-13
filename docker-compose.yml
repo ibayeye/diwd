@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-diwd
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      # Hapus PMA_USER dan PMA_PASSWORD untuk login manual
+    restart: always
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-diwd
+    environment:
+      MYSQL_ROOT_PASSWORD: diwd-password123
+      MYSQL_DATABASE: diwd
+      MYSQL_USER: diwd-db
+      MYSQL_PASSWORD: diwd-password123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d  # Tambah ini
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app-network
+
+
+  redis:
+    image: redis:7
+    container_name: redis-diwd
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: DockerFile
+    container_name: diwd-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      ml-service:
+        condition: service_started
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=diwd-db
+      - DB_PASSWORD=diwd-password123
+      - DB_NAME=diwd
+    command: npm start
+    networks:
+      - app-network
+
+  ml-service:
+    build:
+      context: ./machine-learning
+      dockerfile: DockerFile
+    container_name: diwd-ml-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./machine-learning:/app
+    working_dir: /app
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=run.py
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:

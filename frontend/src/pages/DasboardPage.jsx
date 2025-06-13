@@ -74,7 +74,7 @@ const Dashboard = () => {
     fetchAllData();
   }, []);
   const borderColors = {
-    red: "border-red-500",
+    red: "border-b border-red-500",
     blue: "border-blue-500",
     green: "border-green-500",
     yellow: "border-yellow-500",
@@ -83,48 +83,42 @@ const Dashboard = () => {
 
   return (
     <div className="">
-      <div className="">
-        <div className="grid grid-cols-2 gap-4">
-          <DataCard
-            title="Total Device"
-            value={loading.totalDevice ? "Loading..." : totalDevice}
-            Icon={Loc}
-            borderColor={borderColors.blue}
-          />
-          <DataCard
-            title="Device detected failure"
-            value={
-              loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure
-            }
-            Icon={IDetected}
-            borderColor={borderColors.yellow}
-          />
-          <DataCard
-            title={
-              loading.users
-                ? "Loading Users..."
-                : `There are ${totalUsers || 0} users in this system`
-            }
-            value={loading.totalUsers ? "Loading..." : totalUsers}
-            Icon={IUser}
-            borderColor={borderColors.red}
-          />
-          <DataCard
-            title="Earthquake detection devices"
-            value="coming soon"
-            Icon={IEarthquake}
-            borderColor={borderColors.green}
-          />
-        </div>
-        {error && (
-          <div className="text-red-500 mt-4">
-            <p>Error: {error}</p>
-          </div>
-        )}
-        <div className="border rounded-md mt-4 z-0">
-          <Maps />
-        </div>
+      <div className="grid grid-cols-2 gap-4">
+        <DataCard
+          title="Total Perangkat"
+          value={loading.totalDevice ? "Loading..." : totalDevice}
+          Icon={Loc}
+          borderColor={borderColors.blue}
+        />
+        <DataCard
+          title="Kegagalan Perangkat Terdeteksi"
+          value={loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure}
+          Icon={IDetected}
+          borderColor={borderColors.yellow}
+        />
+        <DataCard
+          title={
+            loading.users
+              ? "Loading Users..."
+              : `Terdapat ${totalUsers || 0} Pengguna Dalam Sistem`
+          }
+          value={loading.totalUsers ? "Loading..." : totalUsers}
+          Icon={IUser}
+          borderColor={borderColors.red}
+        />
+        <DataCard
+          title="Earthquake detection devices"
+          value="coming soon"
+          Icon={IEarthquake}
+          borderColor={borderColors.green}
+        />
       </div>
+      {error && (
+        <div className="text-red-500 mt-4">
+          <p>Error: {error}</p>
+        </div>
+      )}
+      <Maps />
     </div>
   );
 };
