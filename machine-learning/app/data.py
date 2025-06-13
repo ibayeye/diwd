@@ -61,28 +61,71 @@ def load_dataset():
 
 """
 
-def get_cleaned_df():
+def classify_error(message):
+    """
+    Mengklasifikasikan Error Message menjadi status:
+    0 = Low, 1 = Warning, 2 = Critical
+    """
+    if pd.isna(message):
+        return 1
+
+    message = str(message).lower()
+
+    if "kuota habis" in message or "quota" in message:
+        return 0
+    elif "etimedout" in message or "timeout" in message or "unreachable" in message or "low battery" in message:
+        return 1
+    elif "econnrefused" in message or "econnreset" in message or "disconnected" in message or "no data" in message:
+        return 2
+    else:
+        return 1
+
+def classify_message_type(message):
+    """
+    Memberikan kategori jenis error berdasarkan keyword.
+    """
+    message = str(message).lower()
+    if "econnreset" in message or "econnrefused" in message:
+        return 1  # Connection error
+    elif "etimedout" in message or "timeout" in message:
+        return 2  # Timeout
+    elif "unreachable" in message or "unavailable" in message:
+        return 3  # Network error
+    elif "kuota" in message:
+        return 4  # Kuota
+    else:
+        return 0  # Other
+
+def extract_error_code(message):
+    """
+    Menangkap angka 3 atau 4 digit dari pesan error, jika ada.
+    """
+    if not isinstance(message, str):
+        return 0
+    match = re.search(r'\b\d{3,4}\b', message)
+    return int(match.group()) if match else 0
+
+def get_cleaned_df(save_cleaned=False, output_path="csv/error_device_cleaned.csv"):
     df_cleaned = df.drop_duplicates()
     df_cleaned = df_cleaned[df_cleaned["Timestamp"] != "#VALUE!"]
     df_cleaned["Timestamp"] = pd.to_datetime(df_cleaned["Timestamp"], errors="coerce")
     df_cleaned = df_cleaned.dropna(subset=["Timestamp"])
 
-    def classify_error(message):
-        if pd.isna(message):
-            return 0
-        message = str(message)
-        if "Kuota habis" in message:
-            return 0
-        elif "ETIMEDOUT" in message or "EHOSTUNREACH" in message:
-            return 1
-        elif "ECONNREFUSED" in message or "ECONNRESET" in message:
-            return 2
-        else:
-            return 0
+    # Tambahkan fitur
+    df_cleaned["Status"] = df_cleaned["Error Message"].apply(classify_error)
+    df_cleaned["Message Type"] = df_cleaned["Error Message"].apply(classify_message_type)
+    df_cleaned["Error Code"] = df_cleaned["Error Message"].apply(extract_error_code)
+    df_cleaned["Hour"] = df_cleaned["Timestamp"].dt.hour
+    df_cleaned["Day"] = df_cleaned["Timestamp"].dt.day
+    df_cleaned["Month"] = df_cleaned["Timestamp"].dt.month
+    df_cleaned["Year"] = df_cleaned["Timestamp"].dt.year
+    df_cleaned["Frequency"] = df_cleaned.groupby("Hour")["Error Message"].transform("count")
 
-    df_cleaned['Status'] = df_cleaned['Error Message'].apply(classify_error)
+    # Opsional: simpan ke CSV
+    if save_cleaned:
+        df_cleaned.to_csv(output_path, index=False)
+
     return df_cleaned
-
 
 def clean_dataset():
     try:
@@ -305,3 +348,20 @@ def top_error_messages_per_status(top_n=5):
         return top_errors_filtered.to_dict(orient='records')
     except Exception as e:
         return {"error": str(e)}
+
+"""# 4. Data Selection"""
+
+def get_selected_df():
+    df_cleaned = get_cleaned_df()
+
+    # Pilih kolom yang akan digunakan sebagai fitur dan label
+    df_selected = df_cleaned[[
+        "Error Message",     # fitur teks → untuk TF-IDF
+        "Message Type",      # fitur numerik kategori error
+        "Error Code",        # fitur numerik (jika ada)
+        "Frequency",         # fitur numerik (jumlah error per jam)
+        "Hour", "Day", "Month", "Year",  # fitur waktu
+        "Status"             # label klasifikasi
+    ]].copy()
+
+    return df_selected
