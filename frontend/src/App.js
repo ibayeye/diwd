@@ -16,13 +16,13 @@ import "react-toastify/dist/ReactToastify.css";
 import AuthProtectedRoute from "./components/AuthProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
-import FirebaseListener from "./FirebaseListener.jsx";
+// import FirebaseListener from "./FirebaseListener.jsx";
 import RegisterForm from "./components/RegisterForm";
 import DetailDevice from "./components/DetailDevice.jsx";
 const App = () => {
   return (
     <LoaderProvider>
-        <FirebaseListener />
+        {/* <FirebaseListener /> */}
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
