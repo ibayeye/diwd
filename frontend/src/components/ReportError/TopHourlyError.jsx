@@ -69,23 +69,21 @@ const TopHourlyErrorChart = () => {
   }
 
   return (
-    <div className="w-full h-[30rem]">
-      <DiagramBarChart
-        data={chartData}
-        xAxisKey="Hour"
-        valueKeys={errorKeys}
-        title="Top Error Per  jam"
-        xAxisProps={{
-          interval: 0,
-          angle: -0,
-          textAnchor: "end",
-          label: {
-            value: "Jam",
-            position: "bottom", // bisa "insideBottom" atau "bottom"
-          },
-        }}
-      />
-    </div>
+    <DiagramBarChart
+      data={chartData}
+      xAxisKey="Hour"
+      valueKeys={errorKeys}
+      title="Top Error Per  jam"
+      xAxisProps={{
+        interval: 0,
+        angle: -0,
+        textAnchor: "end",
+        label: {
+          value: "Jam",
+          position: "bottom", // bisa "insideBottom" atau "bottom"
+        },
+      }}
+    />
   );
 };
 

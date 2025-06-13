@@ -52,6 +52,7 @@ const DailyStatusTrend = () => {
         interval: 0, // tampilkan semua
         angle: -15, // miring 45° agar muat
         textAnchor: "end", // agar rotasi tidak terpotong
+        
       }}
     />
   );

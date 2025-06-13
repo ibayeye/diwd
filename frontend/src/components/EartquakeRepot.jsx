@@ -28,7 +28,7 @@ const EarthquakeReport = () => {
         </div>
         <div className="h-80 bg-slate-200 mt-4 rounded-md"></div>
       </div>
-      <div className="grid grid-cols-2 gap-4 h-full mt-4 rounded-md">
+      <div className="grid grid-cols-2 gap-4 h-full mt-10 rounded-md">
         <div className="bg-white shadow-md p-4 rounded-md">
           Magnitude - This Month
           <div className="bg-slate-200 h-96 mt-4"></div>
