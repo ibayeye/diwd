@@ -11,9 +11,8 @@ router.get('/getDevice/:deviceId', protectedMiddleware, getDataDevice);
 router.get('/getDeviceFailure', protectedMiddleware, internalMiddleware([1, 2]), deviceFailure);
 // router.get('/trackedFailure', trackedFailure);
 // router.get('/detectedEarthquake', detectedEarthquake);
-router.get('/sendEmail', sendMail);
 
-//realtime
+//realtime from fe
 router.post('/earthquake-realtime', listeningEarthquakeFirebase);
 router.post('/error-realtime', listeningErrorFirebase);
 router.post('/all-device', listeningDeviceFirebase);
