@@ -18,17 +18,17 @@ export const menuItem = [
     role: ["user", "admin", "super admin"],
   },
   {
-    label: "Report",
+    label: "Rekap",
     icon: <FaSquarePollVertical />,
     role: ["admin", "super admin"],
     children: [
       {
-        label: "Device report",
+        label: "Analisis Alat",
         path: "devicereport",
         role: ["admin", "super admin"],
       },
       {
-        label: "Report Eartquake",
+        label: "Rekap Alat",
         path: "reporteartquake",
         role: ["admin", "super admin"],
       },

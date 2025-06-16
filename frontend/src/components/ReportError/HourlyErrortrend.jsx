@@ -51,7 +51,12 @@ const HourlyErrortrend = () => {
       xKey="hour"
       lineKeys={["count"]}
       title="Hourly Error Trend"
-      xAxisLabel="Jam"
+      xAxisProps={{
+        label:{
+          value: "Jam",
+          positition: "bottom"
+        }
+      }}
     />
   );
 };

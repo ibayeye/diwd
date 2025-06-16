@@ -1,14 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import TopErrorPerStatus from "../components/ReportError/TopErrorPerStatus"; 
+import TopErrorPerStatus from "../components/ReportError/TopErrorPerStatus";
 import TopHourlyError from "../components/ReportError/TopHourlyError";
 import HourlyErrortrend from "../components/ReportError/HourlyErrortrend";
 import TopDailyError from "../components/ReportError/TopDailyError";
-import DailyStatusTrend from "../components/ReportError/DailyStatusTrend"; 
+import DailyStatusTrend from "../components/ReportError/DailyStatusTrend";
 import TopWeeklyError from "../components/ReportError/TopWeeklyError";
-import WeeklyStatusTrend from "../components/ReportError/WeeklyStatusTrend"; 
+import WeeklyStatusTrend from "../components/ReportError/WeeklyStatusTrend";
 import TopMonthlyError from "../components/ReportError/TopMonthlyError";
 import MonthlyStatusTrend from "../components/ReportError/MonthlyStatusTrend";
+import PredictStatus from "../components/PredictStatus";
 const DeviceReportPage = () => {
   // activeTab menentukan period yang dipilih: hourly | daily | weekly | monthly
   const [activeTab, setActiveTab] = useState("hourly");
@@ -106,7 +107,7 @@ const DeviceReportPage = () => {
   return (
     <div className="p-4 space-y-6">
       {/* ▶️ Bar Tab Utama */}
-      <div className="bg-white">
+      <div className="-4">
         <div className="flex gap-2 mb-4 justify-end">
           <button
             onClick={() => {
@@ -155,18 +156,20 @@ const DeviceReportPage = () => {
         </div>
 
         {/* ▶️ Konten Sesuai Tab + Sub-Toggle */}
-        <div className="mt-4">{renderActiveTab()}</div>
+        <div className="mt-4 w-full h-full">{renderActiveTab()}</div>
       </div>
-      <div className="grid grid-cols-2 gap-4 h-full mt-4 rounded-md">
-        <div className="bg-white shadow-md p-2 rounded-md">
-         Top Error Report
+      <div className="grid grid-cols-2 gap-4 ">
+        <div className="">
+          
           <div className="h-auto mt-2">
-            <TopErrorPerStatus/>
+            <TopErrorPerStatus />
           </div>
         </div>
         <div className="bg-white shadow-md p-4 rounded-md">
-          Depth - This Month
-          <div className="bg-slate-200 h-96 mt-4"></div>
+          Status Perangkat
+          <div className="bg-slate-200 h-96 mt-4">
+            <PredictStatus/>
+          </div>
         </div>
       </div>
       <button className="bg-black text-white rounded-md mt-4 px-4 py-2">

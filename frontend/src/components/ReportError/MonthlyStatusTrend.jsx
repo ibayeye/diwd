@@ -84,7 +84,6 @@ const MonthlyStatusTrend = () => {
           textAnchor: "end", // agar rotasi tidak terpotong
           label: {
             value: "Bulan",
-            textAnchor: "end",
             offset: 15,
           },
         }}
