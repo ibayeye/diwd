@@ -192,8 +192,6 @@ export const getPredictStatus = asyncHandler(async (req, res) => {
         // Ambil data dari request body yang dikirim ke Express
         const requestData = req.body;
 
-        console.log('Data yang diterima Express:', requestData); // Debug
-
         // Kirim data ke Python endpoint
         const response = await axios.post('http://ml-service:5001/api/predict-status', requestData, {
             headers: {
