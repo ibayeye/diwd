@@ -10,6 +10,7 @@ import WeeklyStatusTrend from "../components/ReportError/WeeklyStatusTrend";
 import TopMonthlyError from "../components/ReportError/TopMonthlyError";
 import MonthlyStatusTrend from "../components/ReportError/MonthlyStatusTrend";
 import PredictStatus from "../components/PredictStatus";
+
 const DeviceReportPage = () => {
   // activeTab menentukan period yang dipilih: hourly | daily | weekly | monthly
   const [activeTab, setActiveTab] = useState("hourly");
@@ -159,22 +160,22 @@ const DeviceReportPage = () => {
         <div className="mt-4 w-full h-full">{renderActiveTab()}</div>
       </div>
       <div className="grid grid-cols-2 gap-4 ">
-        <div className="">
+        <div className="mt-10">
           
-          <div className="h-auto mt-2">
+          <div className="h-auto">
             <TopErrorPerStatus />
           </div>
         </div>
-        <div className="bg-white shadow-md p-4 rounded-md">
+        <div className="mt-10 rounded-md">
           Status Perangkat
-          <div className="bg-slate-200 h-96 mt-4">
+          <div className="mt-4">
             <PredictStatus/>
           </div>
         </div>
       </div>
-      <button className="bg-black text-white rounded-md mt-4 px-4 py-2">
+      {/* <button className="bg-black text-white rounded-md mt-4 px-4 py-2">
         Export
-      </button>
+      </button> */}
     </div>
   );
 };

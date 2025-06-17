@@ -16,8 +16,9 @@ const DailyStatusTrend = () => {
       const formatted = res.map((item) => ({
         ...item,
         Date: new Date(item.Date).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
+          weekday: "long",
+          month: "numeric",
+          year: "numeric",
           // tahun bisa dihilangkan kalau semua data di tahun yang sama
         }),
       }));
@@ -45,14 +46,15 @@ const DailyStatusTrend = () => {
     <DiagramLineChart
       data={dailyData}
       xKey="Date"
-      lineKeys={["Critical", "Low", "Warning"]}
+      lineKeys={["Critical", "Warning",  "Low"]}
       title="Error Harian"
-      xAxisLabel="Tanggal"
       xAxisProps={{
-        interval: 0, // tampilkan semua
-        angle: -15, // miring 45° agar muat
-        textAnchor: "end", // agar rotasi tidak terpotong
-        
+        interval: 0,
+        textAnchor: "end",
+        label: {
+          value: "Hari",
+          position: "bottom",
+        },
       }}
     />
   );

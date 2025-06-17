@@ -23,12 +23,13 @@ import {
  * - colors:     (optional) Array warna untuk tiap garis; default disediakan di bawah
  */
 const DEFAULT_COLORS = [
-  "#4F46E5", // Indigo
-  "#16A34A", // Green
-  "#D97706", // Amber
   "#DC2626", // Red
+  "#FFC107",
+  "#16A34A", // Green
   "#2563EB", // Blue
+  "#4F46E5", // Indigo
   "#9333EA", // Purple
+  "#D97706", // Amber
 ];
 
 const DiagramLineChart = ({
