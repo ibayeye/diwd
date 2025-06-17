@@ -13,6 +13,8 @@ import { fileURLToPath } from 'url';
 import { v2 as cloudinary } from 'cloudinary';
 import { syncDatabase } from './models/index.js';
 import redisClient, { connectRedis } from './config/redis.js';
+import { setupSocketIO } from './utils/socket.js';
+import { createServer } from 'http';
 // import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
@@ -20,6 +22,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
+const io = setupSocketIO(httpServer);
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -46,7 +50,7 @@ app.get('/ping', (req, res) => {
 app.get('/test-redis-set', async (req, res) => {
     await redisClient.set('___tes_saya', 'cek_dari_vs_code');
     res.json({ message: 'key diset' });
-  });
+});
 
 // routing
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -68,9 +72,9 @@ const startServer = async () => {
 
         const port = process.env.PORT || 5001
 
-        app.listen(port, () => {
-            console.log(`Server berjalan pada http://localhost:${port}`)
-        })
+        httpServer.listen(port, () => {
+            console.log(`🚀 Server berjalan di port ${port}`);
+        });
 
     } catch (error) {
         console.error("Failed to start the server:", error);

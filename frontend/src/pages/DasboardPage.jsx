@@ -6,6 +6,8 @@ import { ReactComponent as Loc } from "../assets/Icons/locD.svg";
 import { ReactComponent as IUser } from "../assets/Icons/iUser.svg";
 import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
+import socket from "../utils/socket";
+
 const Dashboard = () => {
   const [totalDevice, setTotalDevice] = useState(0);
   const [totalDeviceFailure, setTotalDeviceFailure] = useState(0);
@@ -16,6 +18,55 @@ const Dashboard = () => {
     users: true,
   });
   const [error, setError] = useState(null);
+  const [detectedEarthquake, setDetectedEarthquake] = useState(() => {
+    const saved = localStorage.getItem("detectedEarthquake");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  const [detectedError, setDetectedError] = useState(() => {
+    const saved = localStorage.getItem("detectedError");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "detectedEarthquake",
+      JSON.stringify([...detectedEarthquake])
+    );
+  }, [detectedEarthquake]);
+
+  useEffect(() => {
+    const handleEarthquake = (payload) => {
+      // console.log("🔥 Socket payload received:", payload);
+      setDetectedEarthquake((prev) => new Set(prev).add(payload.deviceId));
+    };
+
+    socket.on("earthquake-alert", handleEarthquake);
+
+    return () => {
+      socket.off("earthquake-alert", handleEarthquake);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "detectedError",
+      JSON.stringify([...detectedError])
+    );
+  }, [detectedError]);
+
+  useEffect(() => {
+    const handleError = (payload) => {
+      // console.log("🔥 Socket payload received:", payload);
+      setDetectedError((prev) => new Set(prev).add(payload.deviceId));
+    };
+
+    socket.on("error-alert", handleError);
+
+    return () => {
+      socket.off("error-alert", handleError);
+    };
+  }, []);
 
   const fetchData = async (url, setter, loadingkey) => {
     setLoading((prev) => ({ ...prev, [loadingkey]: true }));
@@ -58,11 +109,11 @@ const Dashboard = () => {
           setTotalDevice,
           "devices"
         ),
-        fetchData(
-          "http://localhost:5000/api/v1/getDeviceFailure",
-          setTotalDeviceFailure,
-          "failures"
-        ),
+        // fetchData(
+        //   "http://localhost:5000/api/v1/getDeviceFailure",
+        //   setTotalDeviceFailure,
+        //   "failures"
+        // ),
         fetchData(
           "http://localhost:5000/api/v1/auth/pengguna",
           setTotalUsers,
@@ -92,7 +143,8 @@ const Dashboard = () => {
         />
         <DataCard
           title="Kegagalan Perangkat Terdeteksi"
-          value={loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure}
+          // value={loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure}
+          value={detectedError.size}
           Icon={IDetected}
           borderColor={borderColors.yellow}
         />
@@ -108,7 +160,7 @@ const Dashboard = () => {
         />
         <DataCard
           title="Earthquake detection devices"
-          value="coming soon"
+          value={detectedEarthquake.size}
           Icon={IEarthquake}
           borderColor={borderColors.green}
         />

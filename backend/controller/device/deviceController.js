@@ -12,6 +12,7 @@ import pLimit from 'p-limit';
 import Device from "../../models/device.js";
 import redisClient from "../../config/redis.js";
 import { sendMailEarthquake, sendMailError } from "../mailer/mailerController.js";
+import { getSocketInstance } from "../../utils/socket.js";
 
 // Create a cache with TTL of 7 days (in seconds)
 const geocodeCache = new NodeCache({ stdTTL: 604800 });
@@ -329,6 +330,18 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
                 alamat: alamat
             });
 
+            const io = getSocketInstance();
+
+            io.emit('earthquake-alert', {
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                regCD: otherData.regCD,
+                regTime: otherData.regTime,
+                regValue: regValue,
+                alamat: alamat
+            });
+
             console.log(`✅ Earthquake data saved for device ${device_id}: ${regValue}`);
 
             return res.status(201).json({
@@ -403,6 +416,16 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
             await redisClient.setEx(cacheKey, 86400, currentStatus);
 
             await sendMailError({
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                status: status,
+                alamat: alamat
+            });
+
+            const io = getSocketInstance();
+
+            io.emit('error-alert', {
                 deviceId: device_id,
                 onSiteTime: otherData.onSiteTime,
                 onSiteValue: otherData.onSiteValue,
