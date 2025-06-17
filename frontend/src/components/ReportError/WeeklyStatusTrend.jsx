@@ -15,20 +15,19 @@ const RawWeeklyStatusDiagram = () => {
         const res = response.data.data || [];
 
         const formatted = res.map((item) => ({
-        ...item,
-        Date: new Date(item.Date).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
-          // tahun bisa dihilangkan kalau semua data di tahun yang sama
-        }),
-      }));
+          ...item,
+          Week: new Date(item.Week).toLocaleDateString("id-ID", {
+            weekday: "short",
+            day: "numeric",
+            month: "long",
+            // tahun bisa dihilangkan kalau semua data di tahun yang sama
+          }),
+        }));
 
         setData(formatted);
       } catch (err) {
         console.error("Gagal mengambil data weekly status trend:", err);
-      } 
-      
-      finally {
+      } finally {
         setLoading(false);
       }
     };
@@ -48,13 +47,16 @@ const RawWeeklyStatusDiagram = () => {
     <DiagramLineChart
       data={data}
       xKey="Week"
-      lineKeys={["Critical", "Low", "Warning"]}
+      lineKeys={["Critical", "Warning", "Low"]}
       title="Trend Status Error per Minggu"
-      xAxisLabel="Minggu"
       xAxisProps={{
         interval: 0,
-        angle: -20,
+        angle: 0,
         textAnchor: "end",
+        label: {
+          value: "Minggu",
+          position: "bottom",
+        },
       }}
     />
   );
