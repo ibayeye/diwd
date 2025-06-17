@@ -220,11 +220,10 @@ export const getEvaluateModels = asyncHandler(async (req, res) => {
   });
 });
 export const getPredictStatus = asyncHandler(async (req, res) => {
-  try {
-    // Ambil data dari request body yang dikirim ke Express
-    const requestData = req.body;
+    try {
+        // Ambil data dari request body yang dikirim ke Express
+        const requestData = req.body;
 
-    console.log("Data yang diterima Express:", requestData); // Debug
 
     // Kirim data ke Python endpoint
     const response = await axios.post(
