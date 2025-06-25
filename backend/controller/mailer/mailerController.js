@@ -1,80 +1,115 @@
 import nodemailer from "nodemailer";
 import asyncHandler from "../../middleware/asyncHandler.js";
+import Pengguna from "../../models/pengguna.js";
 
 const transporter = nodemailer.createTransport({
     secure: true,
     host: 'smtp.gmail.com',
     port: 465,
     auth: {
-        user: 'iqbal.gitlab@gmail.com',
-        pass: 'mofr isxk fbwu fucd'
+        user: 'skripsidiwd@gmail.com',
+        pass: 'raon lawj ktbf pxmc'
     }
-})
-
+});
 
 export const sendMail = asyncHandler(async (req, res) => {
-    
+    const { deviceId, onsitevalue, regvalue, alamat } = req.body;
+
     try {
-        await transporter.sendMail({
-            from: 'skripsidiwd@gmail.com',
-            to: 'iqbal.gitlab@gmail.com', 
-            subject: 'Pemberitahuan Perangkat', 
-            // html: 'testing'
-            html: '<h1>Pemberitahuan Perangkat</h1><p>Perangkat dengan ID: <strong>${deviceId}</strong></p><p>onsitevalue: ${onsitevalue}</p><p>regvalue: ${regvalue}</p>'
+        const users = await Pengguna.findAll({
+            where: { role: 2 },
+            attributes: ['email']
         });
+
+        if (!users.length) {
+            return res.status(404).json({ msg: "Tidak ada user dengan role 2" });
+        }
+
+        const htmlContent = `
+      <h1>Pemberitahuan Perangkat</h1>
+      <p>Perangkat dengan ID: <strong>${deviceId}</strong></p>
+      <p>Onsite Value: ${onsitevalue}</p>
+      <p>Reg Value: ${regvalue}</p>
+      <p>Alamat: ${alamat}</p>
+    `;
+
+        for (const user of users) {
+            await transporter.sendMail({
+                from: 'DIWD APP',
+                to: user.email,
+                subject: 'Pemberitahuan Perangkat',
+                html: htmlContent
+            });
+        }
 
         res.status(200).json({
             status: "success",
-            msg: "Email sent successfully!"
+            msg: `Email berhasil dikirim ke ${users.length} user dengan role 2`
         });
     } catch (error) {
         console.error("Error sending email:", error);
         res.status(500).json({
             status: "error",
-            msg: "Failed to send email. Please try again later."
+            msg: "Gagal mengirim email",
+            error: error.message
         });
     }
 });
-// function sendMail(from, to, sub, msg) {
-//     console.log(from, to, sub, msg);
-    
-//     transporter.sendMail({
-//         from: from,
-//         to: to,
-//         subject: sub,
-//         html: msg
-//     })
-// }
-// sendMail('skripsidiwd@gmail.com' ,'iqbal.gitlab@gmail.com','asd','testing')
 
+export const sendMailEarthquake = async ({ deviceId,
+    onSiteTime,
+    onSiteValue,
+    regCD,
+    regTime,
+    regValue,
+    alamat }) => {
+    const users = await Pengguna.findAll({
+        where: { role: 2 },
+        attributes: ['email']
+    });
 
+    const htmlContent = `
+      <h1>Pemberitahuan Perangkat: Mendeteksi Gempa</h1>
+      <p>Perangkat dengan ID: <strong>${deviceId}</strong></p>
+      <p>Onsite Time: ${onSiteTime}</p>
+      <p>Onsite Value: ${onSiteValue}</p>
+      <p>Reg CD: ${regCD}</p>
+      <p>Reg Time: ${regTime}</p>
+      <p>Reg Value: ${regValue}</p>
+      <p>Alamat: ${alamat}</p>
+    `;
 
-// Fungsi untuk mengirim email
-// export const sendMail = (from, to, subject, message) => {
+    for (const user of users) {
+        await transporter.sendMail({
+            from: 'DIWD APP',
+            to: user.email,
+            subject: 'Pemberitahuan Perangkat',
+            html: htmlContent
+        });
+    }
+};
 
-//     const transporter = nodemailer.createTransport({
-//         secure: true,
-//         host: "smtp.gmail.com",
-//         port: 465,
-//         auth: {
-//             user: "iqbal.gitlab@gmail.com",
-//             pass: "mofr isxk fbwu fucd", // Pastikan ini adalah App Password, bukan password Gmail biasa
-//         },
-//     });
+export const sendMailError = async ({ deviceId, onSiteValue, onSiteTime, status, alamat }) => {
+    const users = await Pengguna.findAll({
+        where: { role: 2 },
+        attributes: ['email']
+    });
 
-//     transporter.sendMail(
-//         {
-//             from: from,
-//             to: to,
-//             subject: subject,
-//             html: message,
-//         },
-//         (err, info) => {
-//             if (err) {
-//                 console.error("Error saat mengirim email:", err);
-//             } else {
-//                 console.log("Email berhasil dikirim:", info.response);
-//             }
-//         }
-//     );
-// }
+    const htmlContent = `
+      <h1>Pemberitahuan Perangkat: Terjadi Kesalahan</h1>
+      <p>Perangkat dengan ID: <strong>${deviceId}</strong></p>
+      <p>Onsite Time: ${onSiteTime}</p>
+      <p>Onsite Value: ${onSiteValue}</p>
+      <p>Status: ${status}</p>
+      <p>Alamat: ${alamat}</p>
+    `;
+
+    for (const user of users) {
+        await transporter.sendMail({
+            from: 'DIWD APP',
+            to: user.email,
+            subject: 'Pemberitahuan Perangkat',
+            html: htmlContent
+        });
+    }
+};

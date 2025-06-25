@@ -4,19 +4,17 @@ import cors from 'cors';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import authRouter from './routes/auth/authRouter.js'
 import deviceRouter from './routes/device/deviceRouter.js'
+import mlRouter from './routes/machine-learning/mlRouter.js'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
-import config from './config/config.js';
-import database from './config/firebase.js'
-import Pengguna from './models/pengguna.js';
-import Device from './models/deviceError.js';
 import router from './routes/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import swaggerDocs from './config/swagger.js';
-import DeviceEarthquake from './models/deviceEarthquake.js';
-import { detectedEarthquakeListener, trackedFailureListener } from './controller/device/deviceController.js';
-import DeviceError from './models/deviceError.js';
+import { v2 as cloudinary } from 'cloudinary';
+import { syncDatabase } from './models/index.js';
+import redisClient, { connectRedis } from './config/redis.js';
+import { setupSocketIO } from './utils/socket.js';
+import { createServer } from 'http';
 // import { sendNotification } from './controller/mailer/mailerController.js';
 
 dotenv.config()
@@ -24,7 +22,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
+const io = setupSocketIO(httpServer);
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // middleware
 app.use(express.json());
@@ -38,69 +43,39 @@ app.use(
     })
 );
 
-
 app.get('/ping', (req, res) => {
     res.send('Ping received! App is active.');
 });
 
+app.get('/test-redis-set', async (req, res) => {
+    await redisClient.set('___tes_saya', 'cek_dari_vs_code');
+    res.json({ message: 'key diset' });
+});
+
 // routing
-swaggerDocs(app, process.env.API_DOCS);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/', deviceRouter);
+app.use('/api/v1/', mlRouter);
 app.use(router);
 
 //middleware error
 app.use(notFound);
 app.use(errorHandler);
 
-const syncModels = async () => {
-    try {
-        await config.authenticate();
-        console.log("Database Connected...");
-
-        console.log("Firebase initialized " + JSON.stringify(database));
-
-        // Sinkronisasi model secara berurutan
-        await Pengguna.sync();
-        console.log("Pengguna synced.");
-
-        await DeviceError.sync();
-        console.log("Device synced.");
-
-        await DeviceEarthquake.sync();
-        console.log("Device Earthquake synced.");
-
-        // Tambahkan try-catch khusus untuk listener
-        try {
-            trackedFailureListener();
-            console.log("Listener Failure aktif.");
-
-            detectedEarthquakeListener();
-            console.log("Listener Earthquake aktif.");
-        } catch (listenerError) {
-            console.error("Error saat menginisialisasi listener:", listenerError);
-            // Bisa putuskan apakah perlu menghentikan aplikasi atau tidak
-            // Jika listener tidak kritis, bisa lanjut tanpa listener
-        }
-
-    } catch (error) {
-        console.error("Unable to connect to the database:", error);
-        process.exit(1);
-    }
-};
 
 const startServer = async () => {
     try {
-        await syncModels(); // Sinkronisasi model sebelum menjalankan server
+        await connectRedis();
+
+        await syncDatabase(); // Sinkronisasi model sebelum menjalankan server
 
         const port = process.env.PORT || 5001
 
-        app.listen(port, () => {
-            console.log(`Server berjalan pada http://localhost:${port}`)
-        })
+        httpServer.listen(port, () => {
+            console.log(`🚀 Server berjalan di port ${port}`);
+        });
 
-        swaggerDocs(app, port);
     } catch (error) {
         console.error("Failed to start the server:", error);
         process.exit(1); // Exit jika gagal menjalankan server

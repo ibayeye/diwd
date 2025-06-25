@@ -1,31 +1,25 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Sequelize } from "sequelize";
 import db from "../config/config.js";
 
 const { DataTypes } = Sequelize;
 const Pengguna = db.define(
-  "penggunas", {
+  "pengguna", {
   id: {
-    allowNull: false,
+    type: DataTypes.INTEGER,
     primaryKey: true,
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4
+    autoIncrement: true
   },
   activeSession: {
     type: DataTypes.STRING,
     allowNull: true,
-  },
-  apiKey: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    unique: true,
   },
   image: {
     type: DataTypes.STRING,
     allowNull: true,
   },
   username: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
     unique: true,
   },
@@ -45,21 +39,33 @@ const Pengguna = db.define(
     }
   },
   nama: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.STRING,
   },
   nip: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.BIGINT,
   },
   no_hp: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.BIGINT,
   },
   role: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    enum: ['system_engineer', 'petugas', 'customer']
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+    validate: {
+      isIn: [[0, 1, 2]] // 0:END USER, 1:PETUGAS, 2:SYSTEM_ENGINER
+    }
+  },
+  isActive: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0,
+  },
+  address: {
+    allowNull: true,
+    type: DataTypes.STRING(5000),
   }
 }, {
   freezeTableName: true,
