@@ -22,7 +22,7 @@ const EarthquakePage = () => {
     setError(null);
     try {
       // Sisipkan query params jika from/to ada
-      let url = "http://localhost:5000/api/v1/getDevice";
+      let url = "https://server.diwd.cloud/api/v1/getDevice";
       if (from && to) {
         url += `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
       }
@@ -58,7 +58,7 @@ const EarthquakePage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Anda akan menghapus perangkat ini?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/v1/getDevice/${id}`, {
+      await axios.delete(`https://server.diwd.cloud/api/v1/getDevice/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Perangkat berhasil dihapus");

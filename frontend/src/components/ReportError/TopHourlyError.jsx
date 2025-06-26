@@ -12,7 +12,7 @@ const TopHourlyErrorChart = () => {
     const fetchTopHourlyError = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getTopHourlyError"
+          "https://server.diwd.cloud/api/v1/getTopHourlyError"
         );
         const dataArr = response.data.data || [];
 

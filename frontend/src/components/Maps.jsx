@@ -13,7 +13,7 @@ const Map = () => {
 
   const [fullScreen, setFullScreen] = useState(false);
 
-  const API_URL = "http://localhost:5000/api/v1/getDevice";
+  const API_URL = "https://server.diwd.cloud/api/v1/getDevice";
 
   const fetchLocationPoint = async () => {
     setLoading(true);

@@ -51,7 +51,7 @@ const EditeForm = ({ dataPengguna, onClose }) => {
     e.preventDefault();
     try {
       await axios.put(
-        `http://localhost:5000/api/v1/auth/update_pengguna/${dataPengguna.id}`,
+        `https://server.diwd.cloud/api/v1/auth/update_pengguna/${dataPengguna.id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

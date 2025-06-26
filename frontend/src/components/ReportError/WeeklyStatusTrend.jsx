@@ -10,7 +10,7 @@ const RawWeeklyStatusDiagram = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getWeeklyStatusTrend"
+          "https://server.diwd.cloud/api/v1/getWeeklyStatusTrend"
         );
         const res = response.data.data || [];
 

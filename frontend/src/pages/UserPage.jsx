@@ -21,7 +21,7 @@ const UserPage = () => {
         throw new Error("token tidak ditemukan");
       }
       const response = await axios.get(
-        "http://localhost:5000/api/v1/auth/pengguna",
+        "https://server.diwd.cloud/api/v1/auth/pengguna",
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -49,7 +49,7 @@ const UserPage = () => {
     try {
       if (!id) throw new Error("User ID tidak ditemukan");
       const responseUser = await axios.get(
-        `http://localhost:5000/api/v1/auth/pengguna/${id}`,
+        `https://server.diwd.cloud/api/v1/auth/pengguna/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -78,7 +78,7 @@ const UserPage = () => {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/v1/auth/delete_pengguna/${id}`,
+        `https://server.diwd.cloud/api/v1/auth/delete_pengguna/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,

@@ -13,7 +13,7 @@ const TopDailyError = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getTopDailyError"
+          "https://server.diwd.cloud/api/v1/getTopDailyError"
         );
         const raw = response.data.data || [];
 

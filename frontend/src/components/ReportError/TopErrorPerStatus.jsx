@@ -10,7 +10,7 @@ const TopErrorPerStatus = () => {
   const fetchError = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getTopErrorPerStatus"
+        "https://server.diwd.cloud/api/v1/getTopErrorPerStatus"
       );
 
       const res = response.data.data || [];
