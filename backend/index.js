@@ -36,14 +36,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
-// app.use(
-//     cors({
-//         origin: "*", // Asal spesifik frontend Anda
-//         credentials: false, // Izinkan kredensial (cookie)
-//     })
-// );
 app.use(
-    cors()
+    cors({
+        origin: ["http://localhost:3000", "https://diwd.cloud"], // Asal spesifik frontend Anda
+        credentials: true, // Izinkan kredensial (cookie)
+    })
 );
 
 app.get('/ping', (req, res) => {
