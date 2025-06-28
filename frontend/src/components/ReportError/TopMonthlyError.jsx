@@ -10,7 +10,7 @@ const TopMonthlyError = () => {
   const fetchErrorMonthly = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getTopMothlyError"
+        "https://server.diwd.cloud/api/v1/getTopMothlyError"
       );
 
       const res = response.data.data || [];

@@ -11,7 +11,7 @@ const List = () => {
   const [selectedDevice, setSelectedDevice] = useState(null);
 
   const navigate = useNavigate();
-  const API_URL = "http://localhost:5000/api/v1/getDevice";
+  const API_URL = "https://server.diwd.cloud/api/v1/getDevice";
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -48,7 +48,7 @@ const List = () => {
       const token = localStorage.getItem("token");
       const {
         data: { data: detail },
-      } = await axios.get(`http://localhost:5000/api/v1/getDevice/${id}`, {
+      } = await axios.get(`https://server.diwd.cloud/api/v1/getDevice/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // console.log(responseDevice);

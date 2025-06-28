@@ -11,7 +11,7 @@ const PredictStatus = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/v1/getPredictStatus', {
+        const response = await fetch('https://server.diwd.cloud/api/v1/getPredictStatus', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

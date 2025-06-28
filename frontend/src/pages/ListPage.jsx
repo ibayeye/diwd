@@ -18,7 +18,7 @@ const ListPage = () => {
   const fetchDevice = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getDevice",
+        "https://server.diwd.cloud/api/v1/getDevice",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -47,7 +47,7 @@ const ListPage = () => {
     if (!valid) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/v1/getDevice/${id}`, {
+      await axios.delete(`https://server.diwd.cloud/api/v1/getDevice/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });

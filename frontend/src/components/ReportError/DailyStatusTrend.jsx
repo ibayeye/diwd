@@ -9,7 +9,7 @@ const DailyStatusTrend = () => {
   const fetchErrorDaily = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getDailyStatusTrend"
+        "https://server.diwd.cloud/api/v1/getDailyStatusTrend"
       );
       const res = response.data.data || [];
 

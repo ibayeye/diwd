@@ -10,7 +10,7 @@ const HourlyErrortrend = () => {
     const fetchHourlyErrortrend = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getHourlyErrorTrend"
+          "https://server.diwd.cloud/api/v1/getHourlyErrorTrend"
         );
 
         const rawObj = response.data.data || {};

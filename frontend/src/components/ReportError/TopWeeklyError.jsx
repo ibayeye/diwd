@@ -10,7 +10,7 @@ const TopWeeklyError = () => {
   const fetchErrorDaily = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getTopWeeklyError"
+        "https://server.diwd.cloud/api/v1/getTopWeeklyError"
       );
 
       const res = response.data.data || [];

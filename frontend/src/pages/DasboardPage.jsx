@@ -105,17 +105,17 @@ const Dashboard = () => {
     const fetchAllData = async () => {
       await Promise.all([
         fetchData(
-          "http://localhost:5000/api/v1/getDevice",
+          "https://server.diwd.cloud/api/v1/getDevice",
           setTotalDevice,
           "devices"
         ),
         // fetchData(
-        //   "http://localhost:5000/api/v1/getDeviceFailure",
+        //   "https://server.diwd.cloud/api/v1/getDeviceFailure",
         //   setTotalDeviceFailure,
         //   "failures"
         // ),
         fetchData(
-          "http://localhost:5000/api/v1/auth/pengguna",
+          "https://server.diwd.cloud/api/v1/auth/pengguna",
           setTotalUsers,
           "users"
         ),

@@ -13,7 +13,7 @@ const DetailDevice = () => {
     const fetchDetail = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/v1/getDevice/${id}`,
+          `https://server.diwd.cloud/api/v1/getDevice/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setDevice(res.data.data);
