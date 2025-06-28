@@ -38,8 +38,8 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: "http://localhost:3000", // Asal spesifik frontend Anda
-        credentials: true, // Izinkan kredensial (cookie)
+        origin: "*", // Asal spesifik frontend Anda
+        credentials: false, // Izinkan kredensial (cookie)
     })
 );
 
