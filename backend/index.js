@@ -36,11 +36,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
+// app.use(
+//     cors({
+//         origin: "*", // Asal spesifik frontend Anda
+//         credentials: false, // Izinkan kredensial (cookie)
+//     })
+// );
 app.use(
-    cors({
-        origin: "*", // Asal spesifik frontend Anda
-        credentials: false, // Izinkan kredensial (cookie)
-    })
+    cors()
 );
 
 app.get('/ping', (req, res) => {
