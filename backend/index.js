@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
-cors({
+app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
@@ -51,7 +51,7 @@ cors({
         return callback(new Error("CORS Not Allowed"));
     },
     credentials: true,
-});
+}));
 
 
 app.get('/ping', (req, res) => {
