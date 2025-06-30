@@ -163,6 +163,7 @@ export const login = asyncHandler(async (req, res) => {
             nama: pengguna.nama,
             nip: pengguna.nip,
             no_hp: pengguna.no_hp,
+            address: pengguna.address
         },
     });
 });
