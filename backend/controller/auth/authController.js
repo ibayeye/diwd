@@ -287,8 +287,6 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-   
-
     const pengguna = await Pengguna.findOne({ where: { id } });
 
     if (!pengguna) {
@@ -298,9 +296,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-  
-
-    const { nama, email, no_hp, nip, image, password, isActive, address } = req.body;
+    const { nama, email, no_hp, nip, image, password, isActive, address, role } = req.body;
 
     const updatedData = {};
     if (nama !== undefined) updatedData.nama = nama;
@@ -310,6 +306,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
     if (image !== undefined) updatedData.image = image;
     if (isActive !== undefined) updatedData.isActive = isActive;
     if (address !== undefined) updatedData.address = address;
+    if (role !== undefined) updatedData.role = role;
 
     if (password) {
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
@@ -350,7 +347,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
 export const userLoggedin = asyncHandler(async (req, res) => {
     const pengguna = await Pengguna.findOne({
         where: { id: req.user.id },
-        attributes: ["id", "username", "image", "email", "nama", "nip", "no_hp", "role", "isActive"],
+        attributes: ["id", "username", "image", "email", "nama", "nip", "no_hp", "role", "isActive", "address"],
     });
 
     if (!pengguna) {
