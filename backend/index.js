@@ -36,12 +36,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(
-    cors({
-        origin: ["http://localhost:3000", "https://diwd.cloud"], // Asal spesifik frontend Anda
-        credentials: true, // Izinkan kredensial (cookie)
-    })
-);
+cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        // Allow localhost and any diwd.cloud variants
+        if (
+            origin.includes("localhost") ||
+            origin.includes("diwd.cloud")
+        ) {
+            return callback(null, true);
+        }
+        return callback(new Error("CORS Not Allowed"));
+    },
+    credentials: true,
+});
+
 
 app.get('/ping', (req, res) => {
     res.send('Ping received! App is active.');
