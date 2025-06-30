@@ -38,20 +38,8 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: function (origin, callback) {
-            console.log("Request Origin:", origin);
-            const allowedOrigins = [
-                "http://localhost:3000",
-                "https://diwd.cloud",
-                "https://www.diwd.cloud",
-            ];
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("CORS Not Allowed"));
-            }
-        },
-        credentials: true,
+        origin: "https://diwd.cloud", // Asal spesifik frontend Anda
+        credentials: true, // Izinkan kredensial (cookie)
     })
 );
 
