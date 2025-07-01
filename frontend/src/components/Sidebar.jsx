@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { menuItem } from "../components/MenuItem";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
+import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import Cookies from "js-cookie";
 
@@ -101,7 +101,7 @@ const Sidebar = () => {
   return (
     <div className="font-Inter font-light h-full flex flex-col">
       <div className="flex justify-center items-center h-20 border-b">
-        <Logo />
+        <Logo className="w-24 h-auto"/>
       </div>
       <nav className="flex-1 p-3 overflow-y-auto">
         {menuItem.map(renderMenu)}
