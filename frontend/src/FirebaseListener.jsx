@@ -13,7 +13,7 @@ function FirebaseListener() {
       const data = snapshot.val();
 
       if (data) {
-        console.log("Data Firebase:", data);
+        // console.log("Data Firebase:", data);
 
         const dataString = JSON.stringify(data);
         const prevDataString = JSON.stringify(lastAllDataSnapshot.current);
@@ -21,7 +21,7 @@ function FirebaseListener() {
 
         if (allDataChanged) {
           axios
-            .post("http://localhost:5000/api/v1/all-device", data)
+            .post("https://server.diwd.cloud/api/v1/all-device", data)
             .then((res) =>
               console.log("Semua data Firebase dikirim ke server:", res.data)
             )
@@ -44,7 +44,7 @@ function FirebaseListener() {
 
           // Kirim jika baru atau regValue berubah
           if (isNewDevice || valueChanged) {
-            axios.post("http://localhost:5000/api/v1/earthquake-realtime", {
+            axios.post("https://server.diwd.cloud/api/v1/earthquake-realtime", {
               device_id: deviceId,
               ...deviceData,
             });
@@ -52,7 +52,7 @@ function FirebaseListener() {
 
           // Kirim jika status berubah dan bukan "0,0"
           if (isNewDevice || (statusChanged && deviceData.status !== "0,0")) {
-            axios.post("http://localhost:5000/api/v1/error-realtime", {
+            axios.post("https://server.diwd.cloud/api/v1/error-realtime", {
               device_id: deviceId,
               ...deviceData,
             });

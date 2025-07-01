@@ -1,8 +1,13 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 
-const TopErrorPerStatus = () => {
+const TopErrorPerStatus = forwardRef((props, ref) => {
   const [errorData, setErrorData] = useState([]);
   const [lineKeys, setLineKeys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +15,7 @@ const TopErrorPerStatus = () => {
   const fetchError = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getTopErrorPerStatus"
+        "https://server.diwd.cloud/api/v1/getTopErrorPerStatus"
       );
 
       const res = response.data.data || [];
@@ -49,6 +54,10 @@ const TopErrorPerStatus = () => {
     fetchError();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    getData: () => errorData,
+  }));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -73,6 +82,6 @@ const TopErrorPerStatus = () => {
       }}
     />
   );
-};
+});
 
 export default TopErrorPerStatus;

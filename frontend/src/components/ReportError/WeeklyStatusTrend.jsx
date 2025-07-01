@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
 
-const RawWeeklyStatusDiagram = () => {
+const RawWeeklyStatusDiagram = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -10,7 +10,7 @@ const RawWeeklyStatusDiagram = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getWeeklyStatusTrend"
+          "https://server.diwd.cloud/api/v1/getWeeklyStatusTrend"
         );
         const res = response.data.data || [];
 
@@ -34,6 +34,10 @@ const RawWeeklyStatusDiagram = () => {
 
     fetchData();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+      getData: () => data,
+    }));
 
   if (loading) {
     return (
@@ -60,6 +64,6 @@ const RawWeeklyStatusDiagram = () => {
       }}
     />
   );
-};
+});
 
 export default RawWeeklyStatusDiagram;

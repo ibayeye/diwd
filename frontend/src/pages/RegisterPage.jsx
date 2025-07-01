@@ -46,11 +46,11 @@ const RegisterPage = () => {
         // role: parseInt(formData.role),
       };
       const response = await axios.post(
-        "http://localhost:5000/api/v1/auth/register",
+        "https://server.diwd.cloud/api/v1/auth/register",
         payload
       );
       toast.success("Pendaftaran Behasil");
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       if (error.response) {
         console.error("Gagal daftar:", error.response.data);
@@ -90,11 +90,11 @@ const RegisterPage = () => {
 
   return (
     <div
-      className="flex font-Poppins py-10 relative min-h-screen bg-no-repeat bg-cover bg-center justify-center bg-slate-100"
+      className="flex font-Poppins px-4 md:px-6 py-10 relative min-h-screen bg-no-repeat bg-cover bg-center justify-center bg-slate-100"
       // style={{ backgroundImage: `url(${bgimage})` }}
     >
-      <div className="grid items-center grid-cols-2 bg-white text-sm rounded-lg shadow-lg">
-        <div className="border-r h-full flex items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white">
+      <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white text-sm rounded-lg shadow-lg">
+        <div className="hidden md:flex border-r h-full items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white">
           <Ilen className="" />
         </div>
         <div>

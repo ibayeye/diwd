@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+
 import TopErrorPerStatus from "../components/ReportError/TopErrorPerStatus";
 import TopHourlyError from "../components/ReportError/TopHourlyError";
 import HourlyErrortrend from "../components/ReportError/HourlyErrortrend";
@@ -10,172 +11,245 @@ import WeeklyStatusTrend from "../components/ReportError/WeeklyStatusTrend";
 import TopMonthlyError from "../components/ReportError/TopMonthlyError";
 import MonthlyStatusTrend from "../components/ReportError/MonthlyStatusTrend";
 import PredictStatus from "../components/PredictStatus";
-
+import { TbFidgetSpinner } from "react-icons/tb";
+import { FaSpinner } from "react-icons/fa";
+import DotCircleSpinner from "../components/DotCircleSpinner";
 const DeviceReportPage = () => {
-  // activeTab menentukan period yang dipilih: hourly | daily | weekly | monthly
   const [activeTab, setActiveTab] = useState("hourly");
-  // viewType menentukan apakah “top” atau “all” untuk tiap period
   const [viewType, setViewType] = useState("top");
+  const [topHourly, setTopHourly] = useState([]);
+  const [allHourly, setAllHourly] = useState([]);
+  const [topDaily, setTopDaily] = useState([]);
+  const [allDaily, setAllDaily] = useState([]);
+  const [topWeekly, setTopWeekly] = useState([]);
+  const [allWeekly, setAllWeekly] = useState([]);
+  const [topMonthly, setTopMonthly] = useState([]);
+  const [allMonthly, setAllMonthly] = useState([]);
+  const [topErrorPerStatus, setTopErrorPerStatus] = useState([]);
 
-  const renderPeriodToggle = () => {
-    // Label untuk masing-masing period
-    // let topLabel, allLabel;
-    // switch (activeTab) {
-    //   case "hourly":
-    //     topLabel = "Top Error Per Jam";
-    //     allLabel = "Semua Error Per Jam";
-    //     break;
-    //   case "daily":
-    //     topLabel = "Top Error Harian";
-    //     allLabel = "Semua Error Harian";
-    //     break;
-    //   case "weekly":
-    //     topLabel = "Top Error Mingguan";
-    //     allLabel = "Semua Error Mingguan";
-    //     break;
-    //   case "monthly":
-    //     topLabel = "Top Error Bulanan";
-    //     allLabel = "Semua Error Bulanan";
-    //     break;
-    //   default:
-    //     topLabel = "Top";
-    //     allLabel = "All";
-    // }
+  const [loading, setLoading] = useState(true);
 
-    return (
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setViewType("top")}
-          className={`px-3 py-1 rounded ${
-            viewType === "top" ? "bg-blue-600 text-white" : "bg-gray-200"
-          }`}
-        >
-          Top Error
-        </button>
-        <button
-          onClick={() => setViewType("all")}
-          className={`px-3 py-1 rounded ${
-            viewType === "all" ? "bg-blue-600 text-white" : "bg-gray-200"
-          }`}
-        >
-          Semua Error
-        </button>
-      </div>
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const normalize = (resp) => {
+          if (Array.isArray(resp.data)) {
+            return resp.data;
+          }
+          if (Array.isArray(resp.data?.data)) {
+            return resp.data.data;
+          }
+          console.warn("Unexpected shape:", resp);
+          return [];
+        };
+
+        const [
+          respTh,
+          respAh,
+          respTd,
+          respAd,
+          respTw,
+          respAw,
+          respTm,
+          respAm,
+          respTes,
+        ] = await Promise.all([
+          axios.get("https://server.diwd.cloud/api/v1/getTopHourlyError"),
+          axios.get("https://server.diwd.cloud/api/v1/getHourlyErrorTrend"),
+          axios.get("https://server.diwd.cloud/api/v1/getTopDailyError"),
+          axios.get("https://server.diwd.cloud/api/v1/getDailyStatusTrend"),
+          axios.get("https://server.diwd.cloud/api/v1/getTopWeeklyError"),
+          axios.get("https://server.diwd.cloud/api/v1/getWeeklyStatusTrend"),
+          axios.get("https://server.diwd.cloud/api/v1/getTopMothlyError"),
+          axios.get("https://server.diwd.cloud/api/v1/getMonthlyStatusTrend"),
+          axios.get("https://server.diwd.cloud/api/v1/getTopErrorPerStatus"),
+        ]);
+
+        // console.log("raw topHourly:", respTh);
+        // console.log("raw allHourly:", respAh);
+
+        setTopHourly(normalize(respTh));
+        setAllHourly(normalize(respAh));
+        setTopDaily(normalize(respTd));
+        setAllDaily(normalize(respAd));
+        setTopWeekly(normalize(respTw));
+        setAllWeekly(normalize(respAw));
+        setTopMonthly(normalize(respTm));
+        setAllMonthly(normalize(respAm));
+        setTopErrorPerStatus(normalize(respTes));
+      } catch (err) {
+        console.error("Gagal fetch semua data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
+  }, []);
+
+  const exportToCSV = (data, filename = "export.csv") => {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]).join(",");
+    const rows = data.map((r) =>
+      Object.values(r)
+        .map((v) => `"${v}"`)
+        .join(",")
     );
+    const csv = [headers, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
+  const handleExportAll = () => {
+    const allData = [
+      ...topHourly.map((r) => ({ section: "TopHourly", ...r })),
+      ...allHourly.map((r) => ({ section: "AllHourly", ...r })),
+      ...topDaily.map((r) => ({ section: "TopDaily", ...r })),
+      ...allDaily.map((r) => ({ section: "AllDaily", ...r })),
+      ...topWeekly.map((r) => ({ section: "TopWeekly", ...r })),
+      ...allWeekly.map((r) => ({ section: "AllWeekly", ...r })),
+      ...topMonthly.map((r) => ({ section: "TopMonthly", ...r })),
+      ...allMonthly.map((r) => ({ section: "AllMonthly", ...r })),
+      ...topErrorPerStatus.map((r) => ({ section: "TopErrorPerStatus", ...r })),
+    ];
+
+    if (allData.length) {
+      exportToCSV(allData, "all-error-report.csv");
+    } else {
+      alert("Tidak ada data untuk diekspor.");
+    }
+  };
+
+  const renderPeriodToggle = () => (
+    <div className="flex gap-2 mb-4 text-xs md:text-sm">
+      <button
+        onClick={() => setViewType("top")}
+        className={`px-3 py-1 rounded ${
+          viewType === "top" ? "bg-blue-600 text-white" : "bg-gray-200"
+        }`}
+      >
+        Top Error
+      </button>
+      <button
+        onClick={() => setViewType("all")}
+        className={`px-3 py-1 rounded ${
+          viewType === "all" ? "bg-blue-600 text-white" : "bg-gray-200"
+        }`}
+      >
+        Semua Error
+      </button>
+    </div>
+  );
+
   const renderActiveTab = () => {
-    // Pastikan selalu render sub-toggle “Top” vs “All” untuk setiap period
-    // Kemudian render komponen yang sesuai berdasarkan activeTab & viewType
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center space-x-4 text-blue-600">
+          <DotCircleSpinner />
+          {/* <span>Mengambil Data</span> */}
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case "hourly":
         return (
           <div>
             {renderPeriodToggle()}
-            {viewType === "top" ? <TopHourlyError /> : <HourlyErrortrend />}
+            {viewType === "top" ? (
+              <TopHourlyError data={topHourly} loading={loading} />
+            ) : (
+              <HourlyErrortrend data={allHourly} loading={loading} />
+            )}
           </div>
         );
-
       case "daily":
         return (
           <div>
             {renderPeriodToggle()}
-            {viewType === "top" ? <TopDailyError /> : <DailyStatusTrend />}
+            {viewType === "top" ? (
+              <TopDailyError data={topDaily} loading={loading} />
+            ) : (
+              <DailyStatusTrend data={allDaily} loading={loading} />
+            )}
           </div>
         );
-
       case "weekly":
         return (
           <div>
             {renderPeriodToggle()}
-            {viewType === "top" ? <TopWeeklyError /> : <WeeklyStatusTrend />}
+            {viewType === "top" ? (
+              <TopWeeklyError data={topWeekly} loading={loading} />
+            ) : (
+              <WeeklyStatusTrend data={allWeekly} loading={loading} />
+            )}
           </div>
         );
-
       case "monthly":
         return (
           <div>
             {renderPeriodToggle()}
-            {viewType === "top" ? <TopMonthlyError /> : <MonthlyStatusTrend />}
+            {viewType === "top" ? (
+              <TopMonthlyError data={topMonthly} loading={loading} />
+            ) : (
+              <MonthlyStatusTrend data={allMonthly} loading={loading} />
+            )}
           </div>
         );
-
       default:
         return null;
     }
   };
 
   return (
-    <div className="p-4 space-y-6">
-      {/* ▶️ Bar Tab Utama */}
-      <div className="-4">
-        <div className="flex gap-2 mb-4 justify-end">
-          <button
-            onClick={() => {
-              setActiveTab("hourly");
-              setViewType("top");
-            }}
-            className={`px-4 py-2 rounded ${
-              activeTab === "hourly" ? "bg-blue-500 text-white" : "bg-blue-200"
-            } hover:bg-blue-500 hover:text-white`}
-          >
-            60 D
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("daily");
-              setViewType("top");
-            }}
-            className={`px-4 py-2 rounded ${
-              activeTab === "daily" ? "bg-blue-600 text-white" : "bg-blue-200"
-            } hover:bg-blue-500 hover:text-white`}
-          >
-            24
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("weekly");
-              setViewType("top");
-            }}
-            className={`px-4 py-2 rounded ${
-              activeTab === "weekly" ? "bg-blue-600 text-white" : "bg-blue-200"
-            } hover:bg-blue-500 hover:text-white`}
-          >
-            7 x 24
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("monthly");
-              setViewType("top");
-            }}
-            className={`px-4 py-2 rounded ${
-              activeTab === "monthly" ? "bg-blue-600 text-white" : "bg-blue-200"
-            } hover:bg-blue-500 hover:text-white`}
-          >
-            30 x 24
-          </button>
+    <div>
+      <div className="p-4 space-y-6 bg-white font-Poppins shadow-md rounded-lg">
+        <div className="flex gap-2 mb-4 justify-end text-xs md:text-sm">
+          {[
+            { label: "60 D", value: "hourly" },
+            { label: "24", value: "daily" },
+            { label: "7 x 24", value: "weekly" },
+            { label: "30 x 24", value: "monthly" },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => {
+                setActiveTab(tab.value);
+                setViewType("top");
+              }}
+              className={`px-4 py-2 rounded ${
+                activeTab === tab.value
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-200"
+              } hover:bg-blue-500 hover:text-white`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-
-        {/* ▶️ Konten Sesuai Tab + Sub-Toggle */}
-        <div className="mt-4 w-full h-full">{renderActiveTab()}</div>
-      </div>
-      <div className="grid grid-cols-2 gap-4 ">
-        <div className="mt-10">
-          
-          <div className="h-auto">
-            <TopErrorPerStatus />
-          </div>
-        </div>
-        <div className="mt-10 rounded-md">
-          Status Perangkat
-          <div className="mt-4">
-            <PredictStatus/>
+        {renderActiveTab()}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-10">
+          <TopErrorPerStatus data={topErrorPerStatus} loading={loading} />
+          <div>
+            <div className="mb-2 font-semibold">Status Perangkat</div>
+            <PredictStatus />
           </div>
         </div>
       </div>
-      {/* <button className="bg-black text-white rounded-md mt-4 px-4 py-2">
-        Export
-      </button> */}
+      <div className="flex justify-end w-full text-sm py-6">
+        <button
+          onClick={handleExportAll}
+          className="border border-blue-600 rounded-md px-4 py-2"
+        >
+          Export
+        </button>
+      </div>
     </div>
   );
 };

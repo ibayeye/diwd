@@ -7,6 +7,7 @@ import { ReactComponent as IUser } from "../assets/Icons/iUser.svg";
 import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
 import socket from "../utils/socket";
+import { RxHamburgerMenu } from "react-icons/rx";
 
 const Dashboard = () => {
   const [totalDevice, setTotalDevice] = useState(0);
@@ -49,10 +50,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "detectedError",
-      JSON.stringify([...detectedError])
-    );
+    localStorage.setItem("detectedError", JSON.stringify([...detectedError]));
   }, [detectedError]);
 
   useEffect(() => {
@@ -105,17 +103,17 @@ const Dashboard = () => {
     const fetchAllData = async () => {
       await Promise.all([
         fetchData(
-          "http://localhost:5000/api/v1/getDevice",
+          "https://server.diwd.cloud/api/v1/getDevice",
           setTotalDevice,
           "devices"
         ),
         // fetchData(
-        //   "http://localhost:5000/api/v1/getDeviceFailure",
+        //   "https://server.diwd.cloud/api/v1/getDeviceFailure",
         //   setTotalDeviceFailure,
         //   "failures"
         // ),
         fetchData(
-          "http://localhost:5000/api/v1/auth/pengguna",
+          "https://server.diwd.cloud/api/v1/auth/pengguna",
           setTotalUsers,
           "users"
         ),

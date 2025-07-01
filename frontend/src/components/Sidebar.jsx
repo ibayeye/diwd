@@ -64,7 +64,7 @@ const Sidebar = () => {
                     block px-4 py-2 text-sm border-l-2
                     ${
                       childActive
-                        ? "text-blue-600 border-l-4 border-blue-500"
+                        ? "text-blue-600 border-l-2 border-blue-500"
                         : "text-gray-600 hover:text-blue-600 hover:border-blue-500"
                     }
                   `}

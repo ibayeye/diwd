@@ -8,6 +8,15 @@ module.exports = {
         Roboto: ["Roboto", "sans-serif"],
         Inter: ["Inter", "sans-serif"],
       },
+      animation: {
+        dot: 'dot-fade 1s linear infinite',
+      },
+      keyframes: {
+        'dot-fade': {
+          '0%, 100%': { opacity: '0.3' },
+          '50%': { opacity: '1' },
+        },
+      },
     },
   },
   plugins: [],
