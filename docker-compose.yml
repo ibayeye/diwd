@@ -62,8 +62,6 @@ services:
     container_name: diwd-backend
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend:/app
     depends_on:
       mysql:
         condition: service_healthy

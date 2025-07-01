@@ -38,10 +38,12 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: "http://localhost:3000", // Asal spesifik frontend Anda
+        origin: ["http://localhost:3000", "https://www.diwd.cloud"], // Asal spesifik frontend Anda
         credentials: true, // Izinkan kredensial (cookie)
     })
 );
+
+
 
 app.get('/ping', (req, res) => {
     res.send('Ping received! App is active.');
