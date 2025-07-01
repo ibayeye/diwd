@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import LineChart from "./format_diagram/DiagramLineChart";
 
-const HourlyErrortrend = () => {
+const HourlyErrortrend = forwardRef((props, ref) => {
   const [hourlyErrorTrend, setHourlyErrorTrend] = useState([]); // akan menjadi array [{ hour, count }, …]
   const [loading, setLoading] = useState(true);
 
@@ -10,7 +10,7 @@ const HourlyErrortrend = () => {
     const fetchHourlyErrortrend = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getHourlyErrorTrend"
+          "https://server.diwd.cloud/api/v1/getHourlyErrorTrend"
         );
 
         const rawObj = response.data.data || {};
@@ -37,6 +37,9 @@ const HourlyErrortrend = () => {
     fetchHourlyErrortrend();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+      getData: () => hourlyErrorTrend,
+    }));
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -51,9 +54,14 @@ const HourlyErrortrend = () => {
       xKey="hour"
       lineKeys={["count"]}
       title="Hourly Error Trend"
-      xAxisLabel="Jam"
+      xAxisProps={{
+        label:{
+          value: "Jam",
+          positition: "bottom"
+        }
+      }}
     />
   );
-};
+});
 
 export default HourlyErrortrend;

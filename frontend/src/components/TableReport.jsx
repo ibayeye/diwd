@@ -6,7 +6,11 @@ import { CgSortZa } from "react-icons/cg";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsEyeFill } from "react-icons/bs";
-const TableWrapper = ({
+import { BsDownload } from "react-icons/bs";
+import { FaSpinner } from "react-icons/fa";
+import { TbSettingsPin } from "react-icons/tb";
+import { LiaSpinnerSolid } from "react-icons/lia";
+const TableReport = ({
   columns,
   data = [],
   loading,
@@ -72,8 +76,37 @@ const TableWrapper = ({
   const handlNextPage = () =>
     setCurrrentpage((prev) => Math.min(prev + 1, totalPage));
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+          <p className="mt-4 text-gray-600 font-medium text-sm">
+            Loading, please wait...
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (error) return <div className="p-4 text-red-500">{error}</div>;
+
+  const downloadCSV = (row) => {
+    const keys = columns.map((col) => col.label); // header dari kolom
+    const values = columns.map((col) => row[col.key]); // data row
+
+    const csvContent =
+      keys.join(",") + "\n" + values.map((val) => `"${val}"`).join(",");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `device-${row.id}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="p-4 bg-white border ">
@@ -106,7 +139,6 @@ const TableWrapper = ({
         <table className="min-w-full">
           <thead>
             <tr>
-              <th className="bg-blue-500 text-white p-2 text-center">No</th>
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -132,9 +164,6 @@ const TableWrapper = ({
                       : "bg-gray-100 hover:bg-gray-200"
                   }
                 >
-                  <td className="px-4 py-2 border-b font-medium text-center">
-                    {(currentPage - 1) * ItemsPage + index + 1}
-                  </td>
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-2 border-b">
                       {col.render
@@ -142,28 +171,15 @@ const TableWrapper = ({
                         : row[col.key]}
                     </td>
                   ))}
-                  {(onEdit || onDelete) && (
-                    <td className="flex justify-center items-center">
-                      {onEdit && (
-                        <button
-                          type="button"
-                          onClick={() => onEdit(row.id)}
-                          className="bg-blue-500 w-10 h-8 k m-1 rounded-md flex justify-center items-center"
-                        >
-                          {pageType === "user" ? <RiEditFill /> : <BsEyeFill />}
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          type="button"
-                          onClick={() => onDelete(row.id)}
-                          className="bg-red-500 w-10 rounded-md m-1 h-8 flex justify-center items-center"
-                        >
-                          <MdDeleteForever />
-                        </button>
-                      )}
-                    </td>
-                  )}
+                  <td className="flex justify-center items-center">
+                    <button
+                      type="button"
+                      onClick={() => downloadCSV(row)}
+                      className="bg-blue-500 text-white w-10 h-8 k m-1 rounded-md flex justify-center items-center"
+                    >
+                      <BsDownload />
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -197,4 +213,4 @@ const TableWrapper = ({
   );
 };
 
-export default TableWrapper;
+export default TableReport;

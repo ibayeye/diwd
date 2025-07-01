@@ -4,15 +4,13 @@ import ProfileForm from "./ProfileForm";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
+const EditProfileForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
   const [formData, setFormData] = useState({
     nama: dataPengguna.nama || "",
     email: dataPengguna.email || "",
     no_hp: dataPengguna.no_hp || "",
     nip: dataPengguna.nip || "",
     address: dataPengguna.address || "",
-    role: dataPengguna.role ?? "",
-    isActive: dataPengguna.isActive ?? 1
   });
 
   console.log("Kirim data:", formData);
@@ -23,26 +21,7 @@ const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
     { label: "Nomor Induk Pegawai", name: "nip", type: "number" },
     { label: "Email", name: "email", type: "email" },
     { label: "Nomor Telepon", name: "no_hp", type: "number" },
-    { label: "Alamat", name: "address", type: "text" },
-    {
-      label: "Status",
-      name: "isActive",
-      type: "select",
-      option: [
-        { value: 1, label: "Aktiv" },
-        { value: 0, label: "Non aktiv" },
-      ],
-    },
-    {
-      label: "Role",
-      name: "role",
-      type: "select",
-      option: [
-        { value: 0, label: "User" },
-        { value: 1, label: "Admin" },
-        { value: 2, label: "superAdmin" },
-      ],
-    },
+    { label: "Alamat", name: "address", type: "text" },    
   ];
 
   const [errors, setErrors] = useState({});
@@ -103,4 +82,4 @@ const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
   );
 };
 
-export default EditeForm;
+export default EditProfileForm;

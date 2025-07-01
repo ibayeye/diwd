@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 
-const TopMonthlyError = () => {
+const TopMonthlyError = forwardRef((props, ref) => {
   const [topMonthlyError, setTopMonthlyError] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ const TopMonthlyError = () => {
   const fetchErrorMonthly = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getTopMothlyError"
+        "https://server.diwd.cloud/api/v1/getTopMothlyError"
       );
 
       const res = response.data.data || [];
@@ -63,7 +63,7 @@ const TopMonthlyError = () => {
       const pivoted = uniqueMonths.map((monthKey) => mapByMonth[monthKey]);
       setTopMonthlyError(pivoted);
 
-      console.log("getTopMonthlyError", res);
+      // console.log("getTopMonthlyError", res);
     } catch (error) {
       console.error("Gagal mengambil data", error);
     } finally {
@@ -75,6 +75,9 @@ const TopMonthlyError = () => {
     fetchErrorMonthly();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+      getData: () => topMonthlyError,
+    }));
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -103,6 +106,6 @@ const TopMonthlyError = () => {
       />
     </div>
   );
-};
+});
 
 export default TopMonthlyError;

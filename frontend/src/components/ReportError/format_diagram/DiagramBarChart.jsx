@@ -48,7 +48,7 @@ const DiagramBarChart = ({
   xAxisProps
 }) => {
   return (
-    <div className="w-full h-full rounded-md">
+    <div className="w-full h-[30rem]">
       {title && (
         <h2 className="text-xl font-semibold mb-4 text-center">{title}</h2>
       )}
@@ -66,7 +66,7 @@ const DiagramBarChart = ({
             label={{
               value: xAxisLabel,
               position: "center",
-              offset: -10,
+              offset: 0,
               fill: "#374151",
               fontSize: 14,
             }}

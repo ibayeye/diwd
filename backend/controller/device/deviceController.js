@@ -11,6 +11,8 @@ import NodeCache from 'node-cache';
 import pLimit from 'p-limit';
 import Device from "../../models/device.js";
 import redisClient from "../../config/redis.js";
+import { sendMailEarthquake, sendMailError } from "../mailer/mailerController.js";
+import { getSocketInstance } from "../../utils/socket.js";
 
 // Create a cache with TTL of 7 days (in seconds)
 const geocodeCache = new NodeCache({ stdTTL: 604800 });
@@ -287,12 +289,15 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
 
     // Validasi input
     if (!device_id || regValue === undefined) {
-        return res.status(400).json({ 
-            error: "device_id dan regValue wajib diisi" 
+        return res.status(400).json({
+            error: "device_id dan regValue wajib diisi"
         });
     }
 
     try {
+        const deviceInfo = await Device.findByPk(device_id);
+        const alamat = deviceInfo?.alamat || "Alamat tidak ditemukan";
+
         const cacheKey = `earthquake:${device_id}`;
         const lastValue = await redisClient.get(cacheKey);
 
@@ -309,13 +314,37 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
                 ...otherData,
                 created_at: new Date()
             });
+            console.log('otherData:', otherData);
 
             // Update cache dengan TTL 24 jam (86400 detik)
             await redisClient.setEx(cacheKey, 86400, currentValue);
 
+            // kirim ke email ( notif )
+            await sendMailEarthquake({
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                regCD: otherData.regCD,
+                regTime: otherData.regTime,
+                regValue: regValue,
+                alamat: alamat
+            });
+
+            const io = getSocketInstance();
+
+            io.emit('earthquake-alert', {
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                regCD: otherData.regCD,
+                regTime: otherData.regTime,
+                regValue: regValue,
+                alamat: alamat
+            });
+
             console.log(`✅ Earthquake data saved for device ${device_id}: ${regValue}`);
-            
-            return res.status(201).json({ 
+
+            return res.status(201).json({
                 message: "Data earthquake disimpan ke DB dan Redis",
                 device_id,
                 regValue: currentValue,
@@ -324,8 +353,8 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
         }
 
         console.log(`⏩ Earthquake data unchanged for device ${device_id}: ${regValue}`);
-        
-        return res.status(200).json({ 
+
+        return res.status(200).json({
             message: "regValue tidak berubah, tidak disimpan ulang",
             device_id,
             regValue: currentValue,
@@ -334,9 +363,9 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
 
     } catch (error) {
         console.error("❌ Error in listeningEarthquakeFirebase:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Gagal memproses data earthquake",
-            details: error.message 
+            details: error.message
         });
     }
 });
@@ -347,12 +376,15 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
 
     // Validasi input
     if (!device_id || !status) {
-        return res.status(400).json({ 
-            error: "device_id dan status wajib diisi" 
+        return res.status(400).json({
+            error: "device_id dan status wajib diisi"
         });
     }
 
     try {
+        const deviceInfo = await Device.findByPk(device_id);
+        const alamat = deviceInfo?.alamat || "Alamat tidak ditemukan";
+
         const cacheKey = `error:${device_id}`;
         const lastStatus = await redisClient.get(cacheKey);
 
@@ -362,7 +394,7 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
 
         // Skip jika status "0,0" (normal) dan sama dengan yang terakhir
         if (currentStatus === "0,0" && cachedStatus === "0,0") {
-            return res.status(200).json({ 
+            return res.status(200).json({
                 message: "Status normal tidak berubah, tidak disimpan",
                 device_id,
                 status: currentStatus,
@@ -383,9 +415,27 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
             // Update cache dengan TTL 24 jam
             await redisClient.setEx(cacheKey, 86400, currentStatus);
 
+            await sendMailError({
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                status: status,
+                alamat: alamat
+            });
+
+            const io = getSocketInstance();
+
+            io.emit('error-alert', {
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                status: status,
+                alamat: alamat
+            });
+
             console.log(`✅ Error status saved for device ${device_id}: ${status}`);
-            
-            return res.status(201).json({ 
+
+            return res.status(201).json({
                 message: "Perubahan status error disimpan ke DB dan Redis",
                 device_id,
                 status: currentStatus,
@@ -394,8 +444,8 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
         }
 
         console.log(`⏩ Error status unchanged for device ${device_id}: ${status}`);
-        
-        return res.status(200).json({ 
+
+        return res.status(200).json({
             message: "Status error tidak berubah, tidak disimpan ulang",
             device_id,
             status: currentStatus,
@@ -404,9 +454,9 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
 
     } catch (error) {
         console.error("❌ Error in listeningErrorFirebase:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Gagal memproses data error",
-            details: error.message 
+            details: error.message
         });
     }
 });
@@ -416,32 +466,32 @@ export const listeningAllDeviceFirebase = asyncHandler(async (req, res) => {
     const allDeviceData = req.body;
 
     if (!allDeviceData || Object.keys(allDeviceData).length === 0) {
-        return res.status(400).json({ 
-            error: "Data device kosong" 
+        return res.status(400).json({
+            error: "Data device kosong"
         });
     }
 
     try {
         const cacheKey = 'all_devices_snapshot';
         const lastSnapshot = await redisClient.get(cacheKey);
-        
+
         // Konversi ke string untuk perbandingan
         const currentSnapshot = JSON.stringify(allDeviceData);
-        
+
         if (!lastSnapshot || lastSnapshot !== currentSnapshot) {
             // Update cache dengan TTL 1 jam (3600 detik)
             await redisClient.setEx(cacheKey, 3600, currentSnapshot);
-            
+
             console.log("✅ All device snapshot updated in Redis");
-            
-            return res.status(200).json({ 
+
+            return res.status(200).json({
                 message: "Snapshot semua device diupdate",
                 deviceCount: Object.keys(allDeviceData).length,
                 cached: true
             });
         }
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             message: "Snapshot device tidak berubah",
             deviceCount: Object.keys(allDeviceData).length,
             cached: false
@@ -449,9 +499,9 @@ export const listeningAllDeviceFirebase = asyncHandler(async (req, res) => {
 
     } catch (error) {
         console.error("❌ Error in listeningAllDeviceFirebase:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Gagal memproses snapshot device",
-            details: error.message 
+            details: error.message
         });
     }
 });
@@ -467,20 +517,20 @@ export const clearDeviceCache = asyncHandler(async (req, res) => {
     try {
         const earthquakeKey = `earthquake:${device_id}`;
         const errorKey = `error:${device_id}`;
-        
+
         await redisClient.del(earthquakeKey);
         await redisClient.del(errorKey);
-        
-        res.status(200).json({ 
+
+        res.status(200).json({
             message: `Cache untuk device ${device_id} berhasil dihapus`,
-            device_id 
+            device_id
         });
 
     } catch (error) {
         console.error("❌ Error clearing cache:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Gagal menghapus cache",
-            details: error.message 
+            details: error.message
         });
     }
 });
@@ -494,10 +544,10 @@ export const getCacheStatus = asyncHandler(async (req, res) => {
             // Get cache untuk device tertentu
             const earthquakeKey = `earthquake:${device_id}`;
             const errorKey = `error:${device_id}`;
-            
+
             const earthquakeCache = await redisClient.get(earthquakeKey);
             const errorCache = await redisClient.get(errorKey);
-            
+
             return res.status(200).json({
                 device_id,
                 earthquake_cache: earthquakeCache,
@@ -507,11 +557,11 @@ export const getCacheStatus = asyncHandler(async (req, res) => {
             // Get semua keys cache
             const keys = await redisClient.keys('*');
             const cacheData = {};
-            
+
             for (const key of keys.slice(0, 20)) { // Limit 20 keys untuk performance
                 cacheData[key] = await redisClient.get(key);
             }
-            
+
             return res.status(200).json({
                 total_keys: keys.length,
                 sample_data: cacheData
@@ -520,9 +570,9 @@ export const getCacheStatus = asyncHandler(async (req, res) => {
 
     } catch (error) {
         console.error("❌ Error getting cache status:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Gagal mengambil status cache",
-            details: error.message 
+            details: error.message
         });
     }
 });

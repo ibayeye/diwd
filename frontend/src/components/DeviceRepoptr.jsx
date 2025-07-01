@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 
 
-const ListPage = () => {
+const DeviceReport = () => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -92,4 +92,4 @@ const ListPage = () => {
   );
 };
 
-export default ListPage;
+export default DeviceReport;

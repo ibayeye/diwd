@@ -36,9 +36,24 @@ const Navbar = ({ toggleSideBar }) => {
   };
 
   return (
-    <nav className="flex justify-end bg-white p-4 border-b h-20 relative">
+    <nav className="flex justify-between bg-white p-4 border-b h-20 relative">
+      <button onClick={toggleSideBar} className="md:hidden p-2">
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
       <div className="flex items-center">
-        <IoNotificationsOutline className="w-6 h-6" />
+        {/* <IoNotificationsOutline className="w-6 h-6" /> */}
       </div>
 
       <div className="flex justify-end">
@@ -54,7 +69,11 @@ const Navbar = ({ toggleSideBar }) => {
       <div
         ref={profileMenuRef}
         className={`absolute right-3 top-16 bg-white rounded-md z-50 shadow-md w-72 transform transition ease-out duration-200 origin-top-right
-          ${showProfile ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
+          ${
+            showProfile
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-95 pointer-events-none"
+          }`}
       >
         <div className="p-4">
           <p className="font-semibold text-gray-900">

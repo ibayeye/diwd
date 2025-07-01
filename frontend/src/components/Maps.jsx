@@ -13,7 +13,7 @@ const Map = () => {
 
   const [fullScreen, setFullScreen] = useState(false);
 
-  const API_URL = "http://localhost:5000/api/v1/getDevice";
+  const API_URL = "https://server.diwd.cloud/api/v1/getDevice";
 
   const fetchLocationPoint = async () => {
     setLoading(true);
@@ -73,11 +73,20 @@ const Map = () => {
   //   popupAnchor: [0, -32],
   // });
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+
   return (
     <div className="w-full rounded-md mt-4">
-      {loading && <p>Loading...</p>}
+      
       {error && <p style={{ color: "red" }}>{error}</p>}{" "}
-      {!loading && !error && (
+      {!error && (
         <MapContainer
           center={[-6.9895, 108.6405]}
           // center={[-2.5489 , 118.0149]} // indonesia
@@ -85,9 +94,7 @@ const Map = () => {
           style={{ height: "500px", width: "100%" }}
           attributionControl={false}
           scrollWheelZoom={true}
-          className={`${
-            fullScreen ? "fixed inset-0 z-[100]" : "w-full h-full"
-          } transition-all duration-300`}
+          className="w-full h-full rounded-md z-10 relative"
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {locationPoint.map((location, index) => (
@@ -103,47 +110,40 @@ const Map = () => {
                 <table className="w-[700px]">
                   <tbody>
                     <tr className="bg-gray-300">
-                      <td className="rounded-l-md pl-1">Device ID</td>
+                      <td className="pl-1">Device ID</td>
                       <td>{`: ${location.id}`}</td>
                       <td>OnSite Value</td>
-                      <td className="rounded-r-md">{`: ${location.onSiteValue}`}</td>
+                      <td className="">{`: ${location.onSiteValue}`}</td>
                     </tr>
                     <tr>
-                      <td className="rounded-l-md pl-1">Device IP</td>
+                      <td className="pl-1">Device IP</td>
                       <td>{`: ${location.ip}`}</td>
                       <td>OnSite Time</td>
-                      <td className="rounded-r-md">{`: ${location.onSiteTime}`}</td>
+                      <td className="">{`: ${location.onSiteTime}`}</td>
                     </tr>
                     <tr className="bg-gray-300">
-                      <td className="rounded-l-md pl-1">Location</td>
+                      <td className="pl-1">Location</td>
                       <td>{`: ${location.location}`}</td>
                       <td>Region Value</td>
-                      <td className="rounded-r-md">{`: ${location.regValue}`}</td>
+                      <td className="">{`: ${location.regValue}`}</td>
                     </tr>
                     <tr>
-                      <td className="rounded-l-md pl-1">Memories</td>
+                      <td className="pl-1">Memories</td>
                       <td>{`: ${location.memory}`}</td>
                       <td>Region Count Down</td>
-                      <td className="rounded-r-md">{`: ${location.regCD}`}</td>
+                      <td className="">{`: ${location.regCD}`}</td>
                     </tr>
                     <tr className="bg-gray-300">
-                      <td className="rounded-l-md pl-1">Status</td>
+                      <td className="pl-1">Status</td>
                       <td>{`: ${location.status}`}</td>
                       <td>Region Time</td>
-                      <td className="rounded-r-md">{`: ${location.regTime}`}</td>
+                      <td className="">{`: ${location.regTime}`}</td>
                     </tr>
                   </tbody>
                 </table>
               </Popup>
             </Marker>
           ))}
-
-          <button
-            onClick={() => setFullScreen(!fullScreen)}
-            className="absolute top-4 right-4 z-[1000] bg-white shadow p-2 rounded"
-          >
-            {fullScreen ? "Exit Fullscreen" : "Fullscreen"}
-          </button>
         </MapContainer>
       )}
     </div>
