@@ -13,7 +13,7 @@ const Map = () => {
 
   const [fullScreen, setFullScreen] = useState(false);
 
-  const API_URL = "http://localhost:5000/api/v1/getDevice";
+  const API_URL = "https://server.diwd.cloud/api/v1/getDevice";
 
   const fetchLocationPoint = async () => {
     setLoading(true);
@@ -94,7 +94,7 @@ const Map = () => {
           style={{ height: "500px", width: "100%" }}
           attributionControl={false}
           scrollWheelZoom={true}
-          className="w-full h-full rounded-md"
+          className="w-full h-full rounded-md z-10 relative"
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {locationPoint.map((location, index) => (

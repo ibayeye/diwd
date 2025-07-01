@@ -9,8 +9,6 @@ const EarthquakePage = () => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Tambahan: state untuk tanggal filter
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -22,7 +20,7 @@ const EarthquakePage = () => {
     setError(null);
     try {
       // Sisipkan query params jika from/to ada
-      let url = "http://localhost:5000/api/v1/getDevice";
+      let url = "https://server.diwd.cloud/api/v1/getDevice";
       if (from && to) {
         url += `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
       }
@@ -43,7 +41,6 @@ const EarthquakePage = () => {
   };
 
   useEffect(() => {
-    // Panggil tanpa filter awalnya
     fetchDevice();
   }, []);
 
@@ -58,7 +55,7 @@ const EarthquakePage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Anda akan menghapus perangkat ini?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/v1/getDevice/${id}`, {
+      await axios.delete(`https://server.diwd.cloud/api/v1/getDevice/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Perangkat berhasil dihapus");
@@ -99,16 +96,15 @@ const EarthquakePage = () => {
   const exportToCSV = (data, filename = "rekap_perangkat.csv") => {
     if (!data.length) return toast.warn("Tidak ada data untuk diexport");
 
-    // Ambil header dari keys
     const headers = Object.keys(data[0]);
     const csvRows = [
-      headers.join(","), // baris header
+      headers.join(","),
       ...data.map((row) =>
         headers
           .map((field) => {
             const cell =
               row[field] !== null && row[field] !== undefined ? row[field] : "";
-            return `"${String(cell).replace(/"/g, '""')}"`; // escape tanda kutip
+            return `"${String(cell).replace(/"/g, '""')}"`;
           })
           .join(",")
       ),
@@ -131,7 +127,6 @@ const EarthquakePage = () => {
     <div>
       <p className="text-2xl font-Inter font-bold my-3">Rekap Alat</p>
 
-      {/* === Filter by Date === */}
       <div className="flex items-center space-x-3 mb-4">
         <div>
           <label className="block text-sm">Dari:</label>
@@ -170,12 +165,14 @@ const EarthquakePage = () => {
         pageType="perangkat"
       />
 
-      <button
-        className="bg-black text-white rounded-md mt-4 px-4 py-2"
-        onClick={() => exportToCSV(devices)}
-      >
-        Export
-      </button>
+      <div className="flex justify-end w-full text-sm py-4">
+        <button
+          className="border border-blue-600 rounded-md px-4 py-2"
+          onClick={() => exportToCSV(devices)}
+        >
+          Export
+        </button>
+      </div>
     </div>
   );
 };

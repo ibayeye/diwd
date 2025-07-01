@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 
-const TopWeeklyError = () => {
+const TopWeeklyError = forwardRef((props, ref) => {
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ const TopWeeklyError = () => {
   const fetchErrorDaily = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getTopWeeklyError"
+        "https://server.diwd.cloud/api/v1/getTopWeeklyError"
       );
 
       const res = response.data.data || [];
@@ -48,7 +48,7 @@ const TopWeeklyError = () => {
       // 5) bentuk array terurut
       const pivoted = uniqueWeeks.map((week) => mapByWeek[week]);
       setChartData(pivoted);
-      console.log("getTopWeeklyError", res);
+      // console.log("getTopWeeklyError", res);
     } catch (error) {
       console.error("gagal mengambil data", error);
     } finally {
@@ -59,6 +59,10 @@ const TopWeeklyError = () => {
   useEffect(() => {
     fetchErrorDaily();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+      getData: () => chartData,
+    }));
 
   if (loading) {
     return (
@@ -81,6 +85,6 @@ const TopWeeklyError = () => {
       />
     </div>
   );
-};
+});
 
 export default TopWeeklyError;

@@ -7,6 +7,9 @@ import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsEyeFill } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
+import { FaSpinner } from "react-icons/fa";
+import { TbSettingsPin } from "react-icons/tb";
+import { LiaSpinnerSolid } from "react-icons/lia";
 const TableReport = ({
   columns,
   data = [],
@@ -73,7 +76,18 @@ const TableReport = ({
   const handlNextPage = () =>
     setCurrrentpage((prev) => Math.min(prev + 1, totalPage));
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+          <p className="mt-4 text-gray-600 font-medium text-sm">
+            Loading, please wait...
+          </p>
+        </div>
+      </div>
+    );
+  }
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   const downloadCSV = (row) => {

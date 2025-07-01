@@ -8,117 +8,113 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import {
-    generateApiKey,
-    generateToken,
+  generateApiKey,
+  generateToken,
 } from "../../middleware/generateToken.js";
 import { error } from "console";
 
 export const register = asyncHandler(async (req, res) => {
-    const { username, email, password, confirmPassword, nip, role, isActive } = req.body;
+  const { username, email, password, confirmPassword, nip, role, isActive } =
+    req.body;
 
-    const existingUser = await Pengguna.findOne({ where: { email: email } });
+  const existingUser = await Pengguna.findOne({ where: { email: email } });
 
-    if (existingUser) {
-        return res.status(400).json({
-            msg: "Pengguna already exists",
-        });
-    }
-
-    if (!username ||
-        !password ||
-        !confirmPassword ||
-        !email ||
-        !nip
-    ) {
-        return res.status(400).json({
-            status: "error",
-            msg: "All fields are required",
-        });
-    }
-
-
-    if (password !== confirmPassword) {
-        return res.status(400).json({
-            status: "error",
-            msg: "Password and Confirm Password do not match",
-        });
-    }
-
-    let newRole = role ?? 0;
-    let activated = isActive ?? 0;
-
-    const totalPengguna = await Pengguna.count();
-    if (totalPengguna === 0) {
-        newRole = 2;
-        activated = 1;
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
-    await Pengguna.create({
-        apiKey: generateApiKey(20),
-        username,
-        password: hashPassword,
-        email,
-        nip,
-        role: newRole,
-        isActive: activated
+  if (existingUser) {
+    return res.status(400).json({
+      msg: "Pengguna already exists",
     });
-    res.status(201).json({
-        status: "success",
-        msg: "Account successfully registered",
+  }
+
+  if (!username || !password || !confirmPassword || !email || !nip) {
+    return res.status(400).json({
+      status: "error",
+      msg: "All fields are required",
     });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: "error",
+      msg: "Password and Confirm Password do not match",
+    });
+  }
+
+  let newRole = role ?? 0;
+  let activated = isActive ?? 0;
+
+  const totalPengguna = await Pengguna.count();
+  if (totalPengguna === 0) {
+    newRole = 2;
+    activated = 1;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashPassword = await bcrypt.hash(password, salt);
+  await Pengguna.create({
+    apiKey: generateApiKey(20),
+    username,
+    password: hashPassword,
+    email,
+    nip,
+    role: newRole,
+    isActive: activated,
+  });
+  res.status(201).json({
+    status: "success",
+    msg: "Account successfully registered",
+  });
 });
 
 export const addPengguna = asyncHandler(async (req, res) => {
-    const { username, email, password, confirmPassword, nip, no_hp, role } = req.body;
+  const { username, email, password, confirmPassword, nip, no_hp, role } =
+    req.body;
 
-    const existingUser = await Pengguna.findOne({ where: { email: email } });
+  const existingUser = await Pengguna.findOne({ where: { email: email } });
 
-    if (existingUser) {
-        return res.status(400).json({
-            msg: "Pengguna already exists",
-        });
-    }
-
-    if (!username ||
-        !password ||
-        !confirmPassword ||
-        !email ||
-        !nip || !no_hp || !role
-    ) {
-        return res.status(400).json({
-            status: "error",
-            msg: "All fields are required",
-        });
-    }
-
-
-    if (password !== confirmPassword) {
-        return res.status(400).json({
-            status: "error",
-            msg: "Password and Confirm Password do not match",
-        });
-    }
-
-
-
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
-    await Pengguna.create({
-        apiKey: generateApiKey(20),
-        username,
-        password: hashPassword,
-        email,
-        nip,
-        no_hp,
-        role,
-        isActive: 1
+  if (existingUser) {
+    return res.status(400).json({
+      msg: "Pengguna already exists",
     });
-    res.status(201).json({
-        status: "success",
-        msg: "Account successfully registered",
+  }
+
+  if (
+    !username ||
+    !password ||
+    !confirmPassword ||
+    !email ||
+    !nip ||
+    !no_hp ||
+    !role
+  ) {
+    return res.status(400).json({
+      status: "error",
+      msg: "All fields are required",
     });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: "error",
+      msg: "Password and Confirm Password do not match",
+    });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashPassword = await bcrypt.hash(password, salt);
+  await Pengguna.create({
+    apiKey: generateApiKey(20),
+    username,
+    password: hashPassword,
+    email,
+    nip,
+    no_hp,
+    role,
+    isActive: 1,
+  });
+  res.status(201).json({
+    status: "success",
+    msg: "Account successfully registered",
+  });
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -163,117 +159,126 @@ export const login = asyncHandler(async (req, res) => {
             nama: pengguna.nama,
             nip: pengguna.nip,
             no_hp: pengguna.no_hp,
+            address: pengguna.address
         },
     });
 });
 
 export const logout = asyncHandler(async (req, res) => {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(400).json({
-            status: "error",
-            msg: "Authorization token missing or invalid.",
-        });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const pengguna = await Pengguna.findOne({ where: { activeSession: token } });
-    if (!pengguna) {
-        return res.status(404).json({
-            status: "error",
-            msg: "No user found with the provided token.",
-        });
-    }
-
-    pengguna.activeSession = null;
-    await pengguna.save();
-
-    res.status(200).json({
-        status: "success",
-        msg: "Logout successful.",
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(400).json({
+      status: "error",
+      msg: "Authorization token missing or invalid.",
     });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  const pengguna = await Pengguna.findOne({ where: { activeSession: token } });
+  if (!pengguna) {
+    return res.status(404).json({
+      status: "error",
+      msg: "No user found with the provided token.",
+    });
+  }
+
+  pengguna.activeSession = null;
+  await pengguna.save();
+
+  res.status(200).json({
+    status: "success",
+    msg: "Logout successful.",
+  });
 });
 
 export const getPengguna = asyncHandler(async (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
 
-    if (!id) {
-        return res.status(400).json({
-            status: "error",
-            msg: "User ID is required",
-        });
-    }
-
-    const pengguna = await Pengguna.findOne({
-        where: { id },
-        attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      msg: "User ID is required",
     });
+  }
 
-    if (!pengguna) {
-        return res.status(404).json({
-            status: "error",
-            msg: "pengguna not found",
-        });
-    }
+  const pengguna = await Pengguna.findOne({
+    where: { id },
+    attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
+  });
 
-    res.status(200).json({
-        status: "success",
-        msg: "pengguna data retrieved successfully",
-        data: pengguna,
+  if (!pengguna) {
+    return res.status(404).json({
+      status: "error",
+      msg: "pengguna not found",
     });
+  }
+
+  res.status(200).json({
+    status: "success",
+    msg: "pengguna data retrieved successfully",
+    data: pengguna,
+  });
 });
 
 export const getAllPengguna = asyncHandler(async (req, res) => {
+  const [listpengguna, totalpengguna] = await Promise.all([
+    Pengguna.findAll({
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "nama",
+        "nip",
+        "no_hp",
+        "role",
+        "isActive",
+      ],
+    }),
+    Pengguna.count(),
+  ]);
 
-    const [listpengguna, totalpengguna] = await Promise.all([
-        Pengguna.findAll({
-            attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role", "isActive"],
-        }),
-        Pengguna.count(),
-    ]);
-
-    if (!listpengguna) {
-        return res.status(404).json({
-            status: "error",
-            msg: "Pengguna not found",
-        });
-    }
-
-    res.status(200).json({
-        status: "success",
-        msg: "Pengguna data retrieved successfully",
-        totaldata: totalpengguna,
-        data: listpengguna,
+  if (!listpengguna) {
+    return res.status(404).json({
+      status: "error",
+      msg: "Pengguna not found",
     });
+  }
+
+  res.status(200).json({
+    status: "success",
+    msg: "Pengguna data retrieved successfully",
+    totaldata: totalpengguna,
+    data: listpengguna,
+  });
 });
 
 export const deletePengguna = asyncHandler(async (req, res) => {
-    const id = req.params.id;
+  const id = req.params.id;
 
-    if (!id) {
-        return res.status(400).json({
-            status: "error",
-            msg: "Pengguna ID is required",
-        });
-    }
-
-    const pengguna = await Pengguna.findOne({ where: { id } });
-
-    if (!pengguna) {
-        return res.status(404).json({
-            status: "error",
-            msg: "Pengguna not found",
-        });
-    }
-
-    await pengguna.destroy();
-
-    res.status(200).json({
-        status: "success",
-        msg: "Pengguna deleted successfully",
+  if (!id) {
+    return res.status(400).json({
+      status: "error",
+      msg: "Pengguna ID is required",
     });
+  }
+
+  const pengguna = await Pengguna.findOne({ where: { id } });
+
+  if (!pengguna) {
+    return res.status(404).json({
+      status: "error",
+      msg: "Pengguna not found",
+    });
+  }
+
+  await pengguna.destroy();
+
+  res.status(200).json({
+    status: "success",
+    msg: "Pengguna deleted successfully",
+  });
 });
 
 export const updatePengguna = asyncHandler(async (req, res) => {
@@ -286,8 +291,6 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-   
-
     const pengguna = await Pengguna.findOne({ where: { id } });
 
     if (!pengguna) {
@@ -297,9 +300,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
         });
     }
 
-  
-
-    const { nama, email, no_hp, nip, image, password, isActive, address } = req.body;
+    const { nama, email, no_hp, nip, image, password, isActive, address, role } = req.body;
 
     const updatedData = {};
     if (nama !== undefined) updatedData.nama = nama;
@@ -309,6 +310,7 @@ export const updatePengguna = asyncHandler(async (req, res) => {
     if (image !== undefined) updatedData.image = image;
     if (isActive !== undefined) updatedData.isActive = isActive;
     if (address !== undefined) updatedData.address = address;
+    if (role !== undefined) updatedData.role = role;
 
     if (password) {
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
@@ -345,11 +347,10 @@ export const updatePengguna = asyncHandler(async (req, res) => {
     });
 });
 
-
 export const userLoggedin = asyncHandler(async (req, res) => {
     const pengguna = await Pengguna.findOne({
         where: { id: req.user.id },
-        attributes: ["id", "username", "image", "email", "nama", "nip", "no_hp", "role", "isActive"],
+        attributes: ["id", "username", "image", "email", "nama", "nip", "no_hp", "role", "isActive", "address"],
     });
 
     if (!pengguna) {

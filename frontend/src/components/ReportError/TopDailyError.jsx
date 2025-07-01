@@ -1,10 +1,15 @@
 // src/components/TopDailyError.jsx
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 import { Label } from "recharts";
 
-const TopDailyError = () => {
+const TopDailyError = forwardRef((props, ref) => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
@@ -13,7 +18,7 @@ const TopDailyError = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getTopDailyError"
+          "https://server.diwd.cloud/api/v1/getTopDailyError"
         );
         const raw = response.data.data || [];
 
@@ -73,6 +78,10 @@ const TopDailyError = () => {
     fetchData();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    getData: () => chartData,
+  }));
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -100,6 +109,6 @@ const TopDailyError = () => {
       />
     </div>
   );
-};
+});
 
 export default TopDailyError;

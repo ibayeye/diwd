@@ -1,15 +1,15 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
 
-const MonthlyStatusTrend = () => {
+const MonthlyStatusTrend = forwardRef((props, ref) => {
   const [monthlyStatusTrend, setMonthlyStatusTrend] = useState([]);
   const [lineKeys, setLineKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const fetchErrorDaily = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/getMonthlyStatusTrend"
+        "https://server.diwd.cloud/api/v1/getMonthlyStatusTrend"
       );
 
       const res = response.data.data || [];
@@ -52,7 +52,7 @@ const MonthlyStatusTrend = () => {
       const pivoted = sortedKeys.map((k) => mapByMonth[k]);
 
       setMonthlyStatusTrend(pivoted);
-      console.log("MonthlyStatusTrend pivoted:", pivoted);
+      // console.log("MonthlyStatusTrend pivoted:", pivoted);
     } catch (error) {
       console.error("gagal mengambil data", error);
     } finally {
@@ -63,6 +63,10 @@ const MonthlyStatusTrend = () => {
   useEffect(() => {
     fetchErrorDaily();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+      getData: () => monthlyStatusTrend,
+    }));
 
   if (loading) {
     return (
@@ -89,6 +93,6 @@ const MonthlyStatusTrend = () => {
         }}
       />
   );
-};
+});
 
 export default MonthlyStatusTrend;

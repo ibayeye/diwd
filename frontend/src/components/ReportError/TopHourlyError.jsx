@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 
-const TopHourlyErrorChart = () => {
+const TopHourlyErrorChart = forwardRef((props, ref) => {
   const [chartData, setChartData] = useState([]); // data siap pakai untuk chart
   const [errorKeys, setErrorKeys] = useState([]); // daftar Error Message unik
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,7 @@ const TopHourlyErrorChart = () => {
     const fetchTopHourlyError = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/getTopHourlyError"
+          "https://server.diwd.cloud/api/v1/getTopHourlyError"
         );
         const dataArr = response.data.data || [];
 
@@ -60,6 +60,10 @@ const TopHourlyErrorChart = () => {
     fetchTopHourlyError();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+      getData: () => chartData,
+    }));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -85,6 +89,6 @@ const TopHourlyErrorChart = () => {
       }}
     />
   );
-};
+});
 
 export default TopHourlyErrorChart;

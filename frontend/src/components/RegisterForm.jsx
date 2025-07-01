@@ -3,7 +3,6 @@ import FormWrapper from "../components/FormWrapper";
 import axios from "axios";
 import { ReactComponent as Ilen } from "../assets/Icons/logoLen2.svg";
 import bgimage from "../assets/images/bglen.svg";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -46,7 +45,7 @@ const RegisterForm = () => {
         // role: parseInt(formData.role),
       };
       const response = await axios.post(
-        "http://localhost:5000/api/v1/auth/register",
+        "https://server.diwd.cloud/api/v1/auth/register",
         payload
       );
       toast.success("Pendaftaran Behasil");
