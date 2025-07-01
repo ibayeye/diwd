@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import FormWrapper from "../components/FormWrapper";
 import { ReactComponent as Ilen } from "../assets/Icons/logoLen2.svg";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
+import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";

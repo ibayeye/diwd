@@ -1,6 +1,5 @@
 import React from "react";
 import FormInputGrup from "./FormInputGrup";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 
 const FormWrapper = ({
   title,

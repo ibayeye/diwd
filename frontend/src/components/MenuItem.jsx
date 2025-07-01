@@ -44,6 +44,6 @@ export const menuItem = [
     label: "Pendaftaran",
     icon: <FaUserPlus />,
     path: "registerform",
-    role: ["admin", "super admin"],
+    role: ["super admin"],
   },
 ];
