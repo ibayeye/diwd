@@ -27,7 +27,7 @@ const UserPage = () => {
           withCredentials: true,
         }
       );
-      console.log(response.data);
+      // console.log(response.data);
 
       const { data } = response;
       if (data && Array.isArray(data.data)) {
@@ -57,7 +57,7 @@ const UserPage = () => {
       );
       setEditingUser(responseUser.data.data);
       setShowFormEdit(true);
-      console.log("iniiiiii :", responseUser.data);
+      // console.log("iniiiiii :", responseUser.data);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.msg || err.message);

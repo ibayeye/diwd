@@ -106,6 +106,7 @@ const TableWrapper = ({
         <table className="min-w-full">
           <thead>
             <tr>
+              <th className="bg-blue-500 text-white p-2 text-center">No</th>
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -131,6 +132,9 @@ const TableWrapper = ({
                       : "bg-gray-100 hover:bg-gray-200"
                   }
                 >
+                  <td className="px-4 py-2 border-b font-medium text-center">
+                    {(currentPage - 1) * ItemsPage + index + 1}
+                  </td>
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-2 border-b">
                       {col.render

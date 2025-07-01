@@ -13,7 +13,7 @@ function FirebaseListener() {
       const data = snapshot.val();
 
       if (data) {
-        console.log("Data Firebase:", data);
+        // console.log("Data Firebase:", data);
 
         const dataString = JSON.stringify(data);
         const prevDataString = JSON.stringify(lastAllDataSnapshot.current);
