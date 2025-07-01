@@ -51,7 +51,7 @@ function FirebaseListener() {
           }
 
           // Kirim jika status berubah dan bukan "0,0"
-          if (isNewDevice || (statusChanged && deviceData.status !== "0,0")) {
+          if ((isNewDevice && deviceData.status !== "0,0")  || (statusChanged && deviceData.status !== "0,0")) {
             axios.post("https://server.diwd.cloud/api/v1/error-realtime", {
               device_id: deviceId,
               ...deviceData,

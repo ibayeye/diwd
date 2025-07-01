@@ -19,6 +19,7 @@ const EarthquakePage = () => {
     setLoading(true);
     setError(null);
     try {
+      // Sisipkan query params jika from/to ada
       let url = "https://server.diwd.cloud/api/v1/getDevice";
       if (from && to) {
         url += `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
