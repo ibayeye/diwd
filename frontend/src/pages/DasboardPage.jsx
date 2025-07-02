@@ -459,7 +459,7 @@ const Dashboard = () => {
           borderColor={borderColors.red}
         />
         <DataCard
-          title="Earthquake detection devices"
+          title="Gempa Terdeteksi Oleh Perangkat"
           value={detectedEarthquake.size}
           Icon={IEarthquake}
           borderColor={borderColors.green}
