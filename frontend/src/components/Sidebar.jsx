@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { menuItem } from "../components/MenuItem";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import Cookies from "js-cookie";
+import LogoSvg from "../assets/Icons/logo_big1.svg";
 
 const Sidebar = () => {
   const role = Cookies.get("role");
@@ -101,7 +101,7 @@ const Sidebar = () => {
   return (
     <div className="font-Inter font-light h-full flex flex-col">
       <div className="flex justify-center items-center h-20 border-b">
-        <Logo className="w-24 h-auto"/>
+        <img src={LogoSvg} alt="Logo" className="w-20 h-auto" />
       </div>
       <nav className="flex-1 p-3 overflow-y-auto">
         {menuItem.map(renderMenu)}
