@@ -134,7 +134,7 @@ const UserPage = () => {
   };
   return (
     <div>
-      <p className="text-2xl font-Inter font-bold my-3">Daftar Pengguna</p>
+      <p className="text-2xl font-Inter font-bold my-3 dark:text-white">Daftar Pengguna</p>
       <TableWrapper
         columns={columns}
         data={users}

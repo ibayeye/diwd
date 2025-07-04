@@ -3,6 +3,9 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
 import { FaSpinner } from "react-icons/fa";
+import Lottie from "lottie-react";
+import Load from "./load.json";
+
 const DailyStatusTrend = forwardRef((props, ref) => {
   const [dailyData, setDailyData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,8 +44,8 @@ const DailyStatusTrend = forwardRef((props, ref) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center space-x-2 text-blue-600">
-        <FaSpinner className="animate-spin text-2xl" />
+      <div className="">
+        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
       </div>
     );
   }

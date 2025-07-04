@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 /**
- * LineChart
+ * DiagramLineChart
  *
  * Props:
  * - data:       Array objek yang akan diplot, misalnya:
@@ -22,6 +22,7 @@ import {
  * - title:      (optional) Judul chart di atas grafik
  * - colors:     (optional) Array warna untuk tiap garis; default disediakan di bawah
  */
+
 const DEFAULT_COLORS = [
   "#DC2626", // Red
   "#FFC107",
@@ -41,10 +42,17 @@ const DiagramLineChart = ({
   xAxisProps = {},
   xAxisLabel,
 }) => {
+  const isDarkMode = document.documentElement.classList.contains("dark");
+  const textColor = isDarkMode ? "#ffffff" : "#374151";
+  const tooltipBg = isDarkMode ? "#1F2937" : "#ffffff";
+  const tooltipTextColor = isDarkMode ? "#ffffff" : "#000000";
+
   return (
-    <div className="w-full h-[30rem]">
+    <div className="w-full h-[30rem] dark:text-white">
       {title && (
-        <h2 className="text-xl font-semibold mb-4 text-center">{title}</h2>
+        <h2 className="text-xl font-semibold mb-4 text-center dark:text-white">
+          {title}
+        </h2>
       )}
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
@@ -54,36 +62,45 @@ const DiagramLineChart = ({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xKey}
-            tick={{ fontSize: 12, fill: "#374151" }}
+            tick={{ fontSize: 12, fill: textColor }}
             label={{
               value: xAxisLabel,
               position: "bottom",
               offset: -10,
-              fill: "#374151",
+              fill: textColor,
               fontSize: 14,
             }}
             {...xAxisProps}
           />
           <YAxis
-            tick={{ fontSize: 12, fill: "#374151" }}
+            tick={{ fontSize: 12, fill: textColor }}
             label={{
               value: "Jumlah Error",
               angle: -90,
               position: "insideLeft",
-              fill: "#374151",
+              fill: textColor,
               fontSize: 14,
             }}
           />
           <Tooltip
             formatter={(value, name) => [value, name]}
             cursor={{ stroke: "rgba(0,0,0,0.1)", strokeWidth: 2 }}
-            contentStyle={{ borderRadius: 4, fontSize: "0.875rem" }}
+            contentStyle={{
+              backgroundColor: tooltipBg,
+              color: tooltipTextColor,
+              borderRadius: 4,
+              fontSize: "0.875rem",
+            }}
           />
           <Legend
             verticalAlign="top"
             align="left"
             height={36}
-            wrapperStyle={{ fontSize: "0.875rem", paddingLeft: "25px" }}
+            wrapperStyle={{
+              fontSize: "0.875rem",
+              paddingLeft: "25px",
+              color: textColor,
+            }}
           />
           {lineKeys.map((key, idx) => (
             <Line

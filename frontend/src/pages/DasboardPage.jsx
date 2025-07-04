@@ -83,8 +83,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      <div className="grid grid-cols-2 gap-4">
+    <div className="">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DataCard
           title="Total Perangkat"
           value={loading.devices ? "Loading..." : totalDevice}
@@ -105,13 +105,13 @@ const Dashboard = () => {
           }
           value={loading.users ? "Loading..." : totalUsers}
           Icon={IUser}
-          borderColor={borderColors.red}
+          borderColor={borderColors.green}
         />
         <DataCard
           title="Gempa Terdeteksi Oleh Perangkat"
           value={detectedEarthquake.size}
           Icon={IEarthquake}
-          borderColor={borderColors.green}
+          borderColor={borderColors.red}
         />
       </div>
 
@@ -140,14 +140,14 @@ const Dashboard = () => {
 
 const DataCard = ({ title, value, Icon, borderColor }) => (
   <div
-    className={`border-b-2 ${borderColor} h-28 bg-white rounded-lg p-2 flex flex-row shadow-sm`}
+    className={`border-b-2 dark:border-2 ${borderColor} h-26 sm:h-28 bg-white dark:bg-gray-700 dark:text-white rounded-lg p-2 flex flex-row shadow-sm`}
   >
-    <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-      <Icon className="w-8 h-8" />
+    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-3 sm:mr-4">
+      <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
     </div>
     <div className="flex flex-col my-auto">
-      <span className="text-2xl font-bold">{value}</span>
-      <p className="text-sm text-gray-600">{title}</p>
+      <span className="text-lg sm:text-2xl font-bold">{value}</span>
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-white">{title}</p>
     </div>
   </div>
 );

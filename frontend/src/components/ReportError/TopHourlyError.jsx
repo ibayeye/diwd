@@ -1,6 +1,14 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import axios from "axios";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import Lottie from "lottie-react";
+import Load from "./load.json";
 
 const TopHourlyErrorChart = forwardRef((props, ref) => {
   const [chartData, setChartData] = useState([]); // data siap pakai untuk chart
@@ -61,13 +69,13 @@ const TopHourlyErrorChart = forwardRef((props, ref) => {
   }, []);
 
   useImperativeHandle(ref, () => ({
-      getData: () => chartData,
-    }));
+    getData: () => chartData,
+  }));
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="">
+        <Lottie animationData={Load} className="w-32 h-32 mx-auto"/>
       </div>
     );
   }

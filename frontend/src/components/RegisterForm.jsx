@@ -88,7 +88,7 @@ const RegisterForm = () => {
   ];
 
   return (
-    <div className="flex flex-col font-Poppins py-4 relative justify-center bg-white w-full">
+    <div className="flex flex-col font-Poppins py-4 relative justify-center bg-white dark:bg-gray-700 w-full">
       <FormWrapper
         title="Pendaftaran"
         fields={fields}

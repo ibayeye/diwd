@@ -1,6 +1,13 @@
 import axios from "axios";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
+import Lottie from "lottie-react";
+import Load from "./load.json";
 
 const RawWeeklyStatusDiagram = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
@@ -36,13 +43,13 @@ const RawWeeklyStatusDiagram = forwardRef((props, ref) => {
   }, []);
 
   useImperativeHandle(ref, () => ({
-      getData: () => data,
-    }));
+    getData: () => data,
+  }));
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="">
+        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
       </div>
     );
   }

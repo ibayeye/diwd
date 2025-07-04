@@ -6,6 +6,8 @@ import React, {
   useState,
 } from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
+import Lottie from "lottie-react";
+import Load from "./load.json";
 
 const TopErrorPerStatus = forwardRef((props, ref) => {
   const [errorData, setErrorData] = useState([]);
@@ -60,8 +62,8 @@ const TopErrorPerStatus = forwardRef((props, ref) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="">
+        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
       </div>
     );
   }
