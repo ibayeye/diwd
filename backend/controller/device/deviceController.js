@@ -305,60 +305,75 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
         const currentValue = String(regValue);
         const cachedValue = lastValue ? String(lastValue) : null;
 
-        // Simpan jika value berbeda atau belum ada di cache
-        if (!cachedValue || cachedValue !== currentValue) {
-            // Simpan ke database
-            await DeviceEarthquake.create({
-                device_id,
-                regValue,
-                ...otherData,
-                created_at: new Date()
-            });
-            console.log('otherData:', otherData);
-
-            // Update cache dengan TTL 24 jam (86400 detik)
+        // 🔥 SKIP: Jangan simpan regValue normal "0" ke DB
+        if (currentValue === "0 MMI , 0 gal") {
+            // Update cache untuk tracking tapi jangan simpan ke DB
             await redisClient.setEx(cacheKey, 86400, currentValue);
-
-            // kirim ke email ( notif )
-            await sendMailEarthquake({
-                deviceId: device_id,
-                onSiteTime: otherData.onSiteTime,
-                onSiteValue: otherData.onSiteValue,
-                regCD: otherData.regCD,
-                regTime: otherData.regTime,
-                regValue: regValue,
-                alamat: alamat
-            });
-
-            const io = getSocketInstance();
-
-            io.emit('earthquake-alert', {
-                deviceId: device_id,
-                onSiteTime: otherData.onSiteTime,
-                onSiteValue: otherData.onSiteValue,
-                regCD: otherData.regCD,
-                regTime: otherData.regTime,
-                regValue: regValue,
-                alamat: alamat
-            });
-
-            console.log(`✅ Earthquake data saved for device ${device_id}: ${regValue}`);
-
-            return res.status(201).json({
-                message: "Data earthquake disimpan ke DB dan Redis",
+            
+            console.log(`⏩ Normal earthquake value for device ${device_id}: ${regValue} - Not saved to DB`);
+            return res.status(200).json({
+                message: "regValue normal tidak disimpan ke DB",
                 device_id,
                 regValue: currentValue,
                 cached: true
             });
         }
 
-        console.log(`⏩ Earthquake data unchanged for device ${device_id}: ${regValue}`);
+        // 🔥 LOGIKA SEDERHANA: Jika regValue sama dengan cache, skip
+        if (cachedValue === currentValue) {
+            console.log(`⏩ Earthquake value unchanged for device ${device_id}: ${regValue}`);
+            return res.status(200).json({
+                message: "regValue tidak berubah, tidak disimpan",
+                device_id,
+                regValue: currentValue,
+                cached: false
+            });
+        }
 
-        return res.status(200).json({
-            message: "regValue tidak berubah, tidak disimpan ulang",
+        // Jika sampai sini berarti regValue EARTHQUAKE berbeda atau belum ada di cache
+        // Simpan ke database (hanya untuk regValue earthquake, bukan "0")
+        await DeviceEarthquake.create({
+            device_id,
+            regValue,
+            ...otherData,
+            created_at: new Date()
+        });
+        
+        console.log('otherData:', otherData);
+
+        // Update cache dengan TTL 24 jam (86400 detik)
+        await redisClient.setEx(cacheKey, 86400, currentValue);
+
+        // Kirim notifikasi untuk earthquake detection
+        await sendMailEarthquake({
+            deviceId: device_id,
+            onSiteTime: otherData.onSiteTime,
+            onSiteValue: otherData.onSiteValue,
+            regCD: otherData.regCD,
+            regTime: otherData.regTime,
+            regValue: regValue,
+            alamat: alamat
+        });
+
+        const io = getSocketInstance();
+
+        io.emit('earthquake-alert', {
+            deviceId: device_id,
+            onSiteTime: otherData.onSiteTime,
+            onSiteValue: otherData.onSiteValue,
+            regCD: otherData.regCD,
+            regTime: otherData.regTime,
+            regValue: regValue,
+            alamat: alamat
+        });
+
+        console.log(`✅ Earthquake data saved for device ${device_id}: ${regValue}`);
+
+        return res.status(201).json({
+            message: "Data earthquake disimpan ke DB dan Redis",
             device_id,
             regValue: currentValue,
-            cached: false
+            cached: true
         });
 
     } catch (error) {
@@ -370,7 +385,6 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
     }
 });
 
-// ✅ Controller untuk Error Data dengan Redis caching
 export const listeningErrorFirebase = asyncHandler(async (req, res) => {
     const { device_id, status, ...otherData } = req.body;
 
@@ -392,64 +406,68 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
         const currentStatus = String(status);
         const cachedStatus = lastStatus ? String(lastStatus) : null;
 
-        // Skip jika status "0,0" (normal) dan sama dengan yang terakhir
-        if (currentStatus === "0,0" && cachedStatus === "0,0") {
-            return res.status(200).json({
-                message: "Status normal tidak berubah, tidak disimpan",
-                device_id,
-                status: currentStatus,
-                cached: false
-            });
-        }
-
-        // Simpan jika status berbeda atau belum ada di cache
-        if (!cachedStatus || cachedStatus !== currentStatus) {
-            // Simpan ke database
-            await DeviceError.create({
-                device_id,
-                status,
-                ...otherData,
-                created_at: new Date()
-            });
-
-            // Update cache dengan TTL 24 jam
+        // 🔥 SKIP: Jangan simpan status normal "0,0" ke DB
+        if (currentStatus === "0,0") {
+            // Update cache untuk tracking tapi jangan simpan ke DB
             await redisClient.setEx(cacheKey, 86400, currentStatus);
-
-            await sendMailError({
-                deviceId: device_id,
-                onSiteTime: otherData.onSiteTime,
-                onSiteValue: otherData.onSiteValue,
-                status: status,
-                alamat: alamat
-            });
-
-            const io = getSocketInstance();
-
-            io.emit('error-alert', {
-                deviceId: device_id,
-                onSiteTime: otherData.onSiteTime,
-                onSiteValue: otherData.onSiteValue,
-                status: status,
-                alamat: alamat
-            });
-
-            console.log(`✅ Error status saved for device ${device_id}: ${status}`);
-
-            return res.status(201).json({
-                message: "Perubahan status error disimpan ke DB dan Redis",
+            
+            console.log(`⏩ Normal status for device ${device_id}: ${status} - Not saved to DB`);
+            return res.status(200).json({
+                message: "Status normal tidak disimpan ke DB",
                 device_id,
                 status: currentStatus,
                 cached: true
             });
         }
 
-        console.log(`⏩ Error status unchanged for device ${device_id}: ${status}`);
+        // 🔥 LOGIKA SEDERHANA: Jika status sama dengan cache, skip
+        if (cachedStatus === currentStatus) {
+            console.log(`⏩ Status unchanged for device ${device_id}: ${status}`);
+            return res.status(200).json({
+                message: "Status tidak berubah, tidak disimpan",
+                device_id,
+                status: currentStatus,
+                cached: false
+            });
+        }
 
-        return res.status(200).json({
-            message: "Status error tidak berubah, tidak disimpan ulang",
+        // Jika sampai sini berarti status ERROR berbeda atau belum ada di cache
+        // Simpan ke database (hanya untuk status error, bukan "0,0")
+        await DeviceError.create({
+            device_id,
+            status,
+            ...otherData,
+            created_at: new Date()
+        });
+
+        // Update cache dengan TTL 24 jam
+        await redisClient.setEx(cacheKey, 86400, currentStatus);
+
+        // Kirim notifikasi untuk status error
+        await sendMailError({
+            deviceId: device_id,
+            onSiteTime: otherData.onSiteTime,
+            onSiteValue: otherData.onSiteValue,
+            status: status,
+            alamat: alamat
+        });
+
+        const io = getSocketInstance();
+        io.emit('error-alert', {
+            deviceId: device_id,
+            onSiteTime: otherData.onSiteTime,
+            onSiteValue: otherData.onSiteValue,
+            status: status,
+            alamat: alamat
+        });
+
+        console.log(`✅ Error status saved for device ${device_id}: ${status}`);
+
+        return res.status(201).json({
+            message: "Status error disimpan ke DB dan Redis",
             device_id,
             status: currentStatus,
-            cached: false
+            cached: true
         });
 
     } catch (error) {

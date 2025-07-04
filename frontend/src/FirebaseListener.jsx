@@ -43,7 +43,7 @@ function FirebaseListener() {
             previousData && previousData.status !== deviceData.status;
 
           // Kirim jika baru atau regValue berubah
-          if (isNewDevice || valueChanged) {
+          if ((isNewDevice && deviceData.regValue !== "0 MMI , 0 gal") || (valueChanged && deviceData.regValue !== "0,0")) {
             axios.post("https://server.diwd.cloud/api/v1/earthquake-realtime", {
               device_id: deviceId,
               ...deviceData,
