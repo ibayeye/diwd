@@ -1,6 +1,13 @@
 import axios from "axios";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import LineChart from "./format_diagram/DiagramLineChart";
+import Lottie from "lottie-react";
+import Load from "./load.json";
 
 const HourlyErrortrend = forwardRef((props, ref) => {
   const [hourlyErrorTrend, setHourlyErrorTrend] = useState([]); // akan menjadi array [{ hour, count }, …]
@@ -38,12 +45,12 @@ const HourlyErrortrend = forwardRef((props, ref) => {
   }, []);
 
   useImperativeHandle(ref, () => ({
-      getData: () => hourlyErrorTrend,
-    }));
+    getData: () => hourlyErrorTrend,
+  }));
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="">
+        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
       </div>
     );
   }
@@ -55,10 +62,10 @@ const HourlyErrortrend = forwardRef((props, ref) => {
       lineKeys={["count"]}
       title="Hourly Error Trend"
       xAxisProps={{
-        label:{
+        label: {
           value: "Jam",
-          positition: "bottom"
-        }
+          positition: "bottom",
+        },
       }}
     />
   );

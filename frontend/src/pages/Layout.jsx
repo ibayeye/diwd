@@ -9,7 +9,7 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="h-screen bg-gray-100 overflow-hidden relative">
+    <div className="h-screen bg-gray-100 dark:bg-gray-700 overflow-hidden relative">
       {/* Backdrop saat sidebar mobile terbuka */}
       {sidebarOpen && (
         <div
@@ -36,7 +36,7 @@ const Layout = () => {
         <div className="flex flex-col flex-1 w-full min-h-0">
           <Navbar toggleSideBar={() => setSidebarOpen((prev) => !prev)} />
 
-          <div className="px-4 bg-white border-b">
+          <div className="px-4 bg-white border-b dark:bg-gray-700 dark:text-white">
             <Breadcrumb />
           </div>
 

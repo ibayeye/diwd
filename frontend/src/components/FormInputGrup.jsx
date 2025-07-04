@@ -28,7 +28,7 @@ const FormInputGrup = ({
   const isPassword = type === "password";
 
   return (
-    <div className="font-Poppins">
+    <div className="font-Poppins dark:bg-gray-700">
       <label
         htmlFor={name}
         className="block mb-1 font-light"
@@ -39,7 +39,7 @@ const FormInputGrup = ({
           name={name}
           value={value}
           onChange={onChange}
-          className="w-full px-2 py-2 rounded border"
+          className="w-full px-2 py-2 rounded border dark:bg-gray-700"
         >
           <option value="">-Pilih-</option>
           {option.map((opt) => (
@@ -56,7 +56,7 @@ const FormInputGrup = ({
             name={name}
             value={value}
             onChange={onChange}
-            className="w-full px-2 py-2 rounded border pr-10"
+            className="w-full px-2 py-2 rounded border pr-10 dark:bg-gray-700"
           />
           {isPassword && (
             <span

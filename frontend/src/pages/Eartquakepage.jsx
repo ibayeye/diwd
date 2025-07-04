@@ -124,17 +124,17 @@ const EarthquakePage = () => {
   };
 
   return (
-    <div>
+    <div className="dark:bg-gray-700 dark:text-white">
       <p className="text-2xl font-Inter font-bold my-3">Rekap Alat</p>
 
-      <div className="flex items-center space-x-3 mb-4">
+      <div className="flex items-center  space-x-3 mb-4">
         <div>
           <label className="block text-sm">Dari:</label>
           <input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="border rounded-md px-2 py-1"
+            className="border dark:bg-gray-700 rounded-md px-2 py-1"
           />
         </div>
         <div>
@@ -143,12 +143,12 @@ const EarthquakePage = () => {
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="border rounded-md px-2 py-1"
+            className="border dark:bg-gray-700 rounded-md px-2 py-1"
           />
         </div>
         <button
           onClick={handleFilter}
-          className="bg-blue-600 text-white rounded-md px-4 py-2 mt-6"
+          className="bg-blue-600 dark:bg-orange-500 text-white rounded-md px-4 py-2 mt-6"
         >
           Filter
         </button>
@@ -167,7 +167,7 @@ const EarthquakePage = () => {
 
       <div className="flex justify-end w-full text-sm py-4">
         <button
-          className="border border-blue-600 rounded-md px-4 py-2"
+          className="border border-blue-600 dark:border-orange-500 dark:text-white rounded-md px-4 py-2"
           onClick={() => exportToCSV(devices)}
         >
           Export

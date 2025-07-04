@@ -9,7 +9,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  xAxisProps,
 } from "recharts";
 
 /**
@@ -23,6 +22,7 @@ import {
  * - title:       (optional) Judul chart.
  * - colors:      (optional) Array warna untuk tiap bar; gunakan default jika tidak disediakan.
  */
+
 const DEFAULT_COLORS = [
   "#4F46E5",
   "#16A34A",
@@ -45,56 +45,70 @@ const DiagramBarChart = ({
   title,
   colors = DEFAULT_COLORS,
   xAxisLabel,
-  xAxisProps
+  xAxisProps,
 }) => {
+  // Deteksi dark mode
+  const isDarkMode = document.documentElement.classList.contains("dark");
+  const textColor = isDarkMode ? "#ffffff" : "#374151";
+  const tooltipBg = isDarkMode ? "#1F2937" : "#ffffff";
+  const tooltipTextColor = isDarkMode ? "#ffffff" : "#000000";
+
   return (
-    <div className="w-full h-[30rem]">
+    <div className="w-full h-[30rem] dark:text-white">
       {title && (
-        <h2 className="text-xl font-semibold mb-4 text-center">{title}</h2>
+        <h2 className="text-xl font-semibold mb-4 text-center dark:text-white">
+          {title}
+        </h2>
       )}
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 20, right: 20, left: 20, }}
+          margin={{ top: 20, right: 20, left: 20 }}
           barCategoryGap="20%"
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xAxisKey}
             type="category"
-            tick={{ fontSize: 12, fill: "#374151" }}
+            tick={{ fontSize: 12, fill: textColor }}
             label={{
               value: xAxisLabel,
               position: "center",
               offset: 0,
-              fill: "#374151",
+              fill: textColor,
               fontSize: 14,
             }}
             {...xAxisProps}
           />
           <YAxis
             type="number"
-            tick={{ fontSize: 12, fill: "#374151" }}
+            tick={{ fontSize: 12, fill: textColor }}
             tickCount={7}
             label={{
               value: "Jumlah Error",
               angle: -90,
               position: "insideLeft",
-              fill: "#374151",
+              fill: textColor,
               fontSize: 14,
             }}
           />
           <Tooltip
             formatter={(value, name) => [value, name]}
             cursor={{ fill: "rgba(0,0,0,0.05)" }}
-            contentStyle={{ borderRadius: 4, fontSize: "0.875rem" }}
+            contentStyle={{
+              backgroundColor: tooltipBg,
+              color: tooltipTextColor,
+              borderRadius: 4,
+              fontSize: "0.875rem",
+            }}
           />
           <Legend
             verticalAlign="bottom"
             align="left"
             wrapperStyle={{
               fontSize: "0.875rem",
-              paddingTop: 25
+              color: textColor,
+              paddingTop: 25,
             }}
           />
           {valueKeys.map((key, idx) => (

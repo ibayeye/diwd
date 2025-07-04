@@ -1,6 +1,13 @@
 import axios from "axios";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
+import Lottie from "lottie-react";
+import Load from "./load.json";
 
 const MonthlyStatusTrend = forwardRef((props, ref) => {
   const [monthlyStatusTrend, setMonthlyStatusTrend] = useState([]);
@@ -65,33 +72,32 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
   }, []);
 
   useImperativeHandle(ref, () => ({
-      getData: () => monthlyStatusTrend,
-    }));
+    getData: () => monthlyStatusTrend,
+  }));
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="">
+        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
       </div>
     );
   }
   return (
-    
-      <DiagramLineChart
-        data={monthlyStatusTrend}
-        xKey="Month"
-        lineKeys={lineKeys}
-        title="Error per Bulan"
-        xAxisProps={{
-          interval: 0, // tampilkan semua
-          angle: -15, // miring 45° agar muat
-          textAnchor: "end", // agar rotasi tidak terpotong
-          label: {
-            value: "Bulan",
-            offset: 15,
-          },
-        }}
-      />
+    <DiagramLineChart
+      data={monthlyStatusTrend}
+      xKey="Month"
+      lineKeys={lineKeys}
+      title="Error per Bulan"
+      xAxisProps={{
+        interval: 0, // tampilkan semua
+        angle: -15, // miring 45° agar muat
+        textAnchor: "end", // agar rotasi tidak terpotong
+        label: {
+          value: "Bulan",
+          offset: 15,
+        },
+      }}
+    />
   );
 });
 

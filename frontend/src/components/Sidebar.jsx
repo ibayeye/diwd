@@ -34,11 +34,11 @@ const Sidebar = () => {
             onClick={() => toggleMenu(menu.label)}
             className={`
               flex items-center justify-between px-4 py-2 cursor-pointer rounded-md
-              ${highlight ? "bg-blue-500 text-white" : "text-black"}
-              hover:bg-blue-500 hover:text-white
+              ${highlight ? "bg-blue-500 text-white dark:bg-orange-500 dark:text-white" : "text-black"}
+              hover:bg-blue-500 hover:text-white dark:hover:bg-orange-500
             `}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 dark:text-white">
               {menu.icon}
               <span>{menu.label}</span>
             </div>
@@ -54,7 +54,7 @@ const Sidebar = () => {
           >
             {menu.children.map((child) => {
               if (!child.role.includes(role)) return null;
-              const childUrl = `/dasboard/${child.path}`;
+              const childUrl = `/dasboard/${menu.path}/${child.path}`;
               const childActive = location.pathname === childUrl;
               return (
                 <Link
@@ -64,8 +64,8 @@ const Sidebar = () => {
                     block px-4 py-2 text-sm border-l-2
                     ${
                       childActive
-                        ? "text-blue-600 border-l-2 border-blue-500"
-                        : "text-gray-600 hover:text-blue-600 hover:border-blue-500"
+                        ? "text-blue-600 border-l-2 border-blue-500 dark:text-orange-500 dark:border-orange-500"
+                        : "text-gray-600 hover:text-blue-600 hover:border-blue-500 dark:text-white dark:hover:text-orange-500 dark:hover:border-orange-500"
                     }
                   `}
                 >
@@ -87,8 +87,8 @@ const Sidebar = () => {
           flex items-center px-4 py-2 mb-2 rounded-md
           ${
             isActive
-              ? "bg-blue-500 text-white"
-              : "text-black hover:bg-blue-500 hover:text-white"
+              ? "bg-blue-500 text-white dark:bg-orange-500"
+              : "text-black hover:bg-blue-500 hover:text-white dark:text-white dark:hover:bg-orange-500"
           }
         `}
       >
@@ -99,7 +99,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="font-Inter font-light h-full flex flex-col">
+    <div className="font-Inter font-light h-full flex flex-col dark:bg-gray-700 dark:text-white">
       <div className="flex justify-center items-center h-20 border-b">
         <img src={LogoSvg} alt="Logo" className="w-20 h-auto" />
       </div>

@@ -59,7 +59,7 @@ const EditProfileForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
   };
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black backdrop-blur-sm z-50 bg-opacity-10">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 relative max-h-screen overflow-y-auto">
+      <div className="bg-white dark:bg-gray-700 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 relative max-h-screen overflow-y-auto">
         {/* Tombol Close */}
         <button
           onClick={onClose}
