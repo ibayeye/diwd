@@ -306,7 +306,7 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
         const cachedValue = lastValue ? String(lastValue) : null;
 
         // 🔥 SKIP: Jangan simpan regValue normal "0" ke DB
-        if (currentValue === "0 MMI, 0 gal") {
+        if (currentValue === "0 MMI , 0 gal") {
             // Update cache untuk tracking tapi jangan simpan ke DB
             await redisClient.setEx(cacheKey, 86400, currentValue);
             
