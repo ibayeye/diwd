@@ -307,17 +307,15 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
 
         // 🔥 SKIP: Jangan simpan regValue normal "0" ke DB
         if (currentValue === "0 MMI , 0 gal") {
-            // Update cache untuk tracking tapi jangan simpan ke DB
-            await redisClient.setEx(cacheKey, 86400, currentValue);
-            
-            console.log(`⏩ Normal earthquake value for device ${device_id}: ${regValue} - Not saved to DB`);
+            console.log(`⏩ Normal earthquake value for device ${device_id}: ${regValue} - Not saved to DB or cache`);
             return res.status(200).json({
-                message: "regValue normal tidak disimpan ke DB",
+                message: "regValue normal tidak disimpan ke DB atau cache",
                 device_id,
                 regValue: currentValue,
-                cached: true
+                cached: false
             });
         }
+
 
         // 🔥 LOGIKA SEDERHANA: Jika regValue sama dengan cache, skip
         if (cachedValue === currentValue) {
@@ -338,7 +336,7 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
             ...otherData,
             created_at: new Date()
         });
-        
+
         console.log('otherData:', otherData);
 
         // Update cache dengan TTL 24 jam (86400 detik)
@@ -410,7 +408,7 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
         if (currentStatus === "0,0") {
             // Update cache untuk tracking tapi jangan simpan ke DB
             await redisClient.setEx(cacheKey, 86400, currentStatus);
-            
+
             console.log(`⏩ Normal status for device ${device_id}: ${status} - Not saved to DB`);
             return res.status(200).json({
                 message: "Status normal tidak disimpan ke DB",
