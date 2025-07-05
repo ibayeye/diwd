@@ -222,6 +222,31 @@ export const deviceFailure = asyncHandler(async (req, res) => {
     }
 })
 
+export const deviceEarthquake = asyncHandler(async (req, res) => {
+    const dbRef = ref(database, "/"); // Mengambil semua data dari root
+    const snapshot = await get(dbRef);
+
+    if (snapshot.exists()) {
+        const allDevice = snapshot.val();
+        const filteredDevices = Object.entries(allDevice)
+            .filter(([key, value]) => {
+                return value.regValue && value.regValue !== "0 MMI , 0 gal";
+            })
+            .map(([key, value]) => ({ id: key, ...value }));
+
+        res.status(200).json({
+            status: "success",
+            totaldeviceEarthquake: filteredDevices.length,
+            data: filteredDevices
+        });
+    } else {
+        res.status(404).json({
+            status: "error",
+            msg: "No device found"
+        });
+    }
+})
+
 export const listeningDeviceFirebase = asyncHandler(async (req, res) => {
     const data = req.body;
 
