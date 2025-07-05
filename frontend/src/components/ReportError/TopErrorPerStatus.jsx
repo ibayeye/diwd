@@ -10,7 +10,6 @@ import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const TopErrorPerStatus = forwardRef((props, ref) => {
   const [errorData, setErrorData] = useState([]);
   const [lineKeys, setLineKeys] = useState([]);

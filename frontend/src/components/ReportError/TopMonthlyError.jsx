@@ -11,7 +11,6 @@ import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 const TopMonthlyError = forwardRef((props, ref) => {
   const [topMonthlyError, setTopMonthlyError] = useState([]);

@@ -1,4 +1,3 @@
-// src/components/TopDailyError.jsx
 import axios from "axios";
 import React, {
   useEffect,
@@ -7,16 +6,16 @@ import React, {
   useImperativeHandle,
 } from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
-import { Label } from "recharts";
 import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const TopDailyError = forwardRef((props, ref) => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
+
+  const isSmallScreen = window.innerWidth < 640;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,15 +25,22 @@ const TopDailyError = forwardRef((props, ref) => {
         );
         const raw = response.data.data || [];
 
-        // Map raw data: format date and rename fields
+        // Format tanggal responsif
         const mapped = raw.map((item) => {
           const dateObj = new Date(item.Date);
           const dateKey = dateObj.toISOString().slice(0, 10);
-          const formattedDate = dateObj.toLocaleDateString("id-ID", {
-            weekday: "long",
-            month: "numeric",
-            year: "numeric",
-          });
+          const formattedDate = isSmallScreen
+            ? dateObj.toLocaleDateString("id-ID", {
+                weekday: "short", // contoh: "Sen"
+                day: "numeric",
+                month: "short", // contoh: "Jul"
+              })
+            : dateObj.toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+              });
           return {
             dateKey,
             Date: formattedDate,
@@ -43,7 +49,6 @@ const TopDailyError = forwardRef((props, ref) => {
           };
         });
 
-        // Unique dates and error messages
         const uniqueDates = Array.from(
           new Set(mapped.map((i) => i.dateKey))
         ).sort();
@@ -53,23 +58,21 @@ const TopDailyError = forwardRef((props, ref) => {
 
         setErrorKeys(uniqueErrors);
 
-        // Initialize pivot map
         const mapByDate = {};
         uniqueDates.forEach((dateKey) => {
-          // find formatted Date once per dateKey
-          const { Date: formatted } = mapped.find((i) => i.dateKey === dateKey);
+          const { Date: formatted } = mapped.find(
+            (i) => i.dateKey === dateKey
+          );
           mapByDate[dateKey] = { Date: formatted };
           uniqueErrors.forEach((err) => {
             mapByDate[dateKey][err] = 0;
           });
         });
 
-        // Fill counts
         mapped.forEach(({ dateKey, errorMessage, count }) => {
           mapByDate[dateKey][errorMessage] = count;
         });
 
-        // Build final array
         const pivoted = uniqueDates.map((dateKey) => mapByDate[dateKey]);
         setChartData(pivoted);
       } catch (err) {
@@ -100,19 +103,19 @@ const TopDailyError = forwardRef((props, ref) => {
   }
 
   return (
-    <div className="h-[30rem]">
+    <div className="h-[28rem] sm:h-[30rem] md:h-[34rem]">
       <DiagramBarChart
         data={chartData}
         xAxisKey="Date"
         valueKeys={errorKeys}
         title="Top Error per Hari"
         xAxisProps={{
-          interval: 0,
-          angle: -0,
-          textAnchor: "end",
+          interval: isSmallScreen ? "preserveStartEnd" : 0,
+          angle: isSmallScreen ? -15 : 0,
+          textAnchor: isSmallScreen ? "end" : "middle",
           label: {
             value: "Hari",
-            position: "bottom", // bisa "insideBottom" atau "bottom"
+            position: "bottom",
           },
         }}
       />

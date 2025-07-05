@@ -10,7 +10,6 @@ import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const MonthlyStatusTrend = forwardRef((props, ref) => {
   const [monthlyStatusTrend, setMonthlyStatusTrend] = useState([]);
   const [lineKeys, setLineKeys] = useState([]);

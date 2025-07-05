@@ -1,16 +1,16 @@
-// src/components/DailyStatusTrend.jsx
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
-import { FaSpinner } from "react-icons/fa";
 import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const DailyStatusTrend = forwardRef((props, ref) => {
   const [dailyData, setDailyData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Deteksi apakah layar kecil
+  const isSmallScreen = window.innerWidth < 640;
 
   const fetchErrorDaily = async () => {
     try {
@@ -19,15 +19,27 @@ const DailyStatusTrend = forwardRef((props, ref) => {
       );
       const res = response.data.data || [];
 
-      const formatted = res.map((item) => ({
-        ...item,
-        Date: new Date(item.Date).toLocaleDateString("id-ID", {
-          weekday: "long",
-          month: "numeric",
-          year: "numeric",
-          // tahun bisa dihilangkan kalau semua data di tahun yang sama
-        }),
-      }));
+      const formatted = res.map((item) => {
+        const date = new Date(item.Date);
+        const formattedDate = isSmallScreen
+          ? date.toLocaleDateString("id-ID", {
+              weekday: "short", // misal "Sen"
+              day: "numeric",
+              month: "short", // misal "Jul"
+            })
+          : date.toLocaleDateString("id-ID", {
+              weekday: "long", // misal "Senin"
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+            });
+
+        return {
+          ...item,
+          Date: formattedDate,
+        };
+      });
+
       setDailyData(formatted);
     } catch (error) {
       console.error("Gagal mengambil daily status trend:", error);
@@ -64,7 +76,7 @@ const DailyStatusTrend = forwardRef((props, ref) => {
       lineKeys={["Critical", "Warning", "Low"]}
       title="Error Harian"
       xAxisProps={{
-        interval: 0,
+        interval: isSmallScreen ? "preserveStartEnd" : 0,
         textAnchor: "end",
         label: {
           value: "Hari",

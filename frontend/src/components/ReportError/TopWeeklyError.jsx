@@ -10,7 +10,6 @@ import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const TopWeeklyError = forwardRef((props, ref) => {
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);

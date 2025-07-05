@@ -19,7 +19,6 @@ import Lottie from "lottie-react";
 import Load from "../components/ReportError/load.json";
 import LoadDark from "../components/ReportError/load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const DeviceReportPage = () => {
   const [activeTab, setActiveTab] = useState("hourly");
   const [viewType, setViewType] = useState("top");
@@ -137,7 +136,9 @@ const DeviceReportPage = () => {
       <button
         onClick={() => setViewType("top")}
         className={`px-3 py-1 rounded ${
-          viewType === "top" ? "bg-blue-600 dark:bg-orange-500 text-white" : "bg-gray-200"
+          viewType === "top"
+            ? "bg-blue-600 dark:bg-orange-500 text-white"
+            : "bg-gray-200"
         }`}
       >
         Top Error
@@ -145,7 +146,9 @@ const DeviceReportPage = () => {
       <button
         onClick={() => setViewType("all")}
         className={`px-3 py-1 rounded ${
-          viewType === "all" ? "bg-blue-600 dark:bg-orange-500 text-white" : "bg-gray-200"
+          viewType === "all"
+            ? "bg-blue-600 dark:bg-orange-500 text-white"
+            : "bg-gray-200"
         }`}
       >
         Semua Error
@@ -156,8 +159,15 @@ const DeviceReportPage = () => {
   const renderActiveTab = () => {
     if (loading) {
       return (
-        <div className="">
-          <Lottie animationData={isDarkMode ? LoadDark : Load} className="w-32 h-32 mx-auto" />
+        <div className="w-32 h-32 mx-auto">
+          {/* Light mode animation */}
+          <div className="block dark:hidden">
+            <Lottie animationData={Load} className="w-full h-full" />
+          </div>
+          {/* Dark mode animation */}
+          <div className="hidden dark:block">
+            <Lottie animationData={LoadDark} className="w-full h-full" />
+          </div>
         </div>
       );
     }

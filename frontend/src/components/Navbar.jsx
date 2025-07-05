@@ -109,7 +109,7 @@ const Navbar = ({ toggleSideBar }) => {
       >
         <div className="p-4 dark:bg-gray-700 dark:text-white">
           <p className="font-semibold">
-            {userData?.username || "guest@example.com"}
+            {userData?.nama || "guest@example.com"}
           </p>
           <p className="text-sm">{role}</p>
         </div>

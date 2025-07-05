@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { ReactComponent as Maps } from "../assets/images/maps.svg";
 import { useNavigate } from "react-router-dom";
 import Bg from "../assets/images/bg1.svg";
 import { RxHamburgerMenu } from "react-icons/rx";
+import Cookies from "js-cookie";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,31 @@ const LandingPage = () => {
     backgroundImage: `url(${Bg})`,
     backgroundSize: "cover",
   };
+
+  const tentangRef = useRef(null);
+
+  const scrollToTentang = () => {
+    if (tentangRef.current) {
+      tentangRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const navMaps = () => {
+  const role = Cookies.get("role");
+
+  if (!role) {
+    // belum login
+    navigate("/login");
+    return;
+  }
+
+  const allowedRoles = ["admin", "superadmin"]; // sesuaikan dengan aturan kamu
+  if (allowedRoles.includes(role)) {
+    navigate("/dashboard");
+  } else {
+    navigate("/unauthorized");
+  }
+};
 
   return (
     <div style={bgawal} className="bg-gray-200 p-4 font-Poppins">
@@ -37,8 +63,8 @@ const LandingPage = () => {
           } w-full md:flex md:flex-1 md:justify-center mt-4 md:mt-0 transition-all duration-300 ease-in-out`}
         >
           <div className="flex flex-col md:flex-row md:space-x-8 items-center text-gray-700">
-            <button className="text-lg">Titik Alat</button>
-            <button className="text-lg">Tentang</button>
+            <button className="text-lg" onClick={navMaps}>Titik Alat</button>
+            <button className="text-lg" onClick={scrollToTentang}>Tentang</button>
           </div>
         </div>
 
@@ -96,6 +122,42 @@ const LandingPage = () => {
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Harum,
             alias at? Illo nobis modi hic similique id maiores, eius, ut quae
             qui non fugit nostrum et repellat eos laudantium harum?
+          </div>
+        </div>
+
+        <hr className="border-t border-gray-400 my-4" />
+        <div className="p-4" ref={tentangRef}>
+          <h1 className="text-xl sm:text-3xl font-bold text-black dark:text-orange-500">
+            Tentang Earthquake Early Warning System
+          </h1>
+
+          <p className="text-sm sm:text-lg leading-relaxed mt-4">
+            Sistem Monitoring Pendeteksi Gempa PT LEN adalah inisiatif untuk
+            menyediakan informasi gempa bumi yang cepat dan akurat. Dengan
+            perangkat deteksi yang tersebar di berbagai lokasi strategis, kami
+            memastikan bahwa data gempa bumi tersedia secara real-time untuk
+            membantu mitigasi bencana dan keselamatan masyarakat.
+          </p>
+
+          <div>
+            <h2 className="text-lg font-semibold text-blue-500 dark:text-orange-500 mt-4">
+              Visi EEWS
+            </h2>
+            <p className="text-base sm:text-lg leading-relaxed mt-2">
+              Menyediakan informasi gempa bumi yang paling akurat dan
+              terpercaya, mendukung upaya mitigasi bencana dan keselamatan
+              masyarakat.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-orange-500 dark:text-blue-500 mt-4">
+              Misi EEWS
+            </h2>
+            <p className="text-base sm:text-lg leading-relaxed mt-2">
+              Mengembangkan dan mengoperasikan sistem monitoring gempa yang
+              andal dan canggih.
+            </p>
           </div>
         </div>
 

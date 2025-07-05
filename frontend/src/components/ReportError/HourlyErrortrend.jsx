@@ -10,7 +10,6 @@ import Lottie from "lottie-react";
 import Load from "./load.json";
 import LoadDark from "./load_dark.json";
 
-const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const HourlyErrortrend = forwardRef((props, ref) => {
   const [hourlyErrorTrend, setHourlyErrorTrend] = useState([]); // akan menjadi array [{ hour, count }, …]
   const [loading, setLoading] = useState(true);
