@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FormWrapper from "./FormWrapper";
-import ProfileForm from "./ProfileForm";
+import ProfileForm from "../pages/ProfilePage";
 import { toast } from "react-toastify";
 import axios from "axios";
 

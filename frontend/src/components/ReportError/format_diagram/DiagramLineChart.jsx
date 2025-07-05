@@ -1,4 +1,3 @@
-// src/components/LineChart.jsx
 import React from "react";
 import {
   LineChart,
@@ -11,26 +10,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-/**
- * DiagramLineChart
- *
- * Props:
- * - data:       Array objek yang akan diplot, misalnya:
- *               [ { xKey: '2025-06-01', yKey1: 120, yKey2:  80 }, … ]
- * - xKey:       String nama properti di objek yang jadi sumbu X (kategori), misalnya "Date"
- * - lineKeys:   Array string nama properti yang diplot sebagai garis, misalnya ["Warning", "Low"]
- * - title:      (optional) Judul chart di atas grafik
- * - colors:     (optional) Array warna untuk tiap garis; default disediakan di bawah
- */
-
 const DEFAULT_COLORS = [
-  "#DC2626", // Red
+  "#DC2626",
   "#FFC107",
-  "#16A34A", // Green
-  "#2563EB", // Blue
-  "#4F46E5", // Indigo
-  "#9333EA", // Purple
-  "#D97706", // Amber
+  "#16A34A",
+  "#2563EB",
+  "#4F46E5",
+  "#9333EA",
+  "#D97706",
 ];
 
 const DiagramLineChart = ({
@@ -47,39 +34,43 @@ const DiagramLineChart = ({
   const tooltipBg = isDarkMode ? "#1F2937" : "#ffffff";
   const tooltipTextColor = isDarkMode ? "#ffffff" : "#000000";
 
+  const isSmallScreen = window.innerWidth < 640;
+  const axisFontSize = isSmallScreen ? 10 : 12;
+  const labelFontSize = isSmallScreen ? 12 : 14;
+
   return (
-    <div className="w-full h-[30rem] dark:text-white">
+    <div className="w-full h-[24rem] sm:h-[28rem] md:h-[30rem] dark:text-white">
       {title && (
-        <h2 className="text-xl font-semibold mb-4 text-center dark:text-white">
+        <h2 className="text-lg md:text-xl font-semibold mb-4 text-center dark:text-white">
           {title}
         </h2>
       )}
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
-          margin={{ top: 20, right: 40, left: 20, bottom: 60 }}
+          margin={{ top: 40, right: 20, left: 20, bottom: 60 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={xKey}
-            tick={{ fontSize: 12, fill: textColor }}
+            tick={{ fontSize: axisFontSize, fill: textColor }}
             label={{
               value: xAxisLabel,
-              position: "bottom",
+              position: "insideBottom",
               offset: -10,
               fill: textColor,
-              fontSize: 14,
+              fontSize: labelFontSize,
             }}
             {...xAxisProps}
           />
           <YAxis
-            tick={{ fontSize: 12, fill: textColor }}
+            tick={{ fontSize: axisFontSize, fill: textColor }}
             label={{
               value: "Jumlah Error",
               angle: -90,
               position: "insideLeft",
               fill: textColor,
-              fontSize: 14,
+              fontSize: labelFontSize,
             }}
           />
           <Tooltip
@@ -89,17 +80,24 @@ const DiagramLineChart = ({
               backgroundColor: tooltipBg,
               color: tooltipTextColor,
               borderRadius: 4,
-              fontSize: "0.875rem",
+              fontSize: "0.75rem",
             }}
           />
+          
           <Legend
             verticalAlign="top"
             align="left"
-            height={36}
             wrapperStyle={{
-              fontSize: "0.875rem",
-              paddingLeft: "25px",
+              fontSize: "0.75rem",
               color: textColor,
+              paddingBottom: 10,
+              textAlign: "left",
+              whiteSpace: "normal",
+              lineHeight: 1.5,
+              maxWidth: "100%",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "left",
             }}
           />
           {lineKeys.map((key, idx) => (
@@ -110,7 +108,7 @@ const DiagramLineChart = ({
               name={key}
               stroke={colors[idx % colors.length]}
               strokeWidth={2}
-              dot={{ r: 3 }}
+              dot={{ r: isSmallScreen ? 2 : 3 }}
             />
           ))}
         </LineChart>

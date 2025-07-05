@@ -17,6 +17,7 @@ import DotCircleSpinner from "../components/DotCircleSpinner";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Lottie from "lottie-react";
 import Load from "../components/ReportError/load.json";
+import LoadDark from "../components/ReportError/load_dark.json";
 
 const DeviceReportPage = () => {
   const [activeTab, setActiveTab] = useState("hourly");
@@ -135,7 +136,9 @@ const DeviceReportPage = () => {
       <button
         onClick={() => setViewType("top")}
         className={`px-3 py-1 rounded ${
-          viewType === "top" ? "bg-blue-600 dark:bg-orange-500 text-white" : "bg-gray-200"
+          viewType === "top"
+            ? "bg-blue-600 dark:bg-orange-500 text-white"
+            : "bg-gray-200"
         }`}
       >
         Top Error
@@ -143,7 +146,9 @@ const DeviceReportPage = () => {
       <button
         onClick={() => setViewType("all")}
         className={`px-3 py-1 rounded ${
-          viewType === "all" ? "bg-blue-600 dark:bg-orange-500 text-white" : "bg-gray-200"
+          viewType === "all"
+            ? "bg-blue-600 dark:bg-orange-500 text-white"
+            : "bg-gray-200"
         }`}
       >
         Semua Error
@@ -154,8 +159,15 @@ const DeviceReportPage = () => {
   const renderActiveTab = () => {
     if (loading) {
       return (
-        <div className="">
-          <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+        <div className="w-32 h-32 mx-auto">
+          {/* Light mode animation */}
+          <div className="block dark:hidden">
+            <Lottie animationData={Load} className="w-full h-full" />
+          </div>
+          {/* Dark mode animation */}
+          <div className="hidden dark:block">
+            <Lottie animationData={LoadDark} className="w-full h-full" />
+          </div>
         </div>
       );
     }
@@ -215,10 +227,10 @@ const DeviceReportPage = () => {
       <div className="p-4 space-y-6 bg-white dark:bg-gray-800 font-Poppins shadow-md rounded-lg">
         <div className="flex gap-2 mb-4 justify-end text-xs md:text-sm">
           {[
-            { label: "60 D", value: "hourly" },
-            { label: "24", value: "daily" },
-            { label: "7 x 24", value: "weekly" },
-            { label: "30 x 24", value: "monthly" },
+            { label: "Jam", value: "hourly" },
+            { label: "Hari", value: "daily" },
+            { label: "Minggu", value: "weekly" },
+            { label: "Bulan", value: "monthly" },
           ].map((tab) => (
             <button
               key={tab.value}

@@ -8,6 +8,7 @@ import React, {
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 import Lottie from "lottie-react";
 import Load from "./load.json";
+import LoadDark from "./load_dark.json";
 
 const TopErrorPerStatus = forwardRef((props, ref) => {
   const [errorData, setErrorData] = useState([]);
@@ -62,27 +63,36 @@ const TopErrorPerStatus = forwardRef((props, ref) => {
 
   if (loading) {
     return (
-      <div className="">
-        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+      <div className="w-32 h-32 mx-auto">
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }
 
   return (
-    <DiagramBarChart
-      data={errorData}
-      xAxisKey="Status Label"
-      valueKeys={lineKeys}
-      xAxisProps={{
-        interval: 0,
-        textAnchor: "end",
-        tickMargin: 12,
-        label: {
-          value: "Status Label",
-          position: "bottom",
-        },
-      }}
-    />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[500px] sm:min-w-full">
+        <DiagramBarChart
+          data={errorData}
+          xAxisKey="Status Label"
+          valueKeys={lineKeys}
+          xAxisProps={{
+            interval: 0,
+            textAnchor: "end",
+            tickMargin: 12,
+            label: {
+              value: "Status Label",
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
+    </div>
   );
 });
 
