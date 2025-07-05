@@ -75,20 +75,24 @@ const TopErrorPerStatus = forwardRef((props, ref) => {
   }
 
   return (
-    <DiagramBarChart
-      data={errorData}
-      xAxisKey="Status Label"
-      valueKeys={lineKeys}
-      xAxisProps={{
-        interval: 0,
-        textAnchor: "end",
-        tickMargin: 12,
-        label: {
-          value: "Status Label",
-          position: "bottom",
-        },
-      }}
-    />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[500px] sm:min-w-full">
+        <DiagramBarChart
+          data={errorData}
+          xAxisKey="Status Label"
+          valueKeys={lineKeys}
+          xAxisProps={{
+            interval: 0,
+            textAnchor: "end",
+            tickMargin: 12,
+            label: {
+              value: "Status Label",
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
+    </div>
   );
 });
 

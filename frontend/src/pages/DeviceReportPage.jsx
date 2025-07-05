@@ -227,10 +227,10 @@ const DeviceReportPage = () => {
       <div className="p-4 space-y-6 bg-white dark:bg-gray-800 font-Poppins shadow-md rounded-lg">
         <div className="flex gap-2 mb-4 justify-end text-xs md:text-sm">
           {[
-            { label: "60 D", value: "hourly" },
-            { label: "24", value: "daily" },
-            { label: "7 x 24", value: "weekly" },
-            { label: "30 x 24", value: "monthly" },
+            { label: "Jam", value: "hourly" },
+            { label: "Hari", value: "daily" },
+            { label: "Minggu", value: "weekly" },
+            { label: "Bulan", value: "monthly" },
           ].map((tab) => (
             <button
               key={tab.value}

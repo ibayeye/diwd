@@ -14,8 +14,15 @@ const TopDailyError = forwardRef((props, ref) => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
 
-  const isSmallScreen = window.innerWidth < 640;
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,22 +32,22 @@ const TopDailyError = forwardRef((props, ref) => {
         );
         const raw = response.data.data || [];
 
-        // Format tanggal responsif
         const mapped = raw.map((item) => {
           const dateObj = new Date(item.Date);
           const dateKey = dateObj.toISOString().slice(0, 10);
           const formattedDate = isSmallScreen
             ? dateObj.toLocaleDateString("id-ID", {
-                weekday: "short", // contoh: "Sen"
+                weekday: "short",
                 day: "numeric",
-                month: "short", // contoh: "Jul"
+                month: "short",
               })
             : dateObj.toLocaleDateString("id-ID", {
                 weekday: "long",
                 day: "numeric",
-                month: "numeric",
+                month: "long",
                 year: "numeric",
               });
+
           return {
             dateKey,
             Date: formattedDate,
@@ -83,7 +90,7 @@ const TopDailyError = forwardRef((props, ref) => {
     };
 
     fetchData();
-  }, []);
+  }, [isSmallScreen]);
 
   useImperativeHandle(ref, () => ({
     getData: () => chartData,
@@ -103,22 +110,24 @@ const TopDailyError = forwardRef((props, ref) => {
   }
 
   return (
-    <div className="h-[28rem] sm:h-[30rem] md:h-[34rem]">
-      <DiagramBarChart
-        data={chartData}
-        xAxisKey="Date"
-        valueKeys={errorKeys}
-        title="Top Error per Hari"
-        xAxisProps={{
-          interval: isSmallScreen ? "preserveStartEnd" : 0,
-          angle: isSmallScreen ? -15 : 0,
-          textAnchor: isSmallScreen ? "end" : "middle",
-          label: {
-            value: "Hari",
-            position: "bottom",
-          },
-        }}
-      />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramBarChart
+          data={chartData}
+          xAxisKey="Date"
+          valueKeys={errorKeys}
+          title="Top Error per Hari"
+          xAxisProps={{
+            interval: isSmallScreen ? "preserveStartEnd" : 0,
+            angle: isSmallScreen ? -15 : 0,
+            textAnchor: isSmallScreen ? "end" : "middle",
+            label: {
+              value: "Hari",
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
     </div>
   );
 });

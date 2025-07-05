@@ -8,9 +8,15 @@ import LoadDark from "./load_dark.json";
 const DailyStatusTrend = forwardRef((props, ref) => {
   const [dailyData, setDailyData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
 
-  // Deteksi apakah layar kecil
-  const isSmallScreen = window.innerWidth < 640;
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchErrorDaily = async () => {
     try {
@@ -23,14 +29,14 @@ const DailyStatusTrend = forwardRef((props, ref) => {
         const date = new Date(item.Date);
         const formattedDate = isSmallScreen
           ? date.toLocaleDateString("id-ID", {
-              weekday: "short", // misal "Sen"
+              weekday: "long", // misal "Sen"
               day: "numeric",
               month: "short", // misal "Jul"
             })
           : date.toLocaleDateString("id-ID", {
               weekday: "long", // misal "Senin"
               day: "numeric",
-              month: "numeric",
+              month: "long",
               year: "numeric",
             });
 
@@ -50,7 +56,7 @@ const DailyStatusTrend = forwardRef((props, ref) => {
 
   useEffect(() => {
     fetchErrorDaily();
-  }, []);
+  }, [isSmallScreen]);
 
   useImperativeHandle(ref, () => ({
     getData: () => dailyData,
@@ -70,20 +76,25 @@ const DailyStatusTrend = forwardRef((props, ref) => {
   }
 
   return (
-    <DiagramLineChart
-      data={dailyData}
-      xKey="Date"
-      lineKeys={["Critical", "Warning", "Low"]}
-      title="Error Harian"
-      xAxisProps={{
-        interval: isSmallScreen ? "preserveStartEnd" : 0,
-        textAnchor: "end",
-        label: {
-          value: "Hari",
-          position: "bottom",
-        },
-      }}
-    />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramLineChart
+          data={dailyData}
+          xKey="Date"
+          lineKeys={["Critical", "Warning", "Low"]}
+          title="Error Harian"
+          xAxisProps={{
+            interval: isSmallScreen ? "preserveStartEnd" : 0,
+            textAnchor: isSmallScreen ? "end" : "middle",
+            angle: isSmallScreen ? -15 : 0,
+            label: {
+              value: "Hari",
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
+    </div>
   );
 });
 

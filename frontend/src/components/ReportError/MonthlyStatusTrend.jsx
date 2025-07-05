@@ -1,3 +1,4 @@
+// src/components/MonthlyStatusTrend.jsx
 import axios from "axios";
 import React, {
   forwardRef,
@@ -14,6 +15,16 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
   const [monthlyStatusTrend, setMonthlyStatusTrend] = useState([]);
   const [lineKeys, setLineKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const fetchErrorDaily = async () => {
     try {
       const response = await axios.get(
@@ -22,26 +33,22 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
 
       const res = response.data.data || [];
 
-      // 1) Dapatkan daftar label unik dan key untuk sorting
       const uniqueLabels = Array.from(
         new Set(res.map((i) => i["Status Label"]))
       );
       setLineKeys(uniqueLabels);
 
-      // 2) Pivot per month
-      // Buat map: monthKey -> { Month: formatted, [label]: count }
       const mapByMonth = {};
       res.forEach((item) => {
-        // parse month
         const [year, month] = item.Month.split("-").map(Number);
         const monthKey = `${year}-${String(month).padStart(2, "0")}`;
-        const formatted = new Date(year, month - 1).toLocaleDateString(
-          "id-ID",
-          {
-            month: "long",
-            year: "numeric",
-          }
-        );
+        const date = new Date(year, month - 1);
+
+        const formatted = date.toLocaleDateString("id-ID", {
+          month: isSmallScreen ? "numeric" : "long",
+          year: "numeric",
+        });
+
         if (!mapByMonth[monthKey]) {
           mapByMonth[monthKey] = { Month: formatted };
           uniqueLabels.forEach((lbl) => {
@@ -51,7 +58,6 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
         mapByMonth[monthKey][item["Status Label"]] = item.Count;
       });
 
-      // 3) Sort monthKeys secara kronologis dan bangun array
       const sortedKeys = Object.keys(mapByMonth).sort((a, b) => {
         const [ay, am] = a.split("-").map(Number);
         const [by, bm] = b.split("-").map(Number);
@@ -60,9 +66,8 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
       const pivoted = sortedKeys.map((k) => mapByMonth[k]);
 
       setMonthlyStatusTrend(pivoted);
-      // console.log("MonthlyStatusTrend pivoted:", pivoted);
     } catch (error) {
-      console.error("gagal mengambil data", error);
+      console.error("Gagal mengambil data", error);
     } finally {
       setLoading(false);
     }
@@ -70,7 +75,7 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
 
   useEffect(() => {
     fetchErrorDaily();
-  }, []);
+  }, [isSmallScreen]);
 
   useImperativeHandle(ref, () => ({
     getData: () => monthlyStatusTrend,
@@ -88,22 +93,28 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
       </div>
     );
   }
+
   return (
-    <DiagramLineChart
-      data={monthlyStatusTrend}
-      xKey="Month"
-      lineKeys={lineKeys}
-      title="Error per Bulan"
-      xAxisProps={{
-        interval: 0, // tampilkan semua
-        angle: -15, // miring 45° agar muat
-        textAnchor: "end", // agar rotasi tidak terpotong
-        label: {
-          value: "Bulan",
-          offset: 15,
-        },
-      }}
-    />
+    <div className="h-[25rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramLineChart
+          data={monthlyStatusTrend}
+          xKey="Month"
+          lineKeys={lineKeys}
+          title="Error per Bulan"
+          xAxisProps={{
+            interval: 0,
+            angle: -45,
+            textAnchor: "end",
+            label: {
+              value: "Bulan",
+              offset: 15,
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
+    </div>
   );
 });
 

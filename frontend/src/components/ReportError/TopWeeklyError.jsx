@@ -14,6 +14,15 @@ const TopWeeklyError = forwardRef((props, ref) => {
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchErrorDaily = async () => {
     try {
@@ -24,9 +33,7 @@ const TopWeeklyError = forwardRef((props, ref) => {
       const res = response.data.data || [];
 
       const uniqueWeeks = Array.from(
-        new Set(
-          res.map((item) => new Date(item.Week).toISOString().slice(0, 10))
-        )
+        new Set(res.map((item) => new Date(item.Week).toISOString().slice(0, 10)))
       ).sort();
 
       const uniqueErrors = Array.from(
@@ -43,7 +50,6 @@ const TopWeeklyError = forwardRef((props, ref) => {
         });
       });
 
-      // 4) isi count
       res.forEach(({ Week: resWeek, "Error Message": err, Count }) => {
         const key = new Date(resWeek).toISOString().slice(0, 10);
         if (mapByWeek[key]) {
@@ -51,10 +57,8 @@ const TopWeeklyError = forwardRef((props, ref) => {
         }
       });
 
-      // 5) bentuk array terurut
       const pivoted = uniqueWeeks.map((week) => mapByWeek[week]);
       setChartData(pivoted);
-      // console.log("getTopWeeklyError", res);
     } catch (error) {
       console.error("gagal mengambil data", error);
     } finally {
@@ -73,11 +77,9 @@ const TopWeeklyError = forwardRef((props, ref) => {
   if (loading) {
     return (
       <div className="w-32 h-32 mx-auto">
-        {/* Light mode animation */}
         <div className="block dark:hidden">
           <Lottie animationData={Load} className="w-full h-full" />
         </div>
-        {/* Dark mode animation */}
         <div className="hidden dark:block">
           <Lottie animationData={LoadDark} className="w-full h-full" />
         </div>
@@ -86,13 +88,25 @@ const TopWeeklyError = forwardRef((props, ref) => {
   }
 
   return (
-    <div className="h-96 overflow-auto">
-      <DiagramBarChart
-        data={chartData}
-        xAxisKey="Week"
-        valueKeys={errorKeys}
-        title="Top Error Per Minggu"
-      />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramBarChart
+          data={chartData}
+          xAxisKey="Week"
+          valueKeys={errorKeys}
+          title="Top Error Per Minggu"
+          xAxisProps={{
+            interval: 0,
+            angle: isSmallScreen ? -15 : 0,
+            textAnchor: isSmallScreen ? "end" : "middle",
+            label: {
+              value: "Minggu",
+              position: "bottom",
+              offset: 10,
+            },
+          }}
+        />
+      </div>
     </div>
   );
 });
