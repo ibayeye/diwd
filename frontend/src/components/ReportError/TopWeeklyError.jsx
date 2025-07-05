@@ -8,7 +8,9 @@ import React, {
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
 import Lottie from "lottie-react";
 import Load from "./load.json";
+import LoadDark from "./load_dark.json";
 
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const TopWeeklyError = forwardRef((props, ref) => {
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
@@ -71,8 +73,15 @@ const TopWeeklyError = forwardRef((props, ref) => {
 
   if (loading) {
     return (
-      <div className="">
-        <Lottie animationData={Load} className="w-32 h-32 mx-auto"/>
+      <div className="w-32 h-32 mx-auto">
+        {/* Light mode animation */}
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        {/* Dark mode animation */}
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }

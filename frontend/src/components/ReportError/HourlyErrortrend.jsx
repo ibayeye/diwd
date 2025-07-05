@@ -8,7 +8,9 @@ import React, {
 import LineChart from "./format_diagram/DiagramLineChart";
 import Lottie from "lottie-react";
 import Load from "./load.json";
+import LoadDark from "./load_dark.json";
 
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const HourlyErrortrend = forwardRef((props, ref) => {
   const [hourlyErrorTrend, setHourlyErrorTrend] = useState([]); // akan menjadi array [{ hour, count }, …]
   const [loading, setLoading] = useState(true);
@@ -49,8 +51,13 @@ const HourlyErrortrend = forwardRef((props, ref) => {
   }));
   if (loading) {
     return (
-      <div className="">
-        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+      <div className="w-32 h-32 mx-auto">
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }

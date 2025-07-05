@@ -17,7 +17,9 @@ import DotCircleSpinner from "../components/DotCircleSpinner";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Lottie from "lottie-react";
 import Load from "../components/ReportError/load.json";
+import LoadDark from "../components/ReportError/load_dark.json";
 
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const DeviceReportPage = () => {
   const [activeTab, setActiveTab] = useState("hourly");
   const [viewType, setViewType] = useState("top");
@@ -155,7 +157,7 @@ const DeviceReportPage = () => {
     if (loading) {
       return (
         <div className="">
-          <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+          <Lottie animationData={isDarkMode ? LoadDark : Load} className="w-32 h-32 mx-auto" />
         </div>
       );
     }

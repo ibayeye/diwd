@@ -5,7 +5,9 @@ import DiagramLineChart from "./format_diagram/DiagramLineChart";
 import { FaSpinner } from "react-icons/fa";
 import Lottie from "lottie-react";
 import Load from "./load.json";
+import LoadDark from "./load_dark.json";
 
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const DailyStatusTrend = forwardRef((props, ref) => {
   const [dailyData, setDailyData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,8 +46,13 @@ const DailyStatusTrend = forwardRef((props, ref) => {
 
   if (loading) {
     return (
-      <div className="">
-        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+      <div className="w-32 h-32 mx-auto">
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }

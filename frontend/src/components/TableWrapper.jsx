@@ -8,7 +8,9 @@ import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsEyeFill } from "react-icons/bs";
 import Lottie from "lottie-react";
 import Load from "./ReportError/load.json";
+import LoadDark from "./ReportError/load_dark.json";
 
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const TableWrapper = ({
   columns,
   data = [],
@@ -78,7 +80,7 @@ const TableWrapper = ({
   if (loading)
     return (
       <div className="">
-        <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+        <Lottie animationData={isDarkMode ? LoadDark : Load} className="w-32 h-32 mx-auto" />
       </div>
     );
   if (error) return <div className="p-4 text-red-500">{error}</div>;

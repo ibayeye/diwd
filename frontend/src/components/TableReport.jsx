@@ -6,6 +6,9 @@ import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsDownload } from "react-icons/bs";
 import Lottie from "lottie-react";
 import Load from "./ReportError/load.json";
+import LoadDark from "./ReportError/load_dark.json";
+
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const TableReport = ({
   columns,
   data = [],
@@ -76,7 +79,7 @@ const TableReport = ({
     return (
       <div className="flex items-center justify-center h-screen bg-white dark:bg-gray-700 ">
         <div className="">
-          <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+          <Lottie animationData={isDarkMode ? LoadDark : Load} className="w-32 h-32 mx-auto" />
         </div>
       </div>
     );

@@ -5,7 +5,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Lottie from "lottie-react";
 import Load from "../components/ReportError/load.json";
+import LoadDark from "../components/ReportError/load_dark.json";
 
+const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const Map = () => {
   const [locationPoint, setLocationPoint] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,7 +119,7 @@ const Map = () => {
   if (loading) {
     return (
       <div className="">
-        <Lottie animationData={Load} className="w-32 h-32 mx-auto"/>
+        <Lottie animationData={isDarkMode ? LoadDark : Load} className="w-32 h-32 mx-auto"/>
       </div>
     );
   }

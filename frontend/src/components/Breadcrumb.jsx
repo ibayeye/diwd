@@ -9,7 +9,7 @@ const Breadcrumb = () => {
   const basePath = "/dasboard";
 
   return (
-    <div className="text-base pl-4 text-gray-500 bg-white h-16 flex items-center dark:bg-gray-700 dark:text-white">
+    <div className="text-sm md:text-base pl-4 text-gray-500 bg-white h-16 flex items-center dark:bg-gray-700 dark:text-white">
       <nav className="flex items-center space-x-1">
         <Link to={`${basePath}//`} className="hover:text-blue-500 font-normal dark:hover:text-orange-500">
           Dashboard
