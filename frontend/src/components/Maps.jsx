@@ -12,7 +12,7 @@ const Map = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = "https://server.diwd.cloud/api/v1/getDevice";
+  const API_URL = "https://server.diwd.cloud/api/v1/getDeviceEarthquake";
 
   const fetchLocationPoint = async () => {
     setLoading(true);
