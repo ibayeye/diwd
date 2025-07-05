@@ -45,8 +45,8 @@ const PredictStatus = () => {
   }, []);
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg border">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Predict Status</h2>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">Predict Status</h2>
 
       {loading ? (
         <div className="flex justify-center items-center space-x-2 text-blue-600">
@@ -59,11 +59,11 @@ const PredictStatus = () => {
           <span className="text-sm font-medium">Error: {error}</span>
         </div>
       ) : (
-        <div className="flex items-center space-x-3 bg-yellow-50 border border-yellow-200 p-4 rounded-md">
-          <HiOutlineCheckCircle className="text-yellow-500 text-2xl" />
+        <div className="flex items-center space-x-3 bg-yellow-50 border border-yellow-200 dark:bg-yellow-400 dark:border-none p-4 rounded-md">
+          <HiOutlineCheckCircle className="text-yellow-500 dark:text-gray-700 text-2xl" />
           <div>
-            <p className="text-sm text-gray-700">Predicted Status:</p>
-            <p className="text-lg font-semibold text-yellow-500">{statusLabel}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-700">Predicted Status:</p>
+            <p className="text-lg font-semibold text-yellow-500 dark:text-gray-700">{statusLabel}</p>
           </div>
         </div>
       )}

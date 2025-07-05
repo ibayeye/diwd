@@ -8,28 +8,29 @@ export const menuItem = [
   {
     label: "Dashboard",
     icon: <GoHomeFill />,
-    path: "view",
+    path: "",
     role: ["user", "admin", "super admin"],
   },
   {
     label: "Daftar Perangkat",
     icon: <MdOutlineMyLocation />,
-    path: "device/list",
+    path: "daftar-perangkat",
     role: ["user", "admin", "super admin"],
   },
   {
     label: "Informasi Perangkat",
     icon: <FaSquarePollVertical />,
+    path: "informasi-perangkat",
     role: ["admin", "super admin"],
     children: [
       {
         label: "Analisis Alat",
-        path: "devicereport",
+        path: "analisis-alat",
         role: ["admin", "super admin"],
       },
       {
         label: "Rekap Alat",
-        path: "reporteartquake",
+        path: "rekap-alat",
         role: ["admin", "super admin"],
       },
     ],
@@ -37,13 +38,13 @@ export const menuItem = [
   {
     label: "Daftar Akun Pengguna",
     icon: <FaUserGroup />,
-    path: "user",
+    path: "daftar-akun-pengguna",
     role: ["admin", "super admin"],
   },
   {
     label: "Pendaftaran",
     icon: <FaUserPlus />,
-    path: "registerform",
+    path: "pendaftaran",
     role: ["super admin"],
   },
 ];

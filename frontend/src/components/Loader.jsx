@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
+import Lottie from "lottie-react";
+import Load from "../components/ReportError/load.json";
 
 const LoaderContext = createContext();
 
@@ -13,7 +15,9 @@ export const LoaderProvider = ({ children }) => {
       {children}
       {isLoading && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="w-12 h-12 border-4 border-white border-t-transparent border-solid rounded-full animate-spin"></div>
+          <div className="">
+            <Lottie animationData={Load} className="w-32 h-32 mx-auto" />
+          </div>
         </div>
       )}
     </LoaderContext.Provider>

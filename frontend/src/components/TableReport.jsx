@@ -1,15 +1,13 @@
-import React, { useMemo, useState } from "react";
-import { RiEditFill } from "react-icons/ri";
-import { MdDeleteForever } from "react-icons/md";
+import { useMemo, useState } from "react";
 import { CgSortAz } from "react-icons/cg";
 import { CgSortZa } from "react-icons/cg";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
-import { BsEyeFill } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
-import { FaSpinner } from "react-icons/fa";
-import { TbSettingsPin } from "react-icons/tb";
-import { LiaSpinnerSolid } from "react-icons/lia";
+import Lottie from "lottie-react";
+import Load from "./ReportError/load.json";
+import LoadDark from "./ReportError/load_dark.json";
+
 const TableReport = ({
   columns,
   data = [],
@@ -78,12 +76,14 @@ const TableReport = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <div className="flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-          <p className="mt-4 text-gray-600 font-medium text-sm">
-            Loading, please wait...
-          </p>
+      <div className="w-32 h-32 mx-auto">
+        {/* Light mode animation */}
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        {/* Dark mode animation */}
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ const TableReport = ({
   };
 
   return (
-    <div className="p-4 bg-white border ">
+    <div className="p-4 bg-white border dark:bg-gray-700 ">
       <div className="flex justify-end mb-2">
         <button
           onClick={() =>
@@ -131,26 +131,24 @@ const TableReport = ({
             setSearch(e.target.value);
             setCurrrentpage(1);
           }}
-          className="p-2 border border-gray-300 rounded"
+          className="p-2 border border-gray-300 dark:border-white dark:bg-gray-700 dark:text-white rounded"
         />
       </div>
 
-      <div>
-        <table className="min-w-full">
-          <thead>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-blue-500 text-white dark:bg-orange-500">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
                   // onClick={() => handleSort(col.key)}
-                  className="text-start bg-blue-500 text-white p-2"
+                  className="text-start  p-2"
                 >
                   {col.label}
                 </th>
               ))}
-              {(onEdit || onDelete) && (
-                <th className="bg-blue-500 text-white">Aksi</th>
-              )}
+              {(onEdit || onDelete) && <th className="">Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -160,22 +158,25 @@ const TableReport = ({
                   key={index}
                   className={
                     index % 2 === 0
-                      ? "bg-white hover:bg-gray-50"
-                      : "bg-gray-100 hover:bg-gray-200"
+                      ? "bg-white dark:bg-gray-700 dark:hover:bg-gray-800 hover:bg-gray-50"
+                      : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-900"
                   }
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-2 border-b">
+                    <td
+                      key={col.key}
+                      className="px-2 py-1 border-b max-w-[140px] truncate text-xs md:text-sm"
+                    >
                       {col.render
                         ? col.render(row[col.key], row)
                         : row[col.key]}
                     </td>
                   ))}
-                  <td className="flex justify-center items-center">
+                  <td className="flex justify-center items-center px-2 py-1">
                     <button
                       type="button"
                       onClick={() => downloadCSV(row)}
-                      className="bg-blue-500 text-white w-10 h-8 k m-1 rounded-md flex justify-center items-center"
+                      className="bg-blue-500 dark:bg-orange-500 text-white w-10 h-8 k m-1 rounded-md flex justify-center items-center"
                     >
                       <BsDownload />
                     </button>

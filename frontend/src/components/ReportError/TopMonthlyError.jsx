@@ -1,11 +1,29 @@
+// src/components/TopMonthlyError.jsx
 import axios from "axios";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
+import Lottie from "lottie-react";
+import Load from "./load.json";
+import LoadDark from "./load_dark.json";
 
 const TopMonthlyError = forwardRef((props, ref) => {
   const [topMonthlyError, setTopMonthlyError] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchErrorMonthly = async () => {
     try {
@@ -17,11 +35,11 @@ const TopMonthlyError = forwardRef((props, ref) => {
 
       const mapped = res.map((item) => {
         const dateObj = new Date(item.Month);
-        const monthKey = `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}`; // contoh: "2025-6"
+        const monthKey = `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}`;
         const formattedMonth = dateObj.toLocaleDateString("id-ID", {
-          month: "long",
+          month: isSmallScreen ? "numeric" : "long",
           year: "numeric",
-        }); // contoh: "Juni 2025"
+        });
 
         return {
           monthKey,
@@ -62,8 +80,6 @@ const TopMonthlyError = forwardRef((props, ref) => {
 
       const pivoted = uniqueMonths.map((monthKey) => mapByMonth[monthKey]);
       setTopMonthlyError(pivoted);
-
-      // console.log("getTopMonthlyError", res);
     } catch (error) {
       console.error("Gagal mengambil data", error);
     } finally {
@@ -73,37 +89,45 @@ const TopMonthlyError = forwardRef((props, ref) => {
 
   useEffect(() => {
     fetchErrorMonthly();
-  }, []);
+  }, [isSmallScreen]);
 
   useImperativeHandle(ref, () => ({
-      getData: () => topMonthlyError,
-    }));
+    getData: () => topMonthlyError,
+  }));
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="w-32 h-32 mx-auto">
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[35rem] ">
-      <DiagramBarChart
-        data={topMonthlyError}
-        xAxisKey="Month"
-        valueKeys={errorKeys}
-        title="Top Error Per Bulan"
-        xAxisProps={{
-          interval: 0,
-          angle: -15,
-          textAnchor: "end",
-          label: {
-            value: "Bulan",
-            position: "bottom", // bisa "insideBottom" atau "bottom"
-            offset: 15, // geser 15px ke bawah
-          },
-        }}
-      />
+    <div className="h-[25rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramBarChart
+          data={topMonthlyError}
+          xAxisKey="Month"
+          valueKeys={errorKeys}
+          title="Top Error Per Bulan"
+          xAxisProps={{
+            interval: 0,
+            angle: -45,
+            textAnchor: "end",
+            label: {
+              value: "Bulan",
+              position: "bottom",
+              offset: 15,
+            },
+          }}
+        />
+      </div>
     </div>
   );
 });

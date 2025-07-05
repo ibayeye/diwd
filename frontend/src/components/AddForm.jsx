@@ -3,11 +3,10 @@ import FormWrapper from "../components/FormWrapper";
 import axios from "axios";
 import { ReactComponent as Ilen } from "../assets/Icons/logoLen2.svg";
 import bgimage from "../assets/images/bglen.svg";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const RegisterPage = () => {
+const AddForm = () => {
   const [formData, setFormData] = useState({
     username: "",
     // nama: "",
@@ -16,7 +15,7 @@ const RegisterPage = () => {
     confirmPassword: "",
     nip: "",
     // no_hp: "",
-    // role: "",
+    role: "",
   });
 
   const handleChange = (e) => {
@@ -45,12 +44,21 @@ const RegisterPage = () => {
         ...formData,
         // role: parseInt(formData.role),
       };
+
+      const token = localStorage.getItem("token");
       const response = await axios.post(
-        "https://server.diwd.cloud/api/v1/auth/register",
-        payload
+        "https://server.diwd.cloud/api/v1/auth/addPengguna",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+      console.log(payload);
+      
       toast.success("Pendaftaran Behasil");
-      // console.log(response.data);
+      console.log(response.data);
     } catch (error) {
       if (error.response) {
         console.error("Gagal daftar:", error.response.data);
@@ -75,52 +83,32 @@ const RegisterPage = () => {
       type: "password",
     },
     { label: "NIP", name: "nip", type: "number" },
+    { label: "Nomor Telepon", name: "no_hp", type: "number" },
     // { label: "Nomor Handphone", name: "no_hp", type: "number" },
-    // {
-    //   label: "Role",
-    //   name: "role",
-    //   type: "select",
-    //   option: [
-    //     { value: 1, label: "Admin" },
-    //     { value: 2, label: "superAdmin" },
-    //     { value: 0, label: "User" },
-    //   ],
-    // },
+    {
+      label: "Role",
+      name: "role",
+      type: "select",
+      option: [
+        { value: 1, label: "Admin" },
+        { value: 2, label: "superAdmin" },
+        { value: 0, label: "User" },
+      ],
+    },
   ];
 
   return (
-    <div
-      className="flex font-Poppins px-4 md:px-6 py-10 relative min-h-screen bg-no-repeat bg-cover bg-center justify-center bg-slate-100 dark:bg-gray-800"
-      // style={{ backgroundImage: `url(${bgimage})` }}
-    >
-      <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white dark:bg-gray-700 dark:text-white text-sm rounded-lg shadow-lg">
-        <div className="hidden md:flex border-r h-full items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white">
-          <Ilen className="" />
-        </div>
-        <div>
-          <div className="flex justify-end w-full px-4">
-            <Logo />
-          </div>
-          <FormWrapper
-            title="Pendaftaran"
-            subtitle="silahkan isi semua data"
-            fields={fields}
-            formData={formData}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-            submitLabel="Daftar"
-          />
-
-          <p className="w-full text-center mb-20 mt-4">
-            sudah punya akun?{" "}
-            <Link to="/login" className=" text-blue-500 hover:text-blue-400">
-              Masuk
-            </Link>
-          </p>
-        </div>
-      </div>
+    <div className="flex flex-col font-Poppins py-4 relative justify-center bg-white dark:bg-gray-700 dark:text-white w-full">
+      <FormWrapper
+        title="Pendaftaran"
+        fields={fields}
+        formData={formData}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        submitLabel="Daftar"
+      />
     </div>
   );
 };
 
-export default RegisterPage;
+export default AddForm;

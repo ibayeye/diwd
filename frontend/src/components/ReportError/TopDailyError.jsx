@@ -1,4 +1,3 @@
-// src/components/TopDailyError.jsx
 import axios from "axios";
 import React, {
   useEffect,
@@ -7,12 +6,23 @@ import React, {
   useImperativeHandle,
 } from "react";
 import DiagramBarChart from "./format_diagram/DiagramBarChart";
-import { Label } from "recharts";
+import Lottie from "lottie-react";
+import Load from "./load.json";
+import LoadDark from "./load_dark.json";
 
 const TopDailyError = forwardRef((props, ref) => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [errorKeys, setErrorKeys] = useState([]);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,15 +32,22 @@ const TopDailyError = forwardRef((props, ref) => {
         );
         const raw = response.data.data || [];
 
-        // Map raw data: format date and rename fields
         const mapped = raw.map((item) => {
           const dateObj = new Date(item.Date);
           const dateKey = dateObj.toISOString().slice(0, 10);
-          const formattedDate = dateObj.toLocaleDateString("id-ID", {
-            weekday: "long",
-            month: "numeric",
-            year: "numeric",
-          });
+          const formattedDate = isSmallScreen
+            ? dateObj.toLocaleDateString("id-ID", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+              })
+            : dateObj.toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              });
+
           return {
             dateKey,
             Date: formattedDate,
@@ -39,7 +56,6 @@ const TopDailyError = forwardRef((props, ref) => {
           };
         });
 
-        // Unique dates and error messages
         const uniqueDates = Array.from(
           new Set(mapped.map((i) => i.dateKey))
         ).sort();
@@ -49,23 +65,21 @@ const TopDailyError = forwardRef((props, ref) => {
 
         setErrorKeys(uniqueErrors);
 
-        // Initialize pivot map
         const mapByDate = {};
         uniqueDates.forEach((dateKey) => {
-          // find formatted Date once per dateKey
-          const { Date: formatted } = mapped.find((i) => i.dateKey === dateKey);
+          const { Date: formatted } = mapped.find(
+            (i) => i.dateKey === dateKey
+          );
           mapByDate[dateKey] = { Date: formatted };
           uniqueErrors.forEach((err) => {
             mapByDate[dateKey][err] = 0;
           });
         });
 
-        // Fill counts
         mapped.forEach(({ dateKey, errorMessage, count }) => {
           mapByDate[dateKey][errorMessage] = count;
         });
 
-        // Build final array
         const pivoted = uniqueDates.map((dateKey) => mapByDate[dateKey]);
         setChartData(pivoted);
       } catch (err) {
@@ -76,37 +90,44 @@ const TopDailyError = forwardRef((props, ref) => {
     };
 
     fetchData();
-  }, []);
+  }, [isSmallScreen]);
 
   useImperativeHandle(ref, () => ({
     getData: () => chartData,
   }));
-  
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="w-32 h-32 mx-auto">
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[30rem]">
-      <DiagramBarChart
-        data={chartData}
-        xAxisKey="Date"
-        valueKeys={errorKeys}
-        title="Top Error per Hari"
-        xAxisProps={{
-          interval: 0,
-          angle: -0,
-          textAnchor: "end",
-          label: {
-            value: "Hari",
-            position: "bottom", // bisa "insideBottom" atau "bottom"
-          },
-        }}
-      />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramBarChart
+          data={chartData}
+          xAxisKey="Date"
+          valueKeys={errorKeys}
+          title="Top Error per Hari"
+          xAxisProps={{
+            interval: isSmallScreen ? "preserveStartEnd" : 0,
+            angle: isSmallScreen ? -15 : 0,
+            textAnchor: isSmallScreen ? "end" : "middle",
+            label: {
+              value: "Hari",
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
     </div>
   );
 });

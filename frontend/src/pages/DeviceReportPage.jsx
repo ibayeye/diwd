@@ -14,6 +14,11 @@ import PredictStatus from "../components/PredictStatus";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { FaSpinner } from "react-icons/fa";
 import DotCircleSpinner from "../components/DotCircleSpinner";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import Lottie from "lottie-react";
+import Load from "../components/ReportError/load.json";
+import LoadDark from "../components/ReportError/load_dark.json";
+
 const DeviceReportPage = () => {
   const [activeTab, setActiveTab] = useState("hourly");
   const [viewType, setViewType] = useState("top");
@@ -131,7 +136,9 @@ const DeviceReportPage = () => {
       <button
         onClick={() => setViewType("top")}
         className={`px-3 py-1 rounded ${
-          viewType === "top" ? "bg-blue-600 text-white" : "bg-gray-200"
+          viewType === "top"
+            ? "bg-blue-600 dark:bg-orange-500 text-white"
+            : "bg-gray-200"
         }`}
       >
         Top Error
@@ -139,7 +146,9 @@ const DeviceReportPage = () => {
       <button
         onClick={() => setViewType("all")}
         className={`px-3 py-1 rounded ${
-          viewType === "all" ? "bg-blue-600 text-white" : "bg-gray-200"
+          viewType === "all"
+            ? "bg-blue-600 dark:bg-orange-500 text-white"
+            : "bg-gray-200"
         }`}
       >
         Semua Error
@@ -150,9 +159,15 @@ const DeviceReportPage = () => {
   const renderActiveTab = () => {
     if (loading) {
       return (
-        <div className="flex justify-center items-center space-x-4 text-blue-600">
-          <DotCircleSpinner />
-          {/* <span>Mengambil Data</span> */}
+        <div className="w-32 h-32 mx-auto">
+          {/* Light mode animation */}
+          <div className="block dark:hidden">
+            <Lottie animationData={Load} className="w-full h-full" />
+          </div>
+          {/* Dark mode animation */}
+          <div className="hidden dark:block">
+            <Lottie animationData={LoadDark} className="w-full h-full" />
+          </div>
         </div>
       );
     }
@@ -209,13 +224,13 @@ const DeviceReportPage = () => {
 
   return (
     <div>
-      <div className="p-4 space-y-6 bg-white font-Poppins shadow-md rounded-lg">
+      <div className="p-4 space-y-6 bg-white dark:bg-gray-800 font-Poppins shadow-md rounded-lg">
         <div className="flex gap-2 mb-4 justify-end text-xs md:text-sm">
           {[
-            { label: "60 D", value: "hourly" },
-            { label: "24", value: "daily" },
-            { label: "7 x 24", value: "weekly" },
-            { label: "30 x 24", value: "monthly" },
+            { label: "Jam", value: "hourly" },
+            { label: "Hari", value: "daily" },
+            { label: "Minggu", value: "weekly" },
+            { label: "Bulan", value: "monthly" },
           ].map((tab) => (
             <button
               key={tab.value}
@@ -225,8 +240,8 @@ const DeviceReportPage = () => {
               }}
               className={`px-4 py-2 rounded ${
                 activeTab === tab.value
-                  ? "bg-blue-600 text-white"
-                  : "bg-blue-200"
+                  ? "bg-blue-600 dark:bg-orange-500 text-white"
+                  : "bg-blue-200 dark:bg-white dark:text-gray-700"
               } hover:bg-blue-500 hover:text-white`}
             >
               {tab.label}
@@ -234,7 +249,7 @@ const DeviceReportPage = () => {
           ))}
         </div>
         {renderActiveTab()}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-10 dark:text-white">
           <TopErrorPerStatus data={topErrorPerStatus} loading={loading} />
           <div>
             <div className="mb-2 font-semibold">Status Perangkat</div>
@@ -245,7 +260,7 @@ const DeviceReportPage = () => {
       <div className="flex justify-end w-full text-sm py-6">
         <button
           onClick={handleExportAll}
-          className="border border-blue-600 rounded-md px-4 py-2"
+          className="border border-blue-600 dark:border-orange-500 dark:text-white rounded-md px-4 py-2"
         >
           Export
         </button>

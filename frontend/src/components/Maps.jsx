@@ -1,17 +1,16 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import Cookies from "js-cookie";
-import ilocation from "../assets/Icons/loc.svg";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Lottie from "lottie-react";
+import Load from "../components/ReportError/load.json";
+import LoadDark from "../components/ReportError/load_dark.json";
 
 const Map = () => {
   const [locationPoint, setLocationPoint] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const [fullScreen, setFullScreen] = useState(false);
 
   const API_URL = "https://server.diwd.cloud/api/v1/getDevice";
 
@@ -21,9 +20,7 @@ const Map = () => {
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Token tidak ditemukan");
-      }
+      if (!token) throw new Error("Token tidak ditemukan");
 
       const response = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
@@ -31,14 +28,12 @@ const Map = () => {
       });
 
       if (response.data && typeof response.data.data === "object") {
-        const dataObject = response.data.data;
-        const dataArray = Object.values(dataObject);
+        const dataArray = Object.values(response.data.data);
         const parsedLocations = dataArray.map((item) => {
-          const [lat, lng] = item.location.split(",").map(Number); // Pisahkan latitude dan longitude
+          const [lat, lng] = item.location.split(",").map(Number);
           return { ...item, lat, lng };
         });
-
-        setLocationPoint(parsedLocations); // Simpan titik lokasi di state
+        setLocationPoint(parsedLocations);
       } else {
         throw new Error("Data yang diterima tidak valid");
       }
@@ -54,42 +49,93 @@ const Map = () => {
     fetchLocationPoint();
   }, []);
 
+  const extractMMIAndReg = (regValueStr) => {
+    let mmi = 0;
+    let reg = 0;
+    const match = regValueStr?.match(/(\d+\.?\d*)\s*MMI\s*,\s*(\d+\.?\d*)/);
+    if (match) {
+      mmi = parseFloat(match[1]);
+      reg = parseFloat(match[2]);
+    }
+    return { mmi, reg };
+  };
+
+  // ICON DEFINITIONS
   const pingIcon = L.divIcon({
-    className: "",
     html: `
       <div class="relative flex items-center justify-center w-6 h-6">
         <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full w-3 h-3 bg-red-600"></span>
       </div>
     `,
+    className: "border-none bg-transparent",
     iconSize: [24, 24],
-    iconAnchor: [12, 12], // center
+    iconAnchor: [12, 12],
   });
 
-  // const costomIcon = new L.icon({
-  //   iconUrl: ilocation,
-  //   iconSize: [24, 24],
-  //   iconAnchor: [16, 32],
-  //   popupAnchor: [0, -32],
-  // });
+  const yellowIcon = L.divIcon({
+    html: `
+      <div class="relative flex items-center justify-center w-6 h-6">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-300 opacity-75"></span>
+        <span class="relative inline-flex rounded-full w-3 h-3 bg-yellow-500"></span>
+      </div>
+    `,
+    className: "border-none bg-transparent",
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  });
+
+  const normalIcon = L.divIcon({
+    html: `
+      <div class="relative flex items-center justify-center w-6 h-6">
+        <span class="relative inline-flex rounded-full w-3 h-3 bg-blue-500"></span>
+      </div>
+    `,
+    className: "border-none bg-transparent",
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  });
+
+  const getIconByStatus = (status, regValue) => {
+    const { mmi, reg } = extractMMIAndReg(regValue);
+    const isStatusZero = status?.trim() === "0,0";
+
+    if ((mmi > 0 || reg > 0) && !(mmi === 0 && reg === 0)) {
+      return pingIcon;
+    }
+
+    if (!isStatusZero && mmi === 0 && reg === 0) {
+      return yellowIcon;
+    }
+
+    if (isStatusZero && mmi === 0 && reg === 0) {
+      return normalIcon;
+    }
+
+    return normalIcon;
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+      <div className="w-32 h-32 mx-auto">
+        {/* Light mode animation */}
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        {/* Dark mode animation */}
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }
 
-
   return (
     <div className="w-full rounded-md mt-4">
-      
-      {error && <p style={{ color: "red" }}>{error}</p>}{" "}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       {!error && (
         <MapContainer
           center={[-6.9895, 108.6405]}
-          // center={[-2.5489 , 118.0149]} // indonesia
           zoom={7}
           style={{ height: "500px", width: "100%" }}
           attributionControl={false}
@@ -97,53 +143,62 @@ const Map = () => {
           className="w-full h-full rounded-md z-10 relative"
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {locationPoint.map((location, index) => (
-            <Marker
-              key={index}
-              position={[location.lat, location.lng]} // Titik lokasi dari API
-              icon={pingIcon}
-            >
-              <Popup className="w-[750px] rounded-lg">
-                <h1 className="text-base ml-1 font-semibold mb-3">
-                  Device: {location.id}
-                </h1>
-                <table className="w-[700px]">
-                  <tbody>
-                    <tr className="bg-gray-300">
-                      <td className="pl-1">Device ID</td>
-                      <td>{`: ${location.id}`}</td>
-                      <td>OnSite Value</td>
-                      <td className="">{`: ${location.onSiteValue}`}</td>
-                    </tr>
-                    <tr>
-                      <td className="pl-1">Device IP</td>
-                      <td>{`: ${location.ip}`}</td>
-                      <td>OnSite Time</td>
-                      <td className="">{`: ${location.onSiteTime}`}</td>
-                    </tr>
-                    <tr className="bg-gray-300">
-                      <td className="pl-1">Location</td>
-                      <td>{`: ${location.location}`}</td>
-                      <td>Region Value</td>
-                      <td className="">{`: ${location.regValue}`}</td>
-                    </tr>
-                    <tr>
-                      <td className="pl-1">Memories</td>
-                      <td>{`: ${location.memory}`}</td>
-                      <td>Region Count Down</td>
-                      <td className="">{`: ${location.regCD}`}</td>
-                    </tr>
-                    <tr className="bg-gray-300">
-                      <td className="pl-1">Status</td>
-                      <td>{`: ${location.status}`}</td>
-                      <td>Region Time</td>
-                      <td className="">{`: ${location.regTime}`}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </Popup>
-            </Marker>
-          ))}
+          {locationPoint.map((location, index) => {
+            const { mmi, reg } = extractMMIAndReg(location.regValue);
+            return (
+              <Marker
+                key={index}
+                position={[location.lat, location.lng]}
+                icon={getIconByStatus(location.status, location.regValue)}
+              >
+                <Popup className="w-[750px] rounded-lg">
+                  <h1 className="text-base ml-1 font-semibold mb-3">
+                    Device: {location.id}
+                  </h1>
+                  <table className="w-[700px]">
+                    <tbody>
+                      <tr className="bg-gray-300">
+                        <td className="pl-1">Device ID</td>
+                        <td>{`: ${location.id}`}</td>
+                        <td>OnSite Value</td>
+                        <td>{`: ${location.onSiteValue}`}</td>
+                      </tr>
+                      <tr>
+                        <td className="pl-1">Device IP</td>
+                        <td>{`: ${location.ip}`}</td>
+                        <td>OnSite Time</td>
+                        <td>{`: ${location.onSiteTime}`}</td>
+                      </tr>
+                      <tr className="bg-gray-300">
+                        <td className="pl-1">Location</td>
+                        <td>{`: ${location.location}`}</td>
+                        <td>Region Value</td>
+                        <td>{`: ${location.regValue}`}</td>
+                      </tr>
+                      <tr>
+                        <td className="pl-1">Memories</td>
+                        <td>{`: ${location.memory}`}</td>
+                        <td>Region Count Down</td>
+                        <td>{`: ${location.regCD}`}</td>
+                      </tr>
+                      <tr className="bg-gray-300">
+                        <td className="pl-1">Status</td>
+                        <td>{`: ${location.status}`}</td>
+                        <td>Region Time</td>
+                        <td>{`: ${location.regTime}`}</td>
+                      </tr>
+                      <tr>
+                        <td className="pl-1">MMI</td>
+                        <td>{`: ${mmi}`}</td>
+                        <td>REG</td>
+                        <td>{`: ${reg}`}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
       )}
     </div>
