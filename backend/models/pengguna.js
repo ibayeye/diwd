@@ -44,11 +44,11 @@ const Pengguna = db.define(
   },
   nip: {
     allowNull: true,
-    type: DataTypes.STRING,
+    type: DataTypes.BIGINT,
   },
   no_hp: {
     allowNull: true,
-    type: DataTypes.STRING,
+    type: DataTypes.BIGINT,
   },
   role: {
     type: DataTypes.INTEGER,
