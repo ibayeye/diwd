@@ -34,7 +34,11 @@ const Sidebar = () => {
             onClick={() => toggleMenu(menu.label)}
             className={`
               flex items-center justify-between px-4 py-2 cursor-pointer rounded-md
-              ${highlight ? "bg-blue-500 text-white dark:bg-orange-500 dark:text-white" : "text-black"}
+              ${
+                highlight
+                  ? "bg-blue-500 text-white dark:bg-orange-500 dark:text-white"
+                  : "text-black"
+              }
               hover:bg-blue-500 hover:text-white dark:hover:bg-orange-500
             `}
           >
@@ -42,7 +46,11 @@ const Sidebar = () => {
               {menu.icon}
               <span>{menu.label}</span>
             </div>
-            {isOpen ? <FiChevronUp /> : <FiChevronDown />}
+            {isOpen ? (
+              <FiChevronUp className="dark:text-white" />
+            ) : (
+              <FiChevronDown className="dark:text-white" />
+            )}
           </div>
 
           {/* Children with animated height + opacity */}
