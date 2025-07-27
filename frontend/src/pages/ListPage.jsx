@@ -72,7 +72,7 @@ const ListPage = () => {
   ];
 
   const handleDetail = (id) => {
-     navigate(`/dasboard/device/detail/${id}`);
+     navigate(`/dasboard/detail-perangkat/${id}`);
   };
 
   return (

@@ -54,7 +54,7 @@ const List = () => {
       // console.log(responseDevice);
 
       // setDevicesDetail(responseDevice.data.data)
-      navigate(`device/detail${id}`, { state: { detail } });
+      navigate(`detail-perangkat${id}`, { state: { detail } });
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.msg || err.message);
@@ -62,7 +62,7 @@ const List = () => {
   };
   return (
     <div className="h-full font-Poppins">
-      <h2 className="text-lg font-semibold my-4">Daftar Perangkat</h2>
+      <h2 className="text-base md:text-lg font-semibold my-4">Daftar Perangkat</h2>
       <div className="bg-white shadow-md rounded-md p-4 text-sm">
         {loading ? (
           <p>Loading...</p>

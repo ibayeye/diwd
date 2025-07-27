@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { RiEditFill } from "react-icons/ri";
 import { MdDeleteForever } from "react-icons/md";
-import { CgSortAz } from "react-icons/cg";
-import { CgSortZa } from "react-icons/cg";
-import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
-import { MdKeyboardDoubleArrowRight } from "react-icons/md";
+import { CgSortAz, CgSortZa } from "react-icons/cg";
+import {
+  MdKeyboardDoubleArrowLeft,
+  MdKeyboardDoubleArrowRight,
+} from "react-icons/md";
 import { BsEyeFill } from "react-icons/bs";
 import Lottie from "lottie-react";
 import Load from "./ReportError/load.json";
@@ -61,17 +62,6 @@ const TableWrapper = ({
     currentPage * ItemsPage
   );
 
-  const handleSort = (key) => {
-    if (sortConfig.key === key) {
-      setSortConfig({
-        key,
-        direction: sortConfig.direction === "asc" ? "desc" : "asc",
-      });
-    } else {
-      setSortConfig({ key, direction: "asc" });
-    }
-  };
-
   const handlePrevPage = () => setCurrrentpage((prev) => Math.max(prev - 1, 1));
   const handlNextPage = () =>
     setCurrrentpage((prev) => Math.min(prev + 1, totalPage));
@@ -79,21 +69,21 @@ const TableWrapper = ({
   if (loading)
     return (
       <div className="w-32 h-32 mx-auto">
-        {/* Light mode animation */}
         <div className="block dark:hidden">
           <Lottie animationData={Load} className="w-full h-full" />
         </div>
-        {/* Dark mode animation */}
         <div className="hidden dark:block">
           <Lottie animationData={LoadDark} className="w-full h-full" />
         </div>
       </div>
     );
+
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="p-4 bg-white border dark:bg-gray-700 ">
-      <div className="flex justify-end mb-2 dark:text-white">
+    <div className="p-4 bg-white border dark:bg-gray-700">
+      {/* Search & Sort */}
+      <div className="flex justify-end gap-2 mb-4 dark:text-white">
         <button
           onClick={() =>
             setSortConfig((prev) => ({
@@ -101,40 +91,34 @@ const TableWrapper = ({
               direction: prev.direction === "asc" ? "desc" : "asc",
             }))
           }
-          // disabled={!sortConfig.key}
-          className="px-3 py-2 border rounded disabled:opacity-50 cursor-pointer mr-2 dark:text-white"
+          className="px-3 py-2 border rounded disabled:opacity-50 cursor-pointer dark:text-white"
         >
           {sortConfig.direction === "asc" ? <CgSortAz /> : <CgSortZa />}
         </button>
         <input
           type="text"
-          placeholder="search"
+          placeholder="Search"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setCurrrentpage(1);
           }}
-          className="p-2 border border-gray-300 rounded"
+          className="dark:bg-gray-700 dark:text-white p-2 border border-gray-300 rounded sm:w-auto w-full"
         />
       </div>
 
+      {/* Table */}
       <div className="w-full overflow-x-auto">
         <table className="min-w-[600px] w-full text-sm">
           <thead className="bg-blue-500 text-white dark:bg-orange-500">
             <tr>
-              <th className=" p-2 text-center">No</th>
+              <th className="p-2 text-center">No</th>
               {columns.map((col) => (
-                <th
-                  key={col.key}
-                  // onClick={() => handleSort(col.key)}
-                  className="text-start"
-                >
+                <th key={col.key} className="text-start">
                   {col.label}
                 </th>
               ))}
-              {(onEdit || onDelete) && (
-                <th className="">Aksi</th>
-              )}
+              {(onEdit || onDelete) && <th className="">Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -162,12 +146,12 @@ const TableWrapper = ({
                     </td>
                   ))}
                   {(onEdit || onDelete) && (
-                    <td className="flex justify-center items-center">
+                    <td className="flex justify-center items-center gap-1 py-2">
                       {onEdit && (
                         <button
                           type="button"
                           onClick={() => onEdit(row.id)}
-                          className="bg-blue-500 dark:bg-orange-500 w-10 h-8 k m-1 rounded-md flex justify-center items-center"
+                          className="bg-blue-500 dark:bg-orange-500 w-10 h-8 rounded-md flex justify-center items-center text-white"
                         >
                           {pageType === "user" ? <RiEditFill /> : <BsEyeFill />}
                         </button>
@@ -176,7 +160,7 @@ const TableWrapper = ({
                         <button
                           type="button"
                           onClick={() => onDelete(row.id)}
-                          className="bg-red-500 dark:bg-red-700 w-10 rounded-md m-1 h-8 flex justify-center items-center"
+                          className="bg-red-500 dark:bg-red-700 w-10 h-8 rounded-md flex justify-center items-center text-white"
                         >
                           <MdDeleteForever />
                         </button>
@@ -189,9 +173,8 @@ const TableWrapper = ({
               <tr>
                 <td
                   colSpan={columns.length + (onEdit || onDelete ? 1 : 0)}
-                  className="text-center py-6 text-gray-500"
+                  className="text-center py-6 text-gray-500 dark:text-gray-300"
                 >
-                  {" "}
                   No data found
                 </td>
               </tr>
@@ -199,16 +182,25 @@ const TableWrapper = ({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
       {totalPage > 1 && (
-        <div className="flex justify-center items-center my-3 dark:text-white">
-          <button onClick={handlePrevPage} className="">
-            <MdKeyboardDoubleArrowLeft className=" w-full h-6" />
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4 dark:text-white">
+          <button
+            onClick={handlePrevPage}
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"
+          >
+            <MdKeyboardDoubleArrowLeft className="w-5 h-5" />
           </button>
-          <span className="mx-3 text-sm">
+          <span className="text-sm">
             Page {currentPage} of {totalPage}
           </span>
-          <button onClick={handlNextPage} disabled={currentPage === totalPage}>
-            <MdKeyboardDoubleArrowRight className=" w-full h-6" />
+          <button
+            onClick={handlNextPage}
+            disabled={currentPage === totalPage}
+            className="p-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-600 dark:hover:bg-gray-500"
+          >
+            <MdKeyboardDoubleArrowRight className="w-5 h-5" />
           </button>
         </div>
       )}

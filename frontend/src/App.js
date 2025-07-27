@@ -50,7 +50,7 @@ const App = () => {
                 <Route path="daftar-akun-pengguna" element={<UserPage />} />
               </Route>
               <Route path="daftar-perangkat" element={<ListPage />} />
-              <Route path="device/detail/:id" element={<DetailDevice />} />
+              <Route path="detail-Perangkat/:id" element={<DetailDevice />} />
               <Route path="*" element={<LandingPage />} />
             </Route>
           </Route>
