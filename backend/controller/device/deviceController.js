@@ -355,7 +355,7 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
 
         // Jika sampai sini berarti regValue EARTHQUAKE berbeda atau belum ada di cache
         // Simpan ke database (hanya untuk regValue earthquake, bukan "0")
-        await DeviceEarthquake.create({
+        const savedEarthquake = await DeviceEarthquake.create({
             device_id,
             regValue,
             ...otherData,
@@ -368,15 +368,23 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
         await redisClient.setEx(cacheKey, 86400, currentValue);
 
         // Kirim notifikasi untuk earthquake detection
-        await sendMailEarthquake({
-            deviceId: device_id,
-            onSiteTime: otherData.onSiteTime,
-            onSiteValue: otherData.onSiteValue,
-            regCD: otherData.regCD,
-            regTime: otherData.regTime,
-            regValue: regValue,
-            alamat: alamat
-        });
+        let emailResult = null;
+        try {
+            emailResult = await sendMailEarthquake({
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                regCD: otherData.regCD,
+                regTime: otherData.regTime,
+                regValue: regValue,
+                alamat: alamat
+            });
+
+            console.log(`Email notification sent successfully. Warning records saved: ${emailResult.warningRecordsSaved}`);
+        } catch (emailError) {
+            console.error("Error sending email notification:", emailError);
+            // Tidak throw error agar proses bisa berlanjut
+        }
 
         const io = getSocketInstance();
 
@@ -396,7 +404,16 @@ export const listeningEarthquakeFirebase = asyncHandler(async (req, res) => {
             message: "Data earthquake disimpan ke DB dan Redis",
             device_id,
             regValue: currentValue,
-            cached: true
+            cached: true,
+            earthquakeId: savedEarthquake.id,
+            emailNotification: {
+                sent: emailResult?.success || false,
+                emailsSent: emailResult?.emailsSent || 0,
+                emailsFailed: emailResult?.emailsFailed || 0,
+                warningRecordsSaved: emailResult?.warningRecordsSaved || 0,
+                warningIds: emailResult?.warningIds || [],
+                recipients: emailResult?.users || []
+            }
         });
 
     } catch (error) {
@@ -456,7 +473,7 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
 
         // Jika sampai sini berarti status ERROR berbeda atau belum ada di cache
         // Simpan ke database (hanya untuk status error, bukan "0,0")
-        await DeviceError.create({
+        const savedError = await DeviceError.create({
             device_id,
             status,
             ...otherData,
@@ -467,13 +484,20 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
         await redisClient.setEx(cacheKey, 86400, currentStatus);
 
         // Kirim notifikasi untuk status error
-        await sendMailError({
-            deviceId: device_id,
-            onSiteTime: otherData.onSiteTime,
-            onSiteValue: otherData.onSiteValue,
-            status: status,
-            alamat: alamat
-        });
+        let emailResult = null;
+        try {
+            await sendMailError({
+                deviceId: device_id,
+                onSiteTime: otherData.onSiteTime,
+                onSiteValue: otherData.onSiteValue,
+                status: status,
+                alamat: alamat
+            });
+            console.log(`Email notification sent successfully. Warning records saved: ${emailResult.warningRecordsSaved}`);
+        } catch (emailError) {
+            console.error("Error sending email notification:", emailError);
+            // Tidak throw error agar proses bisa berlanjut
+        }
 
         const io = getSocketInstance();
         io.emit('error-alert', {
@@ -490,7 +514,16 @@ export const listeningErrorFirebase = asyncHandler(async (req, res) => {
             message: "Status error disimpan ke DB dan Redis",
             device_id,
             status: currentStatus,
-            cached: true
+            cached: true,
+            errorId: savedError.id,
+            emailNotification: {
+                sent: emailResult?.success || false,
+                emailsSent: emailResult?.emailsSent || 0,
+                emailsFailed: emailResult?.emailsFailed || 0,
+                warningRecordsSaved: emailResult?.warningRecordsSaved || 0,
+                warningIds: emailResult?.warningIds || [],
+                recipients: emailResult?.users || []
+            }
         });
 
     } catch (error) {
