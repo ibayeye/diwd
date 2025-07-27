@@ -1,14 +1,15 @@
 import nodemailer from "nodemailer";
 import asyncHandler from "../../middleware/asyncHandler.js";
 import Pengguna from "../../models/pengguna.js";
+import { Op } from "sequelize";
 
 const transporter = nodemailer.createTransport({
     secure: true,
     host: 'smtp.gmail.com',
     port: 465,
     auth: {
-        user: 'skripsidiwd@gmail.com',
-        pass: 'raon lawj ktbf pxmc'
+        user: 'iqbal.gitlab@gmail.com',
+        pass: 'audd llbx imtu mvpe'
     }
 });
 
@@ -64,7 +65,11 @@ export const sendMailEarthquake = async ({ deviceId,
     regValue,
     alamat }) => {
     const users = await Pengguna.findAll({
-        where: { role: 2 },
+        where: {
+            role: {
+                [Op.in]: [2, 1]
+            }
+        },
         attributes: ['email']
     });
 
@@ -91,7 +96,11 @@ export const sendMailEarthquake = async ({ deviceId,
 
 export const sendMailError = async ({ deviceId, onSiteValue, onSiteTime, status, alamat }) => {
     const users = await Pengguna.findAll({
-        where: { role: 2 },
+        where: {
+            role: {
+                [Op.in]: [2, 1]
+            }
+        },
         attributes: ['email']
     });
 
