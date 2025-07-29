@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
 
-const RawWeeklyStatusDiagram = () => {
+const RawWeeklyStatusDiagram = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,6 +35,10 @@ const RawWeeklyStatusDiagram = () => {
     fetchData();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+      getData: () => data,
+    }));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -60,6 +64,6 @@ const RawWeeklyStatusDiagram = () => {
       }}
     />
   );
-};
+});
 
 export default RawWeeklyStatusDiagram;

@@ -25,7 +25,7 @@ const ListPage = () => {
       );
 
       const data = response?.data?.data;
-      console.log("list",data);
+      // console.log("list",data);
 
       if (!Array.isArray(data)) throw new Error("Format data tidak valid");
 

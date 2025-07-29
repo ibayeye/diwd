@@ -1,8 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import LineChart from "./format_diagram/DiagramLineChart";
 
-const HourlyErrortrend = () => {
+const HourlyErrortrend = forwardRef((props, ref) => {
   const [hourlyErrorTrend, setHourlyErrorTrend] = useState([]); // akan menjadi array [{ hour, count }, …]
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +37,9 @@ const HourlyErrortrend = () => {
     fetchHourlyErrortrend();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+      getData: () => hourlyErrorTrend,
+    }));
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -59,6 +62,6 @@ const HourlyErrortrend = () => {
       }}
     />
   );
-};
+});
 
 export default HourlyErrortrend;

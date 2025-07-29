@@ -1,6 +1,5 @@
 import React from "react";
 import FormInputGrup from "./FormInputGrup";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
 
 const FormWrapper = ({
   title,
@@ -18,7 +17,7 @@ const FormWrapper = ({
       onSubmit={onSubmit}
       className=" bg-white w-full px-6 rounded-xl z-20"
     >
-      <p className="text-3xl font-semibold">{title}</p>
+      <p className="text-2xl md:text-3xl font-semibold">{title}</p>
       <p className="text-gray-400 pb-8">{subtitle}</p>
       <div
         className={`grid gap-4 ${

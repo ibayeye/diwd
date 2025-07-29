@@ -7,6 +7,7 @@ import { ReactComponent as IUser } from "../assets/Icons/iUser.svg";
 import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
 import socket from "../utils/socket";
+import { RxHamburgerMenu } from "react-icons/rx";
 
 const Dashboard = () => {
   const [totalDevice, setTotalDevice] = useState(0);
@@ -49,10 +50,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "detectedError",
-      JSON.stringify([...detectedError])
-    );
+    localStorage.setItem("detectedError", JSON.stringify([...detectedError]));
   }, [detectedError]);
 
   useEffect(() => {

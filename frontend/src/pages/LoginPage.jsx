@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import FormWrapper from "../components/FormWrapper";
 import { ReactComponent as Ilen } from "../assets/Icons/logoLen2.svg";
-import { ReactComponent as Logo } from "../assets/Icons/logo_big 1.svg";
+import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -59,8 +59,8 @@ const LoginPage = () => {
         secure: true,
       });
 
-      console.log(response);
-      console.log(roleName);
+      // console.log(response);
+      // console.log(roleName);
       // console.log(role);
 
       const tkn = Cookies.get("token");
@@ -70,7 +70,7 @@ const LoginPage = () => {
       }, 2000);
     } catch (error) {
       const resMsg = error.response?.data?.message;
-    
+
       if (
         error.response &&
         error.response.data?.field &&
@@ -85,7 +85,6 @@ const LoginPage = () => {
         toast.error("Nama Pengguna atau Kata Sandi Salah");
       }
     }
-    
   };
   const fields = [
     { label: "Nama Pengguna", name: "username", type: "text" },
@@ -93,14 +92,14 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="flex font-Poppins py-10 relative min-h-screen bg-cover bg-center justify-center bg-slate-100">
-      <div className="grid items-center grid-cols-2 bg-white text-sm rounded-lg shadow-lg">
-        <div className="border-r h-full flex items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white">
+    <div className="flex font-Poppins py-10 px-4 md:px-6 relative min-h-screen bg-cover bg-center justify-center bg-slate-100">
+      <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white text-sm rounded-lg shadow-lg">
+        <div className="hidden md:flex border-r h-full items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white">
           <Ilen className="" />
         </div>
-        <div>
-          <div className="flex justify-end w-full px-4 py-4">
-            <Logo />
+        <div className="w-full px-6 py-8">
+          <div className="flex justify-end w-full mb-4">
+            <Logo className="w-20 h-auto md:w-24" />
           </div>
           <FormWrapper
             title="Masuk"
@@ -112,7 +111,7 @@ const LoginPage = () => {
             submitLabel="Masuk"
             errors={errors}
           />
-          <p className="w-full text-center mb-24 mt-4">
+          <p className="w-full text-center mt-4 text-xs md:text-sm">
             belum punya akun?{" "}
             <Link to="/register" className=" text-blue-500 hover:text-blue-400">
               daftar

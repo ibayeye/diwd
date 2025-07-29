@@ -13,7 +13,7 @@ function FirebaseListener() {
       const data = snapshot.val();
 
       if (data) {
-        console.log("Data Firebase:", data);
+        // console.log("Data Firebase:", data);
 
         const dataString = JSON.stringify(data);
         const prevDataString = JSON.stringify(lastAllDataSnapshot.current);
@@ -51,7 +51,7 @@ function FirebaseListener() {
           }
 
           // Kirim jika status berubah dan bukan "0,0"
-          if (isNewDevice || (statusChanged && deviceData.status !== "0,0")) {
+          if ((isNewDevice && deviceData.status !== "0,0")  || (statusChanged && deviceData.status !== "0,0")) {
             axios.post("https://server.diwd.cloud/api/v1/error-realtime", {
               device_id: deviceId,
               ...deviceData,
