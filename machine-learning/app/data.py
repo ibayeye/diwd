@@ -26,6 +26,21 @@ import json
 
 """
 
+# Mapping pesan error ke label pendek
+ERROR_LABEL_MAP = {
+    "Error: read ECONNRESET": "Koneksi Diputus",
+    "Error: connect ECONNREFUSED 202.90.199.208:80": "Gagal Terhubung",
+    "Error: connect ECONNRESET 202.90.199.208:80": "Koneksi Ditolak",
+    "Error: connect ECONNREFUSED 127.0.0.1": "Gagal Koneksi Port Lokal",
+    "Error: connect ECONNREFUSED 127.0.0.1:502": "Port Tidak Aktif",
+    "Kuota habis": "Kuota Habis",
+    "Error: connect ETIMEDOUT 202.90.199.208:80": "Timeout Server",
+    "Error: socket hang up": "Koneksi Mendadak Terputus",
+    "Error: Unexpected close tag": "Format Data Tidak Valid",
+    "Error: read ETIMEDOUT": "Waktu Tunggu Koneksi Habis",
+    "Network not available": "Jaringan Tidak Tersedia"
+}
+
 #Load Dataset
 gc.enable()
 data_directory_path = 'csv/'
@@ -120,6 +135,7 @@ def get_cleaned_df(save_cleaned=False, output_path="csv/error_device_cleaned.csv
     df_cleaned["Month"] = df_cleaned["Timestamp"].dt.month
     df_cleaned["Year"] = df_cleaned["Timestamp"].dt.year
     df_cleaned["Frequency"] = df_cleaned.groupby("Hour")["Error Message"].transform("count")
+    df_cleaned["Simplified Message"] = df_cleaned["Error Message"].map(ERROR_LABEL_MAP).fillna("Lainnya")
 
     # Opsional: simpan ke CSV
     if save_cleaned:
@@ -135,7 +151,7 @@ def clean_dataset():
             "total_data_setelah_cleaning": df_cleaned.shape[0],
             "missing_values": df_cleaned.isnull().sum().to_dict(),
             "distribusi_status": df_cleaned['Status'].value_counts().to_dict(),
-            "contoh_data": df_cleaned.head(5).to_dict(orient='records')
+            "contoh_data": df_cleaned.head(1).to_dict(orient='records')
         }
         return summary
     except Exception as e:
@@ -158,7 +174,7 @@ def top_hourly_error_messages(top_n=5):
         df_cleaned["Hour"] = df_cleaned["Timestamp"].dt.hour
 
         top_errors_per_hour = (
-            df_cleaned.groupby(["Hour", "Error Message"])
+            df_cleaned.groupby(["Hour", "Simplified Message"])
             .size()
             .reset_index(name="Count")
         )
@@ -209,7 +225,7 @@ def top_daily_error_messages(top_n=3):
         df_cleaned["Date"] = df_cleaned["Timestamp"].dt.date
 
         daily_error_counts = (
-            df_cleaned.groupby(["Date", "Error Message"])
+            df_cleaned.groupby(["Date", "Simplified Message"])
             .size()
             .reset_index(name="Count")
         )
@@ -262,7 +278,7 @@ def top_weekly_error_messages(top_n=3):
         df_cleaned["Week"] = df_cleaned["Timestamp"].dt.to_period("W").apply(lambda r: r.start_time.date())
 
         weekly_error_counts = (
-            df_cleaned.groupby(["Week", "Error Message"])
+            df_cleaned.groupby(["Week", "Simplified Message"])
             .size()
             .reset_index(name="Count")
         )
@@ -301,7 +317,7 @@ def top_monthly_error_messages(top_n=3):
         df_cleaned["Month"] = df_cleaned["Timestamp"].dt.to_period("M").astype(str)
 
         monthly_error_msg = (
-            df_cleaned.groupby(["Month", "Error Message"])
+            df_cleaned.groupby(["Month", "Simplified Message"])
             .size()
             .reset_index(name="Count")
         )
@@ -333,7 +349,7 @@ def top_error_messages_per_status(top_n=5):
         df_cleaned['Status Label'] = df_cleaned['Status'].map(status_labels)
 
         top_errors_by_status = (
-            df_cleaned.groupby(['Status Label', 'Error Message'])
+            df_cleaned.groupby(['Status Label', 'Simplified Message'])
             .size()
             .reset_index(name='Count')
             .sort_values(['Status Label', 'Count'], ascending=[True, False])
@@ -356,10 +372,11 @@ def get_selected_df():
 
     # Pilih kolom yang akan digunakan sebagai fitur dan label
     df_selected = df_cleaned[[
-        "Error Message",     # fitur teks → untuk TF-IDF
-        "Message Type",      # fitur numerik kategori error
-        "Error Code",        # fitur numerik (jika ada)
-        "Frequency",         # fitur numerik (jumlah error per jam)
+        "Simplified Message", # fitur teks pendek (untuk TF-IDF)
+        "Error Message",      # fitur teks → untuk TF-IDF
+        "Message Type",       # fitur numerik kategori error
+        "Error Code",         # fitur numerik (jika ada)
+        "Frequency",          # fitur numerik (jumlah error per jam)
         "Hour", "Day", "Month", "Year",  # fitur waktu
         "Status"             # label klasifikasi
     ]].copy()
