@@ -1,77 +1,41 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
 import Maps from "../components/Maps";
 import { ReactComponent as Loc } from "../assets/Icons/locD.svg";
 import { ReactComponent as IUser } from "../assets/Icons/iUser.svg";
 import { ReactComponent as IDetected } from "../assets/Icons/idetected.svg";
 import { ReactComponent as IEarthquake } from "../assets/Icons/iEarthquake.svg";
-import socket from "../utils/socket";
 import { RxHamburgerMenu } from "react-icons/rx";
+import useDetectionData from "../hooks/useDetectionData";
+import { universalStorage } from "../utils/storage";
 
 const Dashboard = () => {
   const [totalDevice, setTotalDevice] = useState(0);
-  const [totalDeviceFailure, setTotalDeviceFailure] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState({
-    devices: true,
-    failures: true,
-    users: true,
-  });
+  const [loading, setLoading] = useState({ devices: true, users: true });
   const [error, setError] = useState(null);
-  const [detectedEarthquake, setDetectedEarthquake] = useState(() => {
-    const saved = localStorage.getItem("detectedEarthquake");
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
 
-  const [detectedError, setDetectedError] = useState(() => {
-    const saved = localStorage.getItem("detectedError");
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const {
+    detectedEarthquake,
+    detectedError,
+    isReady,
+    storageType,
+    clearDetectedData,
+  } = useDetectionData();
 
-  useEffect(() => {
-    localStorage.setItem(
-      "detectedEarthquake",
-      JSON.stringify([...detectedEarthquake])
-    );
-  }, [detectedEarthquake]);
-
-  useEffect(() => {
-    const handleEarthquake = (payload) => {
-      // console.log("🔥 Socket payload received:", payload);
-      setDetectedEarthquake((prev) => new Set(prev).add(payload.deviceId));
-    };
-
-    socket.on("earthquake-alert", handleEarthquake);
-
-    return () => {
-      socket.off("earthquake-alert", handleEarthquake);
-    };
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("detectedError", JSON.stringify([...detectedError]));
-  }, [detectedError]);
-
-  useEffect(() => {
-    const handleError = (payload) => {
-      // console.log("🔥 Socket payload received:", payload);
-      setDetectedError((prev) => new Set(prev).add(payload.deviceId));
-    };
-
-    socket.on("error-alert", handleError);
-
-    return () => {
-      socket.off("error-alert", handleError);
-    };
-  }, []);
-
-  const fetchData = async (url, setter, loadingkey) => {
-    setLoading((prev) => ({ ...prev, [loadingkey]: true }));
+  const fetchData = async (url, setter, loadingKey) => {
+    setLoading((prev) => ({ ...prev, [loadingKey]: true }));
     setError(null);
 
     try {
-      const token = localStorage.getItem("token");
+      let token = await universalStorage.getItem("token");
+      if (!token && sessionStorage) {
+        token = localStorage.getItem("token");
+      }
+      if (!token) {
+        token = localStorage.getItem("token");
+      }
+
       if (!token) {
         throw new Error("token tidak ditemukan");
       }
@@ -85,9 +49,8 @@ const Dashboard = () => {
           response.data.totalDevice ||
             response.data.totaldata ||
             response.data.totaldeviceFailure ||
-            ""
+            0
         );
-        // console.log(response.data.data.map(item => item.location));
       } else {
         throw new Error("Data yang diterima tidak valid");
       }
@@ -95,53 +58,41 @@ const Dashboard = () => {
       setError(err.response?.data?.message || err.message);
       setter(0);
     } finally {
-      setLoading((prev) => ({ ...prev, [loadingkey]: false }));
+      setLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
   };
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      await Promise.all([
-        fetchData(
-          "https://server.diwd.cloud/api/v1/getDevice",
-          setTotalDevice,
-          "devices"
-        ),
-        // fetchData(
-        //   "https://server.diwd.cloud/api/v1/getDeviceFailure",
-        //   setTotalDeviceFailure,
-        //   "failures"
-        // ),
-        fetchData(
-          "https://server.diwd.cloud/api/v1/auth/pengguna",
-          setTotalUsers,
-          "users"
-        ),
-      ]);
-    };
-
-    fetchAllData();
+    fetchData(
+      "https://server.diwd.cloud/api/v1/getDevice",
+      setTotalDevice,
+      "devices"
+    );
+    fetchData(
+      "https://server.diwd.cloud/api/v1/auth/pengguna",
+      setTotalUsers,
+      "users"
+    );
   }, []);
+
   const borderColors = {
     red: "border-b border-red-500",
     blue: "border-blue-500",
     green: "border-green-500",
     yellow: "border-yellow-500",
   };
-  // console.log(borderColors.yellow);
 
   return (
     <div className="">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DataCard
           title="Total Perangkat"
-          value={loading.totalDevice ? "Loading..." : totalDevice}
+          value={loading.devices ? "Loading..." : totalDevice}
           Icon={Loc}
           borderColor={borderColors.blue}
         />
         <DataCard
           title="Kegagalan Perangkat Terdeteksi"
-          // value={loading.totalDeviceFailure ? "Loading..." : totalDeviceFailure}
           value={detectedError.size}
           Icon={IDetected}
           borderColor={borderColors.yellow}
@@ -152,37 +103,51 @@ const Dashboard = () => {
               ? "Loading Users..."
               : `Terdapat ${totalUsers || 0} Pengguna Dalam Sistem`
           }
-          value={loading.totalUsers ? "Loading..." : totalUsers}
+          value={loading.users ? "Loading..." : totalUsers}
           Icon={IUser}
-          borderColor={borderColors.red}
-        />
-        <DataCard
-          title="Earthquake detection devices"
-          value={detectedEarthquake.size}
-          Icon={IEarthquake}
           borderColor={borderColors.green}
         />
+        <DataCard
+          title="Gempa Terdeteksi Oleh Perangkat"
+          value={detectedEarthquake.size}
+          Icon={IEarthquake}
+          borderColor={borderColors.red}
+        />
       </div>
+
+      {/* {!isReady && (
+        <div className="text-gray-500 mt-4">Loading real-time data...</div>
+      )} */}
+
       {error && (
-        <div className="text-red-500 mt-4">
-          <p>Error: {error}</p>
+        <div className="text-red-500 mt-4 p-3 bg-red-50 rounded">
+          <p>❌ Error: {error}</p>
         </div>
       )}
+
       <Maps />
+
+      {/* Optional button */}
+      {/* <button
+        onClick={clearDetectedData}
+        className="mt-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        🗑️ Clear All Data
+      </button> */}
     </div>
   );
 };
 
 const DataCard = ({ title, value, Icon, borderColor }) => (
   <div
-    className={`border-b-2 ${borderColor} h-28 bg-white rounded-lg p-2 flex flex-row`}
+    className={`border-b-2 dark:border-2 ${borderColor} h-26 sm:h-28 bg-white dark:bg-gray-700 dark:text-white rounded-lg p-2 flex flex-row shadow-sm`}
   >
-    <div className="w-20 h-20 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-4">
-      <Icon className="w-8 h-8" />
+    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-300 rounded-full flex justify-center items-center my-auto mr-3 sm:mr-4">
+      <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
     </div>
     <div className="flex flex-col my-auto">
-      <span className="text-2xl font-bold">{value}</span>
-      <p>{title}</p>
+      <span className="text-lg sm:text-2xl font-bold">{value}</span>
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-white">{title}</p>
     </div>
   </div>
 );

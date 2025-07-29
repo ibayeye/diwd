@@ -2,14 +2,8 @@ import Pengguna from "../../models/pengguna.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import asyncHandler from "../../middleware/asyncHandler.js";
-import multer from "multer";
-import crypto from "crypto";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
 import {
   generateApiKey,
-  generateToken,
 } from "../../middleware/generateToken.js";
 import { error } from "console";
 
@@ -159,7 +153,8 @@ export const login = asyncHandler(async (req, res) => {
             nama: pengguna.nama,
             nip: pengguna.nip,
             no_hp: pengguna.no_hp,
-            address: pengguna.address
+            address: pengguna.address,
+            image: pengguna.image
         },
     });
 });
@@ -205,7 +200,7 @@ export const getPengguna = asyncHandler(async (req, res) => {
 
   const pengguna = await Pengguna.findOne({
     where: { id },
-    attributes: ["id", "username", "email", "nama", "nip", "no_hp", "role"],
+    attributes: ["id", "username", "image","email", "nama", "nip", "no_hp", "role"],
   });
 
   if (!pengguna) {
@@ -228,6 +223,7 @@ export const getAllPengguna = asyncHandler(async (req, res) => {
       attributes: [
         "id",
         "username",
+        "image",
         "email",
         "nama",
         "nip",

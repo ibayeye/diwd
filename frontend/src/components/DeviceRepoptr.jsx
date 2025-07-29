@@ -70,11 +70,7 @@ const DeviceReport = () => {
   </span>,
     },
   ];
-
-  const handleDetail = (id) => {
-     navigate(`/dasboard/device/detail/${id}`);
-  };
-
+  
   return (
     <div>
       <p className="text-2xl font-Inter font-bold my-3">Daftar Perangkat</p>
@@ -83,7 +79,7 @@ const DeviceReport = () => {
         data={devices}
         loading={loading}
         error={error}
-        onEdit={handleDetail}
+        onEdit={""}
         onDelete={handleDelet}
         ItemsPage={10}
         pageType="perangkat"

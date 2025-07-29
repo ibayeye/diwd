@@ -1,11 +1,22 @@
-// src/components/DailyStatusTrend.jsx
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import axios from "axios";
 import DiagramLineChart from "./format_diagram/DiagramLineChart";
-import { FaSpinner } from "react-icons/fa";
+import Lottie from "lottie-react";
+import Load from "./load.json";
+import LoadDark from "./load_dark.json";
+
 const DailyStatusTrend = forwardRef((props, ref) => {
   const [dailyData, setDailyData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchErrorDaily = async () => {
     try {
@@ -14,15 +25,27 @@ const DailyStatusTrend = forwardRef((props, ref) => {
       );
       const res = response.data.data || [];
 
-      const formatted = res.map((item) => ({
-        ...item,
-        Date: new Date(item.Date).toLocaleDateString("id-ID", {
-          weekday: "long",
-          month: "numeric",
-          year: "numeric",
-          // tahun bisa dihilangkan kalau semua data di tahun yang sama
-        }),
-      }));
+      const formatted = res.map((item) => {
+        const date = new Date(item.Date);
+        const formattedDate = isSmallScreen
+          ? date.toLocaleDateString("id-ID", {
+              weekday: "long", // misal "Sen"
+              day: "numeric",
+              month: "short", // misal "Jul"
+            })
+          : date.toLocaleDateString("id-ID", {
+              weekday: "long", // misal "Senin"
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            });
+
+        return {
+          ...item,
+          Date: formattedDate,
+        };
+      });
+
       setDailyData(formatted);
     } catch (error) {
       console.error("Gagal mengambil daily status trend:", error);
@@ -33,7 +56,7 @@ const DailyStatusTrend = forwardRef((props, ref) => {
 
   useEffect(() => {
     fetchErrorDaily();
-  }, []);
+  }, [isSmallScreen]);
 
   useImperativeHandle(ref, () => ({
     getData: () => dailyData,
@@ -41,27 +64,37 @@ const DailyStatusTrend = forwardRef((props, ref) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center space-x-2 text-blue-600">
-        <FaSpinner className="animate-spin text-2xl" />
+      <div className="w-32 h-32 mx-auto">
+        <div className="block dark:hidden">
+          <Lottie animationData={Load} className="w-full h-full" />
+        </div>
+        <div className="hidden dark:block">
+          <Lottie animationData={LoadDark} className="w-full h-full" />
+        </div>
       </div>
     );
   }
 
   return (
-    <DiagramLineChart
-      data={dailyData}
-      xKey="Date"
-      lineKeys={["Critical", "Warning", "Low"]}
-      title="Error Harian"
-      xAxisProps={{
-        interval: 0,
-        textAnchor: "end",
-        label: {
-          value: "Hari",
-          position: "bottom",
-        },
-      }}
-    />
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full">
+        <DiagramLineChart
+          data={dailyData}
+          xKey="Date"
+          lineKeys={["Critical", "Warning", "Low"]}
+          title="Error Harian"
+          xAxisProps={{
+            interval: isSmallScreen ? "preserveStartEnd" : 0,
+            textAnchor: isSmallScreen ? "end" : "middle",
+            angle: isSmallScreen ? -15 : 0,
+            label: {
+              value: "Hari",
+              position: "bottom",
+            },
+          }}
+        />
+      </div>
+    </div>
   );
 });
 

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import TableWrapper from "../components/TableWrapper";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-
-
+import Lottie from "lottie-react";
+import Load from "../components/ReportError/load.json";
 
 const ListPage = () => {
   const [devices, setDevices] = useState([]);
@@ -72,12 +72,12 @@ const ListPage = () => {
   ];
 
   const handleDetail = (id) => {
-     navigate(`/dasboard/device/detail/${id}`);
+     navigate(`/dasboard/detail-perangkat/${id}`);
   };
 
   return (
     <div>
-      <p className="text-2xl font-Inter font-bold my-3">Daftar Perangkat</p>
+      <p className="text-2xl font-Inter font-bold my-3 dark:text-white">Daftar Perangkat</p>
       <TableWrapper
         columns={columns}
         data={devices}

@@ -17,12 +17,12 @@ import AuthProtectedRoute from "./components/AuthProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import FirebaseListener from "./FirebaseListener.jsx";
-import RegisterForm from "./components/RegisterForm";
 import DetailDevice from "./components/DetailDevice.jsx";
+import AddForm from "./components/AddForm.jsx";
 const App = () => {
   return (
     <LoaderProvider>
-        <FirebaseListener />
+      <FirebaseListener />
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -31,22 +31,29 @@ const App = () => {
 
           <Route element={<AuthProtectedRoute />}>
             <Route path="/dasboard" element={<Layout />}>
-              <Route path="view" element={<Dashboard />} />
+              <Route path="" element={<Dashboard />} />
               <Route path="profile" element={<ProfilePage />} />
-              <Route element={<RoleProtectedRoute allowedRoles={[,"super admin"]} />}>
-                <Route path="registerform" element={<RegisterForm />}/>
+              <Route
+                element={<RoleProtectedRoute allowedRoles={["super admin"]} />}
+              >
+                <Route path="pendaftaran" element={<AddForm />} />
               </Route>
-              <Route element={<RoleProtectedRoute allowedRoles={["admin","super admin"]} />}>
-                <Route path="devicereport" element={<DeviceReportPage />} />
-                <Route path="reporteartquake" element={<EarthquakePage />} />
-                <Route path="user" element={<UserPage />} />
+              <Route
+                element={
+                  <RoleProtectedRoute allowedRoles={["admin", "super admin"]} />
+                }
+              >
+                <Route path="informasi-perangkat">
+                  <Route path="analisis-alat" element={<DeviceReportPage />} />
+                  <Route path="rekap-alat" element={<EarthquakePage />} />
+                </Route>
+                <Route path="daftar-akun-pengguna" element={<UserPage />} />
               </Route>
-              <Route path="device/list" element={<ListPage />} />
-              <Route path="device/detail/:id" element={<DetailDevice />} />
+              <Route path="daftar-perangkat" element={<ListPage />} />
+              <Route path="detail-Perangkat/:id" element={<DetailDevice />} />
               <Route path="*" element={<LandingPage />} />
             </Route>
           </Route>
-
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
         </Routes>
         <ToastContainer />

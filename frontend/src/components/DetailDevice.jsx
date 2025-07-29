@@ -58,16 +58,16 @@ const DetailDevice = () => {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl dark:text-white">
       <h1 className="text-2xl font-bold mb-4">Detail Perangkat</h1>
       {/* grid 2 kolom */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 dark:bg-gray-700">
         {/* kiri */}
-        <div className="space-y-4 bg-white p-4 rounded-md shadow-md">
+        <div className="space-y-4 bg-white p-4 rounded-md shadow-md dark:bg-gray-800 ">
           {leftFields.map((f) => (
             <div key={f.label}>
-              <p className="text-sm font-semibold">{f.label}</p>
-              <p className="mt-1 text-gray-800">{f.value}</p>
+              <p className="text-sm font-semibold dark:text-white">{f.label}</p>
+              <p className="mt-1 text-gray-800 dark:text-white">{f.value}</p>
             </div>
           ))}
 
@@ -88,11 +88,11 @@ const DetailDevice = () => {
         </div>
 
         {/* kanan */}
-        <div className="space-y-4 bg-white p-4 rounded-md shadow-md">
+        <div className="space-y-4 bg-white p-4 rounded-md shadow-md dark:bg-gray-800">
           {rightFields.map((f) => (
             <div key={f.label}>
-              <p className="text-sm font-semibold">{f.label}</p>
-              <p className="mt-1 text-gray-800">{f.value}</p>
+              <p className="text-sm font-semibold dark:text-white">{f.label}</p>
+              <p className="mt-1 text-gray-800 dark:text-white">{f.value}</p>
             </div>
           ))}
         </div>
@@ -100,7 +100,7 @@ const DetailDevice = () => {
 
       <button
         onClick={() => window.history.back()}
-        className="mt-6 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        className="mt-6 inline-block px-4 py-2 bg-blue-600 dark:bg-orange-500 text-white rounded hover:bg-blue-700 transition"
       >
         ← Kembali
       </button>

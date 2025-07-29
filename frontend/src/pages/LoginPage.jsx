@@ -6,6 +6,7 @@ import { ReactComponent as Logo } from "../assets/Icons/logo_big1.svg";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -66,7 +67,7 @@ const LoginPage = () => {
       const tkn = Cookies.get("token");
       toast.success("Berhasil Masuk");
       setTimeout(() => {
-        navigate("/dasboard/view");
+        navigate("/dasboard/");
       }, 2000);
     } catch (error) {
       const resMsg = error.response?.data?.message;
@@ -80,7 +81,7 @@ const LoginPage = () => {
         const msg = error.response.data.msg;
         setErrors({ [field]: msg });
       } else if (resMsg) {
-        toast.error(resMsg); // tangkap 'message' atau 'msg'
+        toast.error(resMsg); 
       } else {
         toast.error("Nama Pengguna atau Kata Sandi Salah");
       }
@@ -92,9 +93,9 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="flex font-Poppins py-10 px-4 md:px-6 relative min-h-screen bg-cover bg-center justify-center bg-slate-100">
-      <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white text-sm rounded-lg shadow-lg">
-        <div className="hidden md:flex border-r h-full items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white">
+    <div className="flex font-Poppins py-10 px-4 md:px-6 relative min-h-screen bg-cover bg-center justify-center dark:text-white bg-slate-100 dark:bg-gray-800 ">
+      <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white  dark:bg-gray-700 text-sm rounded-lg shadow-lg">
+        <div className="hidden md:flex border-r h-full items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white dark:bg-gradient-to-br ">
           <Ilen className="" />
         </div>
         <div className="w-full px-6 py-8">
