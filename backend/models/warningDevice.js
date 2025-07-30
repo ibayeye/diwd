@@ -23,7 +23,7 @@ const WarningDevice = db.define(
     },
     warningMessage: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(5000),
     },
 }, {
     freezeTableName: true,
