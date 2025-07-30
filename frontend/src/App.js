@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { LoaderProvider } from "./components/Loader";
+import { LoaderProvider } from "./components/Loader.jsx";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Dashboard from "./pages/DasboardPage";
@@ -49,8 +49,9 @@ const App = () => {
                 </Route>
                 <Route path="daftar-akun-pengguna" element={<UserPage />} />
               </Route>
-              <Route path="daftar-perangkat" element={<ListPage />} />
-              <Route path="detail-Perangkat/:id" element={<DetailDevice />} />
+              <Route path="daftar-perangkat" element={<ListPage />}>
+                <Route path="detail-perangkat/:id" element={<DetailDevice />} />
+              </Route>
               <Route path="*" element={<LandingPage />} />
             </Route>
           </Route>

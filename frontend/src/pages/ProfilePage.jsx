@@ -9,8 +9,9 @@ const ProfilePage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFromEdit, setShowFromEdit] = useState(false);
   const [userData, setUserData] = useState({});
-  const [role, setRole] = useState("");
+  // const [role, setRole] = useState("");
 
+   const role = localStorage.getItem("role");
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -28,7 +29,7 @@ const ProfilePage = () => {
 
         const user = res.data?.data;
         setUserData(user);
-        setRole(user?.role || "");
+        // setRole(user?.role || "");
       } catch (error) {
         console.error("Gagal mengambil data pengguna:", error);
         alert("Sesi Anda habis. Silakan login ulang.");
@@ -119,7 +120,7 @@ const ProfilePage = () => {
           </div>
           <div className="flex flex-col justify-center p-3 bg-white dark:bg-gray-800 rounded-md mt-4">
             <p className="py-2">{userData.nama}</p>
-            <p className="py-2 capitalize">{role === 2 ? "Super Admin" : role === 1 ? "Admin" : role === 0 ? "Pengguna" : "Tidak Ditemukan Role"}</p>
+            <p className="py-2 capitalize">{role}</p>
           </div>
           <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-md my-2 md:mt-4 p-2">
             <p>Edit Akun Pengguna :</p>

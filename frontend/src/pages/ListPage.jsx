@@ -3,9 +3,10 @@ import List from "../components/List";
 import { useEffect, useState } from "react";
 import TableWrapper from "../components/TableWrapper";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import Load from "../components/ReportError/load.json";
+import { Outlet } from "react-router-dom";
 
 const ListPage = () => {
   const [devices, setDevices] = useState([]);
@@ -14,7 +15,14 @@ const ListPage = () => {
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const isDetail = location.pathname.includes("/detail-perangkat/");
+
+  const role = localStorage.getItem("role");
+  const isPengguna = role === "pengguna";
+
   const token = localStorage.getItem("token");
+
   const fetchDevice = async () => {
     try {
       const response = await axios.get(
@@ -25,7 +33,7 @@ const ListPage = () => {
       );
 
       const data = response?.data?.data;
-      // console.log("list",data);
+      console.log("list",data);
 
       if (!Array.isArray(data)) throw new Error("Format data tidak valid");
 
@@ -65,29 +73,48 @@ const ListPage = () => {
     {
       key: "status",
       label: "Status",
-      render: (value) => <span className={value === "0,0" ? "text-green-500 font-semibold" : "text-yellow-500 font-semibold"}>
-    {value === "0,0" ? "Aman" : "Bermasalah"}
-  </span>,
+      render: (value) => (
+        <span
+          className={
+            value === "0,0"
+              ? "text-green-500 font-semibold"
+              : "text-yellow-500 font-semibold"
+          }
+        >
+          {value === "0,0" ? "Aman" : "Bermasalah"}
+        </span>
+      ),
     },
   ];
 
   const handleDetail = (id) => {
-     navigate(`/dasboard/detail-perangkat/${id}`);
+    console.log(
+      "Navigating to:",
+      `/dasboard/daftar-perangkat/detail-perangkat/${id}`
+    );
+    navigate(`/dasboard/daftar-perangkat/detail-perangkat/${id}`);
   };
 
   return (
     <div>
-      <p className="text-2xl font-Inter font-bold my-3 dark:text-white">Daftar Perangkat</p>
-      <TableWrapper
-        columns={columns}
-        data={devices}
-        loading={loading}
-        error={error}
-        onEdit={handleDetail}
-        onDelete={handleDelet}
-        ItemsPage={10}
-        pageType="perangkat"
-      />
+      {!isDetail && (
+        <p className="text-2xl font-Inter font-bold my-3 dark:text-white">
+          Daftar Perangkat
+        </p>
+      )}
+      {!isDetail && (
+        <TableWrapper
+          columns={columns}
+          data={devices}
+          loading={loading}
+          error={error}
+          onEdit={handleDetail}
+          // onDelete={handleDelet}
+          ItemsPage={10}
+          pageType="perangkat"
+        />
+      )}
+      <Outlet />
     </div>
   );
 };

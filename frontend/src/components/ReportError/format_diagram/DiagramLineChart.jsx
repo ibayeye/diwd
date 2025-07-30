@@ -41,7 +41,7 @@ const DiagramLineChart = ({
   return (
     <div className="w-full h-[24rem] sm:h-[28rem] md:h-[30rem] dark:text-white">
       {title && (
-        <h2 className="text-lg md:text-xl font-semibold mb-4 text-center dark:text-white">
+        <h2 className="text-2xl md:text-xl font-Poppins mb-4 text-center dark:text-white">
           {title}
         </h2>
       )}

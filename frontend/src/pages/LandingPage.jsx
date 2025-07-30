@@ -26,21 +26,21 @@ const LandingPage = () => {
   };
 
   const navMaps = () => {
-  const role = Cookies.get("role");
+    const role = Cookies.get("role");
 
-  if (!role) {
-    // belum login
-    navigate("/login");
-    return;
-  }
+    if (!role) {
+      // belum login
+      navigate("/login");
+      return;
+    }
 
-  const allowedRoles = ["admin", "superadmin"]; // sesuaikan dengan aturan kamu
-  if (allowedRoles.includes(role)) {
-    navigate("/dashboard");
-  } else {
-    navigate("/unauthorized");
-  }
-};
+    const allowedRoles = ["admin", "superadmin"]; // sesuaikan dengan aturan kamu
+    if (allowedRoles.includes(role)) {
+      navigate("/dashboard");
+    } else {
+      navigate("/unauthorized");
+    }
+  };
 
   return (
     <div style={bgawal} className="bg-gray-200 p-4 font-Poppins">
@@ -63,8 +63,12 @@ const LandingPage = () => {
           } w-full md:flex md:flex-1 md:justify-center mt-4 md:mt-0 transition-all duration-300 ease-in-out`}
         >
           <div className="flex flex-col md:flex-row md:space-x-8 items-center text-gray-700">
-            <button className="text-lg" onClick={navMaps}>Titik Alat</button>
-            <button className="text-lg" onClick={scrollToTentang}>Tentang</button>
+            <button className="text-lg" onClick={navMaps}>
+              Titik Alat
+            </button>
+            <button className="text-lg" onClick={scrollToTentang}>
+              Tentang
+            </button>
           </div>
         </div>
 
@@ -99,32 +103,15 @@ const LandingPage = () => {
           Deteksi Gempa Cepat untuk Keselamatan Anda!
         </h2>
         <div className="flex justify-center items-center mt-8 w-full max-w-4xl">
-          <Maps className="w-full h-auto max-h-[300px] object-contain" />
+          <Maps className="w-full h-auto max-h-[500px] object-contain" />
         </div>
       </main>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
         <div className="bg-white rounded-md h-36 m-2"></div>
         <div className="bg-white rounded-md h-36 m-2"></div>
         <div className="bg-white rounded-md h-36 m-2"></div>
-      </div>
+      </div> */}
       <footer className="mt-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm px-4">
-          <div className="rounded-md m-2 text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Id earum
-            hic sequi reprehenderit saepe laudantium libero amet voluptatem sed
-            repudiandae!
-          </div>
-          <div className="rounded-md m-2 text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid,
-            cumque?
-          </div>
-          <div className="rounded-md m-2 text-gray-700">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Harum,
-            alias at? Illo nobis modi hic similique id maiores, eius, ut quae
-            qui non fugit nostrum et repellat eos laudantium harum?
-          </div>
-        </div>
-
         <hr className="border-t border-gray-400 my-4" />
         <div className="p-4" ref={tentangRef}>
           <h1 className="text-xl sm:text-3xl font-bold text-black dark:text-orange-500">

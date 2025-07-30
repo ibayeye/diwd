@@ -31,13 +31,18 @@ const HourlyErrortrend = forwardRef((props, ref) => {
         );
 
         const rawObj = response.data.data || {};
-
+        console.log(rawObj);
+        
         const arr = Object.entries(rawObj)
-          .map(([hourString, count]) => ({
-            hour: Number(hourString),
-            count: Number(count),
-          }))
-          .sort((a, b) => a.hour - b.hour);
+          .map(([hourString, count]) => {
+            const hour = Number(hourString);
+            const formattedHour = hour.toString().padStart(2, "0") + ":00";
+            return {
+              hour: formattedHour,
+              count: Number(count),
+            };
+          })
+          .sort((a, b) => parseInt(a.hour) - parseInt(b.hour));
 
         setHourlyErrorTrend(arr);
       } catch (err) {
@@ -74,13 +79,13 @@ const HourlyErrortrend = forwardRef((props, ref) => {
           data={hourlyErrorTrend}
           xKey="hour"
           lineKeys={["count"]}
-          title="Hourly Error Trend"
+          title="Tren Status Error Berdasarkan Jam"
           xAxisProps={{
             interval: 0,
             angle: 0,
             textAnchor: isSmallScreen ? "end" : "middle",
             label: {
-              value: "Jam",
+              value: "Waktu (Jam)",
               position: "bottom",
               offset: 10,
             },

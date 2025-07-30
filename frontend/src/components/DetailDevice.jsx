@@ -47,14 +47,15 @@ const DetailDevice = () => {
     { label: "ID Perangkat", value: device.id },
     { label: "Alamat IP", value: device.ip },
     { label: "Titik Lokasi", value: device.location },
+    { label: "Status", value: device.status },
   ];
   const rightFields = [
-    { label: "Memori", value: device.memory },
-    { label: "onSiteTime", value: device.onSiteTime },
-    { label: "onSiteValue", value: device.onSiteValue },
-    { label: "regCD", value: device.regCD },
-    { label: "regTime", value: device.regTime },
-    { label: "regValue", value: device.regValue },
+    { label: "Memori Perangkat", value: device.memory },
+    { label: "Waktu Deteksi Terjadi", value: device.onSiteTime },
+    { label: "Nilai Intensitas Terjadi", value: device.onSiteValue },
+    { label: "Delay Korektif", value: device.regCD },
+    { label: "Waktu Pencatatan Sistem", value: device.regTime },
+    { label: "Intensitas yang Tercatat", value: device.regValue },
   ];
 
   return (
@@ -70,21 +71,6 @@ const DetailDevice = () => {
               <p className="mt-1 text-gray-800 dark:text-white">{f.value}</p>
             </div>
           ))}
-
-          {/* Status */}
-          <div>
-            <p className="text-sm font-semibold">Status</p>
-            <span
-              className={
-                "inline-block mt-1 px-3 py-1 rounded-md text-sm font-medium " +
-                (device.status === "0,0"
-                  ? "bg-green-100 text-green-500"
-                  : "bg-red-100 text-red-600")
-              }
-            >
-              {device.status === "0,0" ? "Aman" : "Bermasalah"}
-            </span>
-          </div>
         </div>
 
         {/* kanan */}

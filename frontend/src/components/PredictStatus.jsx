@@ -51,7 +51,7 @@ const PredictStatus = () => {
   }, []);
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border font-Poppins">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">
         Prediksi Status
       </h2>

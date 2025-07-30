@@ -90,7 +90,7 @@ const RegisterPage = () => {
 
   return (
     <div
-      className="flex font-Poppins px-4 md:px-6 py-10 relative min-h-screen bg-no-repeat bg-cover bg-center justify-center bg-slate-100 dark:bg-gray-800"
+      className="flex items-center font-Poppins px-4 md:px-6 py-10 relative min-h-screen bg-no-repeat bg-cover bg-center justify-center bg-slate-100 dark:bg-gray-800"
       // style={{ backgroundImage: `url(${bgimage})` }}
     >
       <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white dark:bg-gray-700 dark:text-white text-sm rounded-lg shadow-lg">

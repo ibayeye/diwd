@@ -11,15 +11,18 @@ const UserPage = () => {
   const [showFormEdit, setShowFormEdit] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
+  // Modal delete
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const token = localStorage.getItem("token");
+
   const fetchPengguna = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      if (!token) {
-        throw new Error("token tidak ditemukan");
-      }
+      if (!token) throw new Error("token tidak ditemukan");
       const response = await axios.get(
         "https://server.diwd.cloud/api/v1/auth/pengguna",
         {
@@ -27,7 +30,6 @@ const UserPage = () => {
           withCredentials: true,
         }
       );
-      // console.log(response.data);
 
       const { data } = response;
       if (data && Array.isArray(data.data)) {
@@ -40,6 +42,7 @@ const UserPage = () => {
         throw new Error("Data yang diterima tidak valid");
       }
     } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -57,28 +60,27 @@ const UserPage = () => {
       );
       setEditingUser(responseUser.data.data);
       setShowFormEdit(true);
-      // console.log("iniiiiii :", responseUser.data);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.msg || err.message);
     }
-    const handleCloseEdit = () => {
-      setEditingUser(null); // nutup form
-      fetchPengguna(); // refresh data tabel setelah update
-    };
   };
 
   useEffect(() => {
     fetchPengguna();
   }, []);
 
-  const handleDelet = async (id) => {
-    const valid = window.confirm("Anda Akan Menghapus Pengguna ini?");
-    if (!valid) return;
+  const handleDelet = (id) => {
+    const user = users.find((u) => u.id === id);
+    setSelectedUser(user);
+    setShowModal(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!selectedUser) return;
     try {
       await axios.delete(
-        `https://server.diwd.cloud/api/v1/auth/delete_pengguna/${id}`,
+        `https://server.diwd.cloud/api/v1/auth/delete_pengguna/${selectedUser.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -89,6 +91,9 @@ const UserPage = () => {
     } catch (error) {
       console.error("Gagal menghapus:", error.response || error);
       toast.error("Gagal menghapus pengguna");
+    } finally {
+      setShowModal(false);
+      setSelectedUser(null);
     }
   };
 
@@ -101,7 +106,7 @@ const UserPage = () => {
       render: (value) => {
         switch (Number(value)) {
           case 0:
-            return "Pengguna";
+            return "Customer";
           case 1:
             return "Admin";
           case 2:
@@ -127,14 +132,19 @@ const UserPage = () => {
       ),
     },
   ];
+
   const handleCloseEdit = () => {
     setShowFormEdit(false);
     setEditingUser(null);
     fetchPengguna(); // refresh data setelah edit
   };
+
   return (
     <div>
-      <p className="text-2xl font-Inter font-bold my-3 dark:text-white">Daftar Pengguna</p>
+      <p className="text-2xl font-Inter font-bold my-3 dark:text-white">
+        Daftar Pengguna
+      </p>
+
       <TableWrapper
         columns={columns}
         data={users}
@@ -144,10 +154,38 @@ const UserPage = () => {
         onDelete={handleDelet}
         ItemsPage={10}
       />
+
       {showFormEdit && editingUser && (
         <EditeForm dataPengguna={editingUser} onClose={handleCloseEdit} />
+      )}
+
+      {/* Modal Konfirmasi */}
+      {showModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm w-full border-blue-500 border-2">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Apakah Anda yakin ingin menghapus pengguna dengan nama:{" "}
+              <span className="font-bold">{selectedUser.nama}</span>?
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 };
+
 export default UserPage;

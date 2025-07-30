@@ -33,11 +33,19 @@ const TopWeeklyError = forwardRef((props, ref) => {
       const res = response.data.data || [];
 
       const uniqueWeeks = Array.from(
-        new Set(res.map((item) => new Date(item.Week).toISOString().slice(0, 10)))
+        new Set(
+          res.map((item) =>
+            new Date(item.Week).toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })
+          )
+        )
       ).sort();
 
       const uniqueErrors = Array.from(
-        new Set(res.map((item) => item["Error Message"]))
+        new Set(res.map((item) => item["Simplified Message"]))
       );
 
       setErrorKeys(uniqueErrors);
@@ -50,8 +58,12 @@ const TopWeeklyError = forwardRef((props, ref) => {
         });
       });
 
-      res.forEach(({ Week: resWeek, "Error Message": err, Count }) => {
-        const key = new Date(resWeek).toISOString().slice(0, 10);
+      res.forEach(({ Week: resWeek, "Simplified Message": err, Count }) => {
+        const key = new Date(resWeek).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
         if (mapByWeek[key]) {
           mapByWeek[key][err] = Count;
         }
@@ -94,7 +106,7 @@ const TopWeeklyError = forwardRef((props, ref) => {
           data={chartData}
           xAxisKey="Week"
           valueKeys={errorKeys}
-          title="Top Error Per Minggu"
+          title="Error Dominan Berdasarkan Minggu"
           xAxisProps={{
             interval: 0,
             angle: isSmallScreen ? -15 : 0,
