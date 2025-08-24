@@ -2,7 +2,7 @@ import asyncHandler from "../../middleware/asyncHandler.js";
 import axios from "axios";
 
 export const getDataML = asyncHandler(async (req, res) => {
-  const response = await axios.get("https://ml-diwd-production-f80e.up.railway.app/api/hello");
+  const response = await axios.get("https://ml-diwd-production-f2a3.up.railway.app/api/hello");
   const data = response.data;
 
   res.status(200).json({
@@ -13,7 +13,7 @@ export const getDataML = asyncHandler(async (req, res) => {
 
 export const getDataSet = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/describe-dataset"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/describe-dataset"
   );
   const data = response.data;
 
@@ -24,7 +24,7 @@ export const getDataSet = asyncHandler(async (req, res) => {
 });
 
 export const getCleanDataSet = asyncHandler(async (req, res) => {
-  const response = await axios.get("https://ml-diwd-production-f80e.up.railway.app/api/clean-dataset");
+  const response = await axios.get("https://ml-diwd-production-f2a3.up.railway.app/api/clean-dataset");
   const data = response.data;
 
   res.status(200).json({
@@ -35,7 +35,7 @@ export const getCleanDataSet = asyncHandler(async (req, res) => {
 
 export const getHourlyErrorTrend = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/hourly-error-trend"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/hourly-error-trend"
   );
   const data = response.data;
 
@@ -47,7 +47,7 @@ export const getHourlyErrorTrend = asyncHandler(async (req, res) => {
 
 export const getTopHourlyError = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/top-hourly-errors"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/top-hourly-errors"
   );
   const data = response.data;
 
@@ -59,7 +59,7 @@ export const getTopHourlyError = asyncHandler(async (req, res) => {
 
 export const getDailyStatusTrend = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/daily-status-trend"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/daily-status-trend"
   );
   const data = response.data;
 
@@ -71,7 +71,7 @@ export const getDailyStatusTrend = asyncHandler(async (req, res) => {
 
 export const getTopDailyError = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/top-daily-errors"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/top-daily-errors"
   );
   const data = response.data;
 
@@ -83,7 +83,7 @@ export const getTopDailyError = asyncHandler(async (req, res) => {
 
 export const getWeeklyStatusTrend = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/weekly-status-trend"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/weekly-status-trend"
   );
   const data = response.data;
 
@@ -95,7 +95,7 @@ export const getWeeklyStatusTrend = asyncHandler(async (req, res) => {
 
 export const getTopWeeklyError = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/top-weekly-errors"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/top-weekly-errors"
   );
   const data = response.data;
 
@@ -107,7 +107,7 @@ export const getTopWeeklyError = asyncHandler(async (req, res) => {
 
 export const getMonthlyStatusTrend = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/monthly-status-trend"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/monthly-status-trend"
   );
   const data = response.data;
 
@@ -119,7 +119,7 @@ export const getMonthlyStatusTrend = asyncHandler(async (req, res) => {
 
 export const getTopMothlyError = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/top-monthly-errors"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/top-monthly-errors"
   );
   const data = response.data;
 
@@ -131,7 +131,7 @@ export const getTopMothlyError = asyncHandler(async (req, res) => {
 
 export const getStatusDistribution = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/status-distribution"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/status-distribution"
   );
   const data = response.data;
 
@@ -143,7 +143,7 @@ export const getStatusDistribution = asyncHandler(async (req, res) => {
 
 export const getTopErrorPerStatus = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/top-errors-per-status"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/top-errors-per-status"
   );
   const data = response.data;
 
@@ -155,7 +155,7 @@ export const getTopErrorPerStatus = asyncHandler(async (req, res) => {
 
 export const getSavedCleanedDataSet = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/save-cleaned-dataset"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/save-cleaned-dataset"
   );
   const data = response.data;
 
@@ -167,7 +167,7 @@ export const getSavedCleanedDataSet = asyncHandler(async (req, res) => {
 
 export const getSelectedDataset = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/selected-dataset"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/selected-dataset"
   );
   const data = response.data;
 
@@ -179,7 +179,7 @@ export const getSelectedDataset = asyncHandler(async (req, res) => {
 
 export const getSmoteDistribution = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/smote-distribution"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/smote-distribution"
   );
   const data = response.data;
 
@@ -189,7 +189,7 @@ export const getSmoteDistribution = asyncHandler(async (req, res) => {
   });
 });
 export const getTrainModels = asyncHandler(async (req, res) => {
-  const response = await axios.get("https://ml-diwd-production-f80e.up.railway.app/api/train-models");
+  const response = await axios.get("https://ml-diwd-production-f2a3.up.railway.app/api/train-models");
   const data = response.data;
 
   res.status(200).json({
@@ -199,7 +199,7 @@ export const getTrainModels = asyncHandler(async (req, res) => {
 });
 export const getLoadSvmModel = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/load-svm-models"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/load-svm-models"
   );
   const data = response.data;
 
@@ -210,7 +210,7 @@ export const getLoadSvmModel = asyncHandler(async (req, res) => {
 });
 export const getEvaluateModels = asyncHandler(async (req, res) => {
   const response = await axios.get(
-    "https://ml-diwd-production-f80e.up.railway.app/api/evaluate-models"
+    "https://ml-diwd-production-f2a3.up.railway.app/api/evaluate-models"
   );
   const data = response.data;
 
@@ -227,7 +227,7 @@ export const getPredictStatus = asyncHandler(async (req, res) => {
 
     // Kirim data ke Python endpoint
     const response = await axios.post(
-      "https://ml-diwd-production-f80e.up.railway.app/api/predict-status",
+      "https://ml-diwd-production-f2a3.up.railway.app/api/predict-status",
       requestData,
       {
         headers: {
