@@ -54,9 +54,9 @@ const DiagramBarChart = ({
   const tooltipTextColor = isDarkMode ? "#ffffff" : "#000000";
 
   return (
-    <div className="w-full h-[30rem] dark:text-white">
+    <div className="w-full h-[30rem] dark:text-white font-Poppins">
       {title && (
-        <h2 className="text-xl font-semibold mb-4 text-center dark:text-white">
+        <h2 className="font-Poppins text-2xl mb-4 text-center dark:text-white">
           {title}
         </h2>
       )}

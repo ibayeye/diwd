@@ -3,7 +3,7 @@ import FormWrapper from "./FormWrapper";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
+const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
     nama: dataPengguna.nama || "",
     email: dataPengguna.email || "",
@@ -11,7 +11,7 @@ const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
     nip: dataPengguna.nip || "",
     address: dataPengguna.address || "",
     role: dataPengguna.role ?? "",
-    isActive: dataPengguna.isActive ?? 1
+    isActive: dataPengguna.isActive ?? 1,
   });
 
   console.log("Kirim data:", formData);
@@ -37,9 +37,9 @@ const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
       name: "role",
       type: "select",
       option: [
-        { value: 0, label: "User" },
+        { value: 0, label: "Customer" },
         { value: 1, label: "Admin" },
-        { value: 2, label: "superAdmin" },
+        { value: 2, label: "Super Admin" },
       ],
     },
   ];
@@ -48,34 +48,44 @@ const EditeForm = ({ dataPengguna, onClose, onUpdateSuccess  }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-     const parsedValue =
-    name === "role" || name === "isActive" ? parseInt(value) : value;
+    const parsedValue =
+      name === "role" || name === "isActive" ? parseInt(value) : value;
     setFormData((f) => ({ ...f, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const updatedFields = {};
+    for (const key in formData) {
+      if (formData[key] !== dataPengguna[key]) {
+        updatedFields[key] = formData[key];
+      }
+    }
+    if (Object.keys(updatedFields).length === 0) {
+      toast.info("Tidak ada perubahan yang dilakukan.");
+      return;
+    }
+
     try {
       await axios.put(
         `https://server.diwd.cloud/api/v1/auth/update_pengguna/${dataPengguna.id}`,
-        formData,
+        updatedFields,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Profile berhasil diperbarui");
       onClose();
-       if (onUpdateSuccess) onUpdateSuccess(formData);
+      if (onUpdateSuccess) onUpdateSuccess(formData);
     } catch (err) {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);
         console.log(err);
-        
       } else {
         toast.error("Gagal memperbarui profile");
       }
     }
 
     console.log("role:", formData.role, typeof formData.role);
-
   };
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black backdrop-blur-sm z-50 bg-opacity-10">

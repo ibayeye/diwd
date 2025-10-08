@@ -9,13 +9,13 @@ export const menuItem = [
     label: "Dashboard",
     icon: <GoHomeFill />,
     path: "",
-    role: ["user", "admin", "super admin"],
+    role: ["customer", "admin", "super admin"],
   },
   {
     label: "Daftar Perangkat",
     icon: <MdOutlineMyLocation />,
     path: "daftar-perangkat",
-    role: ["user", "admin", "super admin"],
+    role: ["customer", "admin", "super admin"],
   },
   {
     label: "Informasi Perangkat",

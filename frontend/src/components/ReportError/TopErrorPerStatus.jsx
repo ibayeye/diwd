@@ -25,7 +25,7 @@ const TopErrorPerStatus = forwardRef((props, ref) => {
 
       // Ambil semua Error Message unik untuk bar
       const uniqueLabels = Array.from(
-        new Set(res.map((item) => item["Error Message"]))
+        new Set(res.map((item) => item["Simplified Message"]))
       );
       setLineKeys(uniqueLabels);
 
@@ -33,7 +33,7 @@ const TopErrorPerStatus = forwardRef((props, ref) => {
       const grouped = {};
 
       res.forEach((item) => {
-        const errorMsg = item["Error Message"];
+        const errorMsg = item["Simplified Message"];
         const status = item["Status Label"];
         const count = item["Count"];
 
@@ -81,12 +81,13 @@ const TopErrorPerStatus = forwardRef((props, ref) => {
           data={errorData}
           xAxisKey="Status Label"
           valueKeys={lineKeys}
+          title="Error Dominan Berdasarkan Status"
           xAxisProps={{
             interval: 0,
             textAnchor: "end",
             tickMargin: 12,
             label: {
-              value: "Status Label",
+              value: "Status",
               position: "bottom",
             },
           }}

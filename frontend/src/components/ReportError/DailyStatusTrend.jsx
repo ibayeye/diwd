@@ -29,13 +29,12 @@ const DailyStatusTrend = forwardRef((props, ref) => {
         const date = new Date(item.Date);
         const formattedDate = isSmallScreen
           ? date.toLocaleDateString("id-ID", {
-              weekday: "long", // misal "Sen"
+              weekday: "long",
               day: "numeric",
-              month: "short", // misal "Jul"
+              month: "numeric",
             })
           : date.toLocaleDateString("id-ID", {
-              weekday: "long", // misal "Senin"
-              day: "numeric",
+              day: "2-digit",
               month: "long",
               year: "numeric",
             });
@@ -82,10 +81,10 @@ const DailyStatusTrend = forwardRef((props, ref) => {
           data={dailyData}
           xKey="Date"
           lineKeys={["Critical", "Warning", "Low"]}
-          title="Error Harian"
+          title="Tren Status Error Berdasarkan Hari"
           xAxisProps={{
             interval: isSmallScreen ? "preserveStartEnd" : 0,
-            textAnchor: isSmallScreen ? "end" : "middle",
+            textAnchor: "middle",
             angle: isSmallScreen ? -15 : 0,
             label: {
               value: "Hari",

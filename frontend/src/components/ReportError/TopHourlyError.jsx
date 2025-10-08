@@ -32,32 +32,37 @@ const TopHourlyErrorChart = forwardRef((props, ref) => {
           "https://server.diwd.cloud/api/v1/getTopHourlyError"
         );
         const dataArr = response.data.data || [];
+        console.log(dataArr);
 
         const uniqueErrors = Array.from(
-          new Set(dataArr.map((item) => item["Error Message"]))
+          new Set(dataArr.map((item) => item["Simplified Message"]))
         );
         setErrorKeys(uniqueErrors);
 
         const mapByHour = {};
         for (let i = 0; i < 24; i++) {
-          mapByHour[i] = { Hour: i };
+          const hourLabel = i.toString().padStart(2, "0") + ":00";
+          mapByHour[hourLabel] = { Hour: hourLabel };
           uniqueErrors.forEach((key) => {
-            mapByHour[i][key] = 0;
+            mapByHour[hourLabel][key] = 0;
           });
         }
 
         dataArr.forEach((item) => {
-          const h = item.Hour;
-          const msg = item["Error Message"];
+          const h = item.Hour.toString().padStart(2, "0") + ":00";
+          const msg = item["Simplified Message"];
           const cnt = item.Count;
           if (mapByHour[h]) {
             mapByHour[h][msg] = cnt;
           }
         });
 
-        const pivoted = Object.values(mapByHour).sort(
-          (a, b) => a.Hour - b.Hour
-        );
+        const pivoted = Object.values(mapByHour).sort((a, b) => {
+          const hA = parseInt(a.Hour);
+          const hB = parseInt(b.Hour);
+          return hA - hB;
+        });
+
         setChartData(pivoted);
       } catch (err) {
         console.error("Gagal mengambil top hourly error:", err);
@@ -94,13 +99,11 @@ const TopHourlyErrorChart = forwardRef((props, ref) => {
           data={chartData}
           xAxisKey="Hour"
           valueKeys={errorKeys}
-          title="Top Error Per Jam"
+          title="Error Dominan Berdasarkan Jam"
           xAxisProps={{
-            interval: 0,
-            angle: 0,
-            textAnchor: isSmallScreen ? "end" : "middle",
+            textAnchor: "middle",
             label: {
-              value: "Jam",
+              value: "Jam (Waktu)",
               position: "bottom",
               offset: 10,
             },

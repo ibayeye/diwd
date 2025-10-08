@@ -80,9 +80,9 @@ const RegisterForm = () => {
       name: "role",
       type: "select",
       option: [
+        { value: 0, label: "Customer" },
         { value: 1, label: "Admin" },
-        { value: 2, label: "superAdmin" },
-        { value: 0, label: "User" },
+        { value: 2, label: "Super Admin" },
       ],
     },
   ];

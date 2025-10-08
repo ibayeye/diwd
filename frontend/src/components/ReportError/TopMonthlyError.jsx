@@ -37,14 +37,14 @@ const TopMonthlyError = forwardRef((props, ref) => {
         const dateObj = new Date(item.Month);
         const monthKey = `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}`;
         const formattedMonth = dateObj.toLocaleDateString("id-ID", {
-          month: isSmallScreen ? "numeric" : "long",
+          month: isSmallScreen ? "numeric" : "short",
           year: "numeric",
         });
 
         return {
           monthKey,
           Month: formattedMonth,
-          errorMessage: item["Error Message"],
+          errorMessage: item["Simplified Message"],
           count: item.Count,
         };
       });
@@ -115,11 +115,11 @@ const TopMonthlyError = forwardRef((props, ref) => {
           data={topMonthlyError}
           xAxisKey="Month"
           valueKeys={errorKeys}
-          title="Top Error Per Bulan"
+          title="Error Dominan Berdasarkan Bulan"
           xAxisProps={{
             interval: 0,
-            angle: -45,
-            textAnchor: "end",
+            angle: 0,
+            textAnchor: "middle",
             label: {
               value: "Bulan",
               position: "bottom",

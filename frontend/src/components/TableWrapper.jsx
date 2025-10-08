@@ -185,7 +185,7 @@ const TableWrapper = ({
 
       {/* Pagination */}
       {totalPage > 1 && (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4 dark:text-white">
+        <div className="flex sm:flex-row justify-center items-center gap-2 mt-4 dark:text-white">
           <button
             onClick={handlePrevPage}
             className="p-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"

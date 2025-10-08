@@ -45,7 +45,7 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
         const date = new Date(year, month - 1);
 
         const formatted = date.toLocaleDateString("id-ID", {
-          month: isSmallScreen ? "numeric" : "long",
+          month: isSmallScreen ? "numeric" : "short",
           year: "numeric",
         });
 
@@ -95,17 +95,17 @@ const MonthlyStatusTrend = forwardRef((props, ref) => {
   }
 
   return (
-    <div className="h-[25rem] overflow-x-auto">
-      <div className="min-w-[700px] sm:min-w-full">
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+      <div className="min-w-[700px] sm:min-w-full font-Poppins">
         <DiagramLineChart
           data={monthlyStatusTrend}
           xKey="Month"
           lineKeys={lineKeys}
-          title="Error per Bulan"
+          title="Tren Status Error Berdasarkan Bulan"
           xAxisProps={{
             interval: 0,
-            angle: -45,
-            textAnchor: "end",
+            angle: 0,
+            textAnchor: "middle",
             label: {
               value: "Bulan",
               offset: 15,

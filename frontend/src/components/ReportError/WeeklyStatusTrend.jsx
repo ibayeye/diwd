@@ -37,13 +37,13 @@ const WeeklyStatusTrend = forwardRef((props, ref) => {
 
           const formattedDate = isSmallScreen
             ? date.toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "short",
+                day: "2-digit",
+                month: "long",
               }) // contoh: 5 Jul
             : date.toLocaleDateString("id-ID", {
-                weekday: "short",
-                day: "numeric",
+                day: "2-digit",
                 month: "long",
+                year: "numeric"
               }); // contoh: Sab, 5 Juli
 
           return {
@@ -81,13 +81,13 @@ const WeeklyStatusTrend = forwardRef((props, ref) => {
   }
 
   return (
-    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-x-auto">
+    <div className="h-[25rem] sm:h-[30rem] md:h-[34rem] overflow-auto">
       <div className="min-w-[700px] sm:min-w-full">
         <DiagramLineChart
           data={data}
           xKey="Week"
           lineKeys={["Critical", "Warning", "Low"]}
-          title="Trend Status Error per Minggu"
+          title="Tren Status Error Berdasarkan Minggu"
           xAxisProps={{
             interval: isSmallScreen ? "preserveStartEnd" : 0,
             angle: isSmallScreen ? -15 : 0,

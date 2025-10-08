@@ -46,7 +46,7 @@ const LoginPage = () => {
       const role = response.data?.data.role;
 
       const roleNum = response.data?.data.role;
-      let roleName = "user";
+      let roleName = "customer";
       if (roleNum === 2) roleName = "super admin";
       else if (roleNum === 1) roleName = "admin";
       localStorage.setItem("userData", JSON.stringify(userData));
@@ -93,8 +93,8 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="flex font-Poppins py-10 px-4 md:px-6 relative min-h-screen bg-cover bg-center justify-center dark:text-white bg-slate-100 dark:bg-gray-800 ">
-      <div className="grid items-center grid-cols-1 md:grid-cols-2 bg-white  dark:bg-gray-700 text-sm rounded-lg shadow-lg">
+    <div className="flex items-center font-Poppins py-10 px-4 md:px-6 relative min-h-screen bg-cover bg-center justify-center dark:text-white bg-slate-100 dark:bg-gray-800 ">
+      <div className="grid items-center justify-center grid-cols-1 md:grid-cols-2 bg-white  dark:bg-gray-700 text-sm rounded-lg shadow-lg">
         <div className="hidden md:flex border-r h-full items-center  bg-gradient-to-br from-blue-800 via-blue-500 rounded-l-lg to to-white dark:bg-gradient-to-br ">
           <Ilen className="" />
         </div>

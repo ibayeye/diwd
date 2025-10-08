@@ -51,7 +51,7 @@ const PredictStatus = () => {
   }, []);
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border font-Poppins">
       <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">
         Prediksi Status
       </h2>
@@ -77,6 +77,12 @@ const PredictStatus = () => {
           </div>
         </div>
       )}
+      <div className="mt-4">
+        <p>Petunjuk:</p>
+        <p><span className="text-green-500">Low</span>: Lanjutkan Pemeliharaan Rutin</p>
+        <p><span className="text-yellow-500">Warning</span>: Periksa Log Perangkat</p>
+        <p><span className="text-red-500">Critical</span>: Segera Lakukan Perbaikan</p>
+      </div>
     </div>
   );
 };

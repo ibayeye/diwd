@@ -31,19 +31,18 @@ const TopDailyError = forwardRef((props, ref) => {
           "https://server.diwd.cloud/api/v1/getTopDailyError"
         );
         const raw = response.data.data || [];
+        console.log(raw);
 
         const mapped = raw.map((item) => {
           const dateObj = new Date(item.Date);
           const dateKey = dateObj.toISOString().slice(0, 10);
           const formattedDate = isSmallScreen
             ? dateObj.toLocaleDateString("id-ID", {
-                weekday: "short",
                 day: "numeric",
                 month: "short",
               })
             : dateObj.toLocaleDateString("id-ID", {
-                weekday: "long",
-                day: "numeric",
+                day: "2-digit",
                 month: "long",
                 year: "numeric",
               });
@@ -51,7 +50,7 @@ const TopDailyError = forwardRef((props, ref) => {
           return {
             dateKey,
             Date: formattedDate,
-            errorMessage: item["Error Message"],
+            errorMessage: item["Simplified Message"],
             count: item.Count,
           };
         });
@@ -67,9 +66,7 @@ const TopDailyError = forwardRef((props, ref) => {
 
         const mapByDate = {};
         uniqueDates.forEach((dateKey) => {
-          const { Date: formatted } = mapped.find(
-            (i) => i.dateKey === dateKey
-          );
+          const { Date: formatted } = mapped.find((i) => i.dateKey === dateKey);
           mapByDate[dateKey] = { Date: formatted };
           uniqueErrors.forEach((err) => {
             mapByDate[dateKey][err] = 0;
@@ -116,7 +113,7 @@ const TopDailyError = forwardRef((props, ref) => {
           data={chartData}
           xAxisKey="Date"
           valueKeys={errorKeys}
-          title="Top Error per Hari"
+          title="Error Dominan Berdasarkan Hari"
           xAxisProps={{
             interval: isSmallScreen ? "preserveStartEnd" : 0,
             angle: isSmallScreen ? -15 : 0,
