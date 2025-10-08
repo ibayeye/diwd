@@ -10,6 +10,7 @@ const FormWrapper = ({
   onChange,
   submitLabel = "Submit",
   columns = 1,
+  showNotes = false,
 }) => {
   return (
     <form
@@ -34,11 +35,15 @@ const FormWrapper = ({
               value={formData[field.name] || ""}
               onChange={onChange}
               option={field.option}
+              passwordValue={formData.password}
+              showNotes={showNotes}
             />
           </div>
         ))}
       </div>
-      <button className="bg-blue-500 dark:bg-orange-500 text-white h-10 rounded-lg w-full mt-8">{submitLabel}</button>
+      <button className="bg-blue-500 dark:bg-orange-500 text-white h-10 rounded-lg w-full mt-8">
+        {submitLabel}
+      </button>
     </form>
   );
 };

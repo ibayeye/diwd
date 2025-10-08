@@ -77,6 +77,12 @@ const PredictStatus = () => {
           </div>
         </div>
       )}
+      <div className="mt-4">
+        <p>Petunjuk:</p>
+        <p><span className="text-green-500">Low</span>: Lanjutkan Pemeliharaan Rutin</p>
+        <p><span className="text-yellow-500">Warning</span>: Periksa Log Perangkat</p>
+        <p><span className="text-red-500">Critical</span>: Segera Lakukan Perbaikan</p>
+      </div>
     </div>
   );
 };

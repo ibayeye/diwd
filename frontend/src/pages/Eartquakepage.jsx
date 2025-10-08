@@ -87,6 +87,17 @@ const EarthquakePage = () => {
         </span>
       ),
     },
+    {
+      key: "Keterangan",
+      label: "Keterangan",
+      render: (_, row) => (
+        <span className="block whitespace-normal break-words max-w-[200px]">
+          {row.status === "0,0"
+            ? "Lanjutkan pemeliharaan rutin"
+            : "Periksa log perangkat"}
+        </span>
+      ),
+    },
     { key: "memory", label: "Memori" },
     { key: "onSiteTime", label: "onSiteTime" },
     { key: "onSiteValue", label: "onSiteValue" },

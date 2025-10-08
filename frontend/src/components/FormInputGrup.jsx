@@ -23,6 +23,8 @@ const FormInputGrup = ({
   value,
   onChange,
   option = [],
+  passwordValue = "",
+  showNotes = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
@@ -67,6 +69,11 @@ const FormInputGrup = ({
             </span>
           )}
         </div>
+      )}
+      {showNotes && name === "password" && (
+        <p className="text-xs text-red-500 mt-1 italic">
+          *Masukkan minimal 6 karakter, 1 huruf kapital, 1 angka, dan 1 simbol
+        </p>
       )}
     </div>
   );

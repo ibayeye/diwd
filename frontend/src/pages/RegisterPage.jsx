@@ -35,6 +35,14 @@ const RegisterPage = () => {
       return;
     }
 
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      toast.error(
+        "Kata sandi harus terdiri minimal 6 karakter, dan setidaknya mengandung satu huruf kapital, satu angka, serta satu simbol"
+      );
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast.error("Ulangi kata sandi harus sama");
       return;
@@ -109,6 +117,7 @@ const RegisterPage = () => {
             onChange={handleChange}
             onSubmit={handleSubmit}
             submitLabel="Daftar"
+            showNotes={true} 
           />
 
           <p className="w-full text-center mb-20 mt-4">
